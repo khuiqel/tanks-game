@@ -222,5 +222,5 @@ AI and online play (intended LAN but theoretically anywhere, as long as the inpu
 variable physics rate
 consider SDL or SFML
 
-GitHub: https://github.com/tanksdude/tanks-game
+GitHub: https://github.com/khuiqel/tanks-game
 JS Tanks (old): https://uncreativeusername.neocities.org/tanks.html

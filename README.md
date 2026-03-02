@@ -8,7 +8,7 @@ The C++ upgrade of my [JavaScript game](https://uncreativeusername.neocities.org
 
 (The video's small size is because GIFs don't have codecs for compression, and GitHub doesn't allow embedding MP4s...)
 
-### Requirements
+## Requirements
 
 * OpenGL 3.3 or later
     * Earlier versions not supported; 3.3+ is required for instanced rendering of the bullets, allowing far better performance
@@ -24,14 +24,18 @@ The C++ upgrade of my [JavaScript game](https://uncreativeusername.neocities.org
     * ARM should be possible to support but I don't have an ARM device to test on, and RISC-V has extremely few consumer devices
     * If using the pre-built Windows binaries, a CPU with SSE4.2 is required (which is satisfied by nearly 100% of CPUs in active use today)
 
-[Download here](https://github.com/tanksdude/tanks-game/releases) (Windows-only build; Linux has to compile from source, see below)
+[Download here](https://github.com/khuiqel/tanks-game/releases) (Windows-only build; Linux has to compile from source, see below)
+
+## Building from source
+
+Recursive clone this repository: `git clone --recursive https://github.com/khuiqel/tanks-game.git`
 
 ### Building (Windows)
 
 1. Install Visual Studio 2022
     * Note: Compiling profiling builds requires Windows SDK >10.0.19041.0, [probably >=10.0.20348.0](https://github.com/MicrosoftDocs/sdk-api/commit/55f67ad9d9f2f863b8efd41863920707658218fb), due to not having `RelationProcessorDie` in `LOGICAL_PROCESSOR_RELATIONSHIP` from `<winnt.h>`; might be avoidable by dropping to Tracy <0.12
 1. Build ReleaseDistribution (on the solution, not project)
-1. **[Pre-compiled executables](https://github.com/tanksdude/tanks-game/releases)** are provided if this isn't an option for you
+1. **[Pre-compiled executables](https://github.com/khuiqel/tanks-game/releases)** are provided if this isn't an option for you
 
 I tried to compile on MSYS2 but had no luck. This is what I tried:
 

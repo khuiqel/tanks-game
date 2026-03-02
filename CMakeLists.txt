@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.16...3.31)
 project(tanks-game VERSION 0.3.0)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

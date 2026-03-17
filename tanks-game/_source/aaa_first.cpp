@@ -16,6 +16,7 @@
 //Linux continued: malloc.c says to include rpnew.h on Windows, and Linux does not compile if rpnew.h is included (redefining new/delete/etc), even though the readme implies it's supposed to be included despite the platform
 
 #define STB_IMAGE_IMPLEMENTATION
+#define STBI_ONLY_PNG
 #include <stb_image.h>
 
 FirstLoadedObject::FirstLoadedObject() {

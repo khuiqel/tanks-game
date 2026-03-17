@@ -116,20 +116,20 @@ bool Renderer::Bullet_VertexData::enoughRoomForMoreBulletValues(unsigned int pus
 
 Renderer::MainBatched_VertexData::MainBatched_VertexData() {
 	m_shaderName = "main";
-	#if _DEBUG
-	//performance is awful //TODO: check again
-	#else
+	#ifdef NDEBUG
 	m_vertices.reserve(MainBatched_VertexData::maxVerticesDataLength);
 	m_indices.reserve(MainBatched_VertexData::maxIndicesDataLength);
+	#else
+	//performance is awful //TODO: check again
 	#endif
 }
 
 Renderer::Bullet_VertexData::Bullet_VertexData() {
 	m_shaderName = "bullet";
-	#if _DEBUG
-	//performance is awful //TODO: check again
-	#else
+	#ifdef NDEBUG
 	m_bulletValues.reserve(Bullet_VertexData::maxDataLength);
+	#else
+	//performance is awful //TODO: check again
 	#endif
 }
 

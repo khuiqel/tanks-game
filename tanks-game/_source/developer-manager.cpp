@@ -115,10 +115,10 @@ void DeveloperManager::devInsert(int x, int y) {
 	double* posArr;
 	switch (insertIndex) {
 		case 0:
-			#if _DEBUG
-			PowerupManager::pushPowerup(new PowerSquare(x, y, "dev", "colorless_longinvincible"));
-			#else
+			#ifdef NDEBUG
 			PowerupManager::pushPowerup(new PowerSquare(x, y, "dev", "longinvincible"));
+			#else
+			PowerupManager::pushPowerup(new PowerSquare(x, y, "dev", "colorless_longinvincible"));
 			#endif
 			break;
 		case 1:

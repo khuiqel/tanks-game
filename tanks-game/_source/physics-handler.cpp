@@ -24,10 +24,10 @@ PhysicsHandler::SweepAndPruneTask::SweepAndPruneTask(uint32_t num_threads_) {
 	m_collisionLists = new std::vector<std::pair<int, int>>*[num_threads_];
 	for (int i = 0; i < num_threads_; i++) {
 		m_collisionLists[i] = new std::vector<std::pair<int, int>>;
-		#if _DEBUG
-		//performance seems about the same with or without reserving //TODO: check again
-		#else
+		#ifdef NDEBUG
 		m_collisionLists[i]->reserve(1024 * 1024 / 4); //random guess for what should be enough
+		#else
+		//performance seems about the same with or without reserving //TODO: check again
 		#endif
 	}
 }

@@ -169,7 +169,11 @@
     </ClCompile>
     <ClCompile Include="..\Dependencies\glad2\src\gl.c" />
     <ClCompile Include="..\Dependencies\rpmalloc\rpmalloc.c" />
-    <ClCompile Include="..\Externals\tracy\public\TracyClient.cpp" />
+    <ClCompile Include="..\Externals\tracy\public\TracyClient.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='ReleaseDistribution|x64'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="_source\aaa_first.cpp" />
     <ClCompile Include="_source\background-rect.cpp" />
     <ClCompile Include="_source\basic-ini-parser.cpp" />

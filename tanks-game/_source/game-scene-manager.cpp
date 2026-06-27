@@ -4,7 +4,7 @@
 #include "renderer.h"
 #include "frame-time-graph.h"
 
-#include <tracy/Tracy.hpp>
+#include <tracy_include.h>
 
 std::vector<std::pair<GameScene*, Scene_ID>> GameSceneManager::scenes;
 int GameSceneManager::nextSceneID = 0;

@@ -14,6 +14,7 @@ endif()
 
 #note: when changing these defaults, you have to delete CMakeCache.txt
 #option(USE_SYSTEM_GLFW "Use the system GLFW package" ON) #currently does nothing
+option(USE_TRACY "Enable Tracy for performance profiling" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED False)
@@ -25,21 +26,22 @@ if(NOT CMAKE_BUILD_TYPE)
 	add_compile_definitions(RELEASE_DISTRIBUTION) #turns off a few things to feel more like an end-user product
 endif()
 
-#add_compile_definitions(TRACY_ENABLE)
-
-include_directories(enkiTS   PRIVATE Dependencies/enkiTS)
-include_directories(glad2    PRIVATE Dependencies/glad2/include)
-include_directories(glm      PRIVATE Dependencies/glm)
-include_directories(rpmalloc PRIVATE Dependencies/rpmalloc)
-include_directories(stb      PRIVATE Dependencies/stb)
-include_directories(misc     PRIVATE Dependencies/_misc)
-include_directories(tracy    PRIVATE Externals/tracy/public)
-
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
-set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -Wno-narrowing -Wno-int-to-pointer-cast")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing -Wno-int-to-pointer-cast -Wno-delete-incomplete")
+if(USE_TRACY)
+	add_compile_definitions(TRACY_ENABLE)
+	include_directories(PRIVATE Externals/tracy/public)
+	set(TRACY_SOURCE_FILES Externals/tracy/public/TracyClient.cpp)
+else()
+	set(TRACY_SOURCE_FILES)
+endif()
+
+include_directories(PRIVATE Dependencies/enkiTS)
+include_directories(PRIVATE Dependencies/glad2/include)
+include_directories(PRIVATE Dependencies/glm)
+include_directories(PRIVATE Dependencies/stb)
+include_directories(PRIVATE Dependencies/_misc)
 
 if(NOT CMAKE_CXX_FLAGS MATCHES "-march")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64-v2") #SSE4.2
@@ -52,14 +54,18 @@ if(NOT CMAKE_C_FLAGS MATCHES "-march")
 	set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -march=x86-64-v2") #SSE4.2
 endif()
 
+set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -Wno-narrowing -Wno-int-to-pointer-cast")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing -Wno-int-to-pointer-cast -Wno-delete-incomplete")
 SET_SOURCE_FILES_PROPERTIES(Dependencies/enkiTS/TaskScheduler.cpp PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations")
-SET_SOURCE_FILES_PROPERTIES(Externals/tracy/public/TracyClient.cpp PROPERTIES COMPILE_FLAGS "--no-warnings") #"-w" is so archaic
+if(USE_TRACY)
+	SET_SOURCE_FILES_PROPERTIES(Externals/tracy/public/TracyClient.cpp PROPERTIES COMPILE_FLAGS "--no-warnings") #"-w" is so archaic
+endif()
 
 add_executable(${PROJECT_NAME}
 	Dependencies/enkiTS/TaskScheduler.cpp
 	Dependencies/glad2/src/gl.c
 	Dependencies/rpmalloc/rpmalloc.c
-	Externals/tracy/public/TracyClient.cpp
+	${TRACY_SOURCE_FILES}
 	tanks-game/_source/aaa_first.cpp
 	tanks-game/_source/background-rect.cpp
 	tanks-game/_source/basic-ini-parser.cpp

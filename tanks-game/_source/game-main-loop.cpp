@@ -31,7 +31,7 @@
 #include "end-game-handler.h"
 #include "physics-handler.h"
 
-#include <tracy/Tracy.hpp>
+#include <tracy_include.h>
 
 void doThing() {
 	return;

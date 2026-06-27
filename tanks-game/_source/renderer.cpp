@@ -13,7 +13,7 @@
 #include "frame-time-graph.h"
 #include "game-manager.h" //for isDebugDrawingEnabled(), also settings (bullet alpha draw)
 
-#include <tracy/Tracy.hpp>
+#include <tracy_include.h>
 
 glm::mat4 Renderer::proj = glm::ortho(0.0f, (float)GAME_WIDTH, 0.0f, (float)GAME_HEIGHT);
 RenderingContext* Renderer::renderingBackend = nullptr;

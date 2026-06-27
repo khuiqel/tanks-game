@@ -28,7 +28,7 @@ The C++ upgrade of my [JavaScript game](https://uncreativeusername.neocities.org
 
 ## Building from source
 
-Recursive clone this repository: `git clone --recursive https://github.com/khuiqel/tanks-game.git`
+Clone this repository: `git clone https://github.com/khuiqel/tanks-game.git`
 
 ### Building (Windows)
 
@@ -63,9 +63,11 @@ I tried to compile on MSYS2 but had no luck. This is what I tried:
 
 ### Performance profiling using [Tracy](https://github.com/wolfpld/tracy)
 
+Requires having the Tracy submodule. Either recursively clone this repository when first downloading, or `git submodule update --init` if you've already cloned this repository.
+
 Windows: build on ReleaseProfiling
 
-Linux: uncomment `add_compile_definitions(TRACY_ENABLE)`
+Linux: enable the `USE_TRACY` option in CMake
 
 ### Linux display issues
 

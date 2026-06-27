@@ -6,7 +6,7 @@
 #include <stdexcept>
 #include <iostream>
 
-#include <tracy/Tracy.hpp>
+#include <tracy_include.h>
 
 std::vector<GameThing*> GameManager::objectsInGame;
 size_t GameManager::objectsInGame_previousSize = 0;

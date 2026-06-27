@@ -174,7 +174,7 @@
 const std::string GameWindowName = "PowerTanks Battle v0.3.0"; //not guaranteed to be correct every commit
 const std::string INIFilePath = "tanks.ini";
 
-#include <tracy/Tracy.hpp>
+#include <tracy_include.h>
 //memory profiling (copied straight from the user manual):
 //(requires disabling rpmalloc (not Tracy's internal rpmalloc, this project's rpmalloc))
 #if 0

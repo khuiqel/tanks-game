@@ -3,7 +3,7 @@
 #include <algorithm>
 #include "aaa_first.h"
 
-#include <tracy/Tracy.hpp>
+#include <tracy_include.h>
 
 uint32_t PhysicsHandler::MinTaskSize;
 PhysicsHandler::SweepAndPruneTask* PhysicsHandler::s_physicsTask;

@@ -14,6 +14,7 @@ endif()
 
 #note: when changing these defaults, you have to delete CMakeCache.txt
 #option(USE_SYSTEM_GLFW "Use the system GLFW package" ON) #currently does nothing
+option(USE_RPMALLOC "Enable rpmalloc for extra performance" ON)
 option(USE_TRACY "Enable Tracy for performance profiling" OFF)
 
 set(CMAKE_CXX_STANDARD 20)
@@ -29,6 +30,12 @@ endif()
 
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
+
+if(USE_RPMALLOC)
+	set(RPMALLOC_SOURCE_FILES Dependencies/rpmalloc/rpmalloc.c)
+else()
+	set(RPMALLOC_SOURCE_FILES)
+endif()
 
 if(USE_TRACY)
 	add_compile_definitions(TRACY_ENABLE)
@@ -65,7 +72,7 @@ endif()
 add_executable(${PROJECT_NAME}
 	Dependencies/enkiTS/TaskScheduler.cpp
 	Dependencies/glad2/src/gl.c
-	Dependencies/rpmalloc/rpmalloc.c
+	${RPMALLOC_SOURCE_FILES}
 	${TRACY_SOURCE_FILES}
 	tanks-game/_source/aaa_first.cpp
 	tanks-game/_source/background-rect.cpp

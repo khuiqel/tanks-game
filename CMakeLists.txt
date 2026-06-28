@@ -19,6 +19,7 @@ option(USE_TRACY "Enable Tracy for performance profiling" OFF)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED False)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_C_STANDARD 17)
 
 if(NOT CMAKE_BUILD_TYPE)
 	#options: Debug, Release, RelWithDebInfo, MinSizeRel

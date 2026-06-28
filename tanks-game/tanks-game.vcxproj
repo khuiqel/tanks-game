@@ -79,10 +79,11 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\glfw\include;$(SolutionDir)Dependencies\glad2\include;$(SolutionDir)Dependencies\glm;$(SolutionDir)Dependencies\enkiTS;$(SolutionDir)Dependencies\rpmalloc;$(SolutionDir)Dependencies\stb;$(SolutionDir)Dependencies\_misc;$(SolutionDir)Externals\tracy\public;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
       <DisableSpecificWarnings>4018;4244;4267;4305;4312;4838;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/arch:SSE4.2 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/experimental:c11atomics /arch:SSE4.2 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -101,10 +102,11 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\glfw\include;$(SolutionDir)Dependencies\glad2\include;$(SolutionDir)Dependencies\glm;$(SolutionDir)Dependencies\enkiTS;$(SolutionDir)Dependencies\rpmalloc;$(SolutionDir)Dependencies\stb;$(SolutionDir)Dependencies\_misc;$(SolutionDir)Externals\tracy\public;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
       <DisableSpecificWarnings>4018;4244;4267;4305;4312;4838;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/arch:SSE4.2 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/experimental:c11atomics /arch:SSE4.2 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,10 +126,11 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\glfw\include;$(SolutionDir)Dependencies\glad2\include;$(SolutionDir)Dependencies\glm;$(SolutionDir)Dependencies\enkiTS;$(SolutionDir)Dependencies\rpmalloc;$(SolutionDir)Dependencies\stb;$(SolutionDir)Dependencies\_misc;$(SolutionDir)Externals\tracy\public;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
       <DisableSpecificWarnings>4018;4244;4267;4305;4312;4838;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>RELEASE_DISTRIBUTION;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/arch:SSE4.2 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/experimental:c11atomics /arch:SSE4.2 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,10 +150,11 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)Dependencies\glfw\include;$(SolutionDir)Dependencies\glad2\include;$(SolutionDir)Dependencies\glm;$(SolutionDir)Dependencies\enkiTS;$(SolutionDir)Dependencies\rpmalloc;$(SolutionDir)Dependencies\stb;$(SolutionDir)Dependencies\_misc;$(SolutionDir)Externals\tracy\public;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <LanguageStandard_C>stdc17</LanguageStandard_C>
       <DisableSpecificWarnings>4018;4244;4267;4305;4312;4838;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <PreprocessorDefinitions>TRACY_ENABLE;%(PreprocessorDefinitions);NDEBUG</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalOptions>/arch:SSE4.2 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>/experimental:c11atomics /arch:SSE4.2 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

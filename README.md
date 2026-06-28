@@ -53,7 +53,6 @@ I tried to compile on MSYS2 but had no luck. This is what I tried:
     * Arch/Manjaro: `sudo pacman -S gcc make cmake glfw`
     * compiling GLFW from source is currently unsupported, sorry
         * Alpine (an extremely lightweight distro probably intended for embedded work), Gentoo (a distro known for compiling everything yourself), ChromeOS (known for being ChromeOS (and did you know it's [based on Gentoo](https://en.wikipedia.org/wiki/ChromeOS#Architecture_2)?)), and even the non-Linux [Haiku](https://www.haiku-os.org/) and FreeBSD have prebuilt packages for GLFW, so you really should be okay on your distro of choice
-    * NOTE: some distros have problems with rpmalloc. You may have to disable it to get things working. A proper fix will come later, but for now this requires removing the rpmalloc references in `CMakeLists.txt`, `Dependencies/enkiTS/TaskScheduler.cpp`, `aaa_first.cpp`, and `main.cpp`.
 1. `mkdir build && cd build`
 1. `cmake ..` (optional and recommended: `-DCMAKE_CXX_FLAGS=-march=native -DCMAKE_C_FLAGS=-march=native`)
     * If you are interested in testing things out yourself, specify `-DCMAKE_BUILD_TYPE=[Release|Debug]`, because by default a few things are modified to act like an end-user product (by "a few" I mean just the dev mouse controls are always enabled if you specify the build type)

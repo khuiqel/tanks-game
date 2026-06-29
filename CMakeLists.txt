@@ -13,7 +13,7 @@ else()
 endif()
 
 #note: when changing these defaults, you have to delete CMakeCache.txt
-#option(USE_SYSTEM_GLFW "Use the system GLFW package" ON) #currently does nothing
+option(USE_SYSTEM_GLFW "Use the system GLFW package" ON)
 option(USE_RPMALLOC "Enable rpmalloc for extra performance" ON)
 option(USE_TRACY "Enable Tracy for performance profiling" OFF)
 
@@ -29,7 +29,14 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
+if(USE_SYSTEM_GLFW)
+	find_package(glfw3 REQUIRED)
+else()
+	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
+	add_subdirectory(Externals/glfw EXCLUDE_FROM_ALL)
+endif()
 
 if(USE_RPMALLOC)
 	set(RPMALLOC_SOURCE_FILES Dependencies/rpmalloc/rpmalloc.c)

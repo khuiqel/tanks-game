@@ -51,8 +51,7 @@ I tried to compile on MSYS2 but had no luck. This is what I tried:
     * Ubuntu/Mint: `sudo apt install build-essential cmake libglfw3-dev`
     * Fedora: `sudo dnf install gcc-g++ make cmake glfw-devel`
     * Arch/Manjaro: `sudo pacman -S gcc make cmake glfw`
-    * compiling GLFW from source is currently unsupported, sorry
-        * Alpine (an extremely lightweight distro probably intended for embedded work), Gentoo (a distro known for compiling everything yourself), ChromeOS (known for being ChromeOS (and did you know it's [based on Gentoo](https://en.wikipedia.org/wiki/ChromeOS#Architecture_2)?)), and even the non-Linux [Haiku](https://www.haiku-os.org/) and FreeBSD have prebuilt packages for GLFW, so you really should be okay on your distro of choice
+    * You can compile GLFW from source instead if desired. Disable the `USE_SYSTEM_GLFW` option in CMake and make sure you have the GLFW submodule (`git submodule update --init` if you didn't recursively download).
 1. `mkdir build && cd build`
 1. `cmake ..` (optional and recommended: `-DCMAKE_CXX_FLAGS=-march=native -DCMAKE_C_FLAGS=-march=native`)
     * If you are interested in testing things out yourself, specify `-DCMAKE_BUILD_TYPE=[Release|Debug]`, because by default a few things are modified to act like an end-user product (by "a few" I mean just the dev mouse controls are always enabled if you specify the build type)

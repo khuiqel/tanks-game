@@ -2,3 +2,7 @@
 	path = Externals/tracy
 	url = https://github.com/wolfpld/tracy
 	shallow = true
+[submodule "Externals/glfw"]
+	path = Externals/glfw
+	url = https://github.com/glfw/glfw
+	shallow = true

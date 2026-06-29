@@ -7,7 +7,9 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 	# maybe MATCHES would be better than STREQUAL as there are several Clang derivatives: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html
 	add_compile_options(-Wno-switch)
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-	message(SEND_ERROR "You are compiling with MSVC. CMake & MSVC compilation is unsupported, use the .sln project instead.\n")
+	#TODO: for some reason every file is compiled twice
+	add_compile_options(/MP)
+	add_compile_options(/experimental:c11atomics) #rpmalloc
 else()
 	message(WARNING "Unknown compiler, assuming it's fine...")
 endif()
@@ -30,7 +32,9 @@ endif()
 
 find_package(OpenGL REQUIRED)
 if(USE_SYSTEM_GLFW)
-	find_package(glfw3 REQUIRED)
+	if(NOT MSVC)
+		find_package(glfw3 REQUIRED)
+	endif()
 else()
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
@@ -46,34 +50,38 @@ endif()
 
 if(USE_TRACY)
 	add_compile_definitions(TRACY_ENABLE)
-	include_directories(PRIVATE Externals/tracy/public)
 	set(TRACY_SOURCE_FILES Externals/tracy/public/TracyClient.cpp)
 else()
 	set(TRACY_SOURCE_FILES)
 endif()
 
-include_directories(PRIVATE Dependencies/enkiTS)
-include_directories(PRIVATE Dependencies/glad2/include)
-include_directories(PRIVATE Dependencies/glm)
-include_directories(PRIVATE Dependencies/stb)
-include_directories(PRIVATE Dependencies/_misc)
-
-if(NOT CMAKE_CXX_FLAGS MATCHES "-march")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64-v2") #SSE4.2
-	# NOTE: if your compiler does not support x86-64 feature levels (which were defined in 2020), then use "-msse4.2 -mpopcnt" or "-march=nehalem" instead
-	# "-mpopcnt" shouldn't be required because all CPUs that have SSE4.2 also have POPCNT, but some compilers don't enable it, however I don't even know if this project would use the instruction
-	# alternatively, use "-march=native"
+if(MSVC)
+	#change this yourself if desired
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE4.2")
+	set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} /arch:SSE4.2")
+else()
+	if(NOT CMAKE_CXX_FLAGS MATCHES "-march")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=x86-64-v2") #SSE4.2
+		# NOTE: if your compiler does not support x86-64 feature levels (which were defined in 2020), then use "-msse4.2 -mpopcnt" or "-march=nehalem" instead
+		# "-mpopcnt" shouldn't be required because all CPUs that have SSE4.2 also have POPCNT, but some compilers don't enable it, however I don't even know if this project would use the instruction
+		# alternatively, use "-march=native"
+	endif()
+	if(NOT CMAKE_C_FLAGS MATCHES "-march")
+		# feels super unnecessary when there's literally only two C files
+		set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -march=x86-64-v2") #SSE4.2
+	endif()
 endif()
-if(NOT CMAKE_C_FLAGS MATCHES "-march")
-	# feels super unnecessary when there's literally only two C files
-	set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -march=x86-64-v2") #SSE4.2
-endif()
 
-set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -Wno-narrowing -Wno-int-to-pointer-cast")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing -Wno-int-to-pointer-cast -Wno-delete-incomplete")
-SET_SOURCE_FILES_PROPERTIES(Dependencies/enkiTS/TaskScheduler.cpp PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations")
-if(USE_TRACY)
-	SET_SOURCE_FILES_PROPERTIES(Externals/tracy/public/TracyClient.cpp PROPERTIES COMPILE_FLAGS "--no-warnings") #"-w" is so archaic
+if(MSVC)
+	add_compile_options(/wd4018 /wd4244 /wd4267 /wd4305 /wd4312 /wd4838)
+	SET_SOURCE_FILES_PROPERTIES(Dependencies/enkiTS/TaskScheduler.cpp PROPERTIES COMPILE_DEFINITIONS "_SILENCE_CXX20_IS_POD_DEPRECATION_WARNING")
+else()
+	set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -Wno-narrowing -Wno-int-to-pointer-cast")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing -Wno-int-to-pointer-cast -Wno-delete-incomplete")
+	SET_SOURCE_FILES_PROPERTIES(Dependencies/enkiTS/TaskScheduler.cpp PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations")
+	if(USE_TRACY)
+		SET_SOURCE_FILES_PROPERTIES(Externals/tracy/public/TracyClient.cpp PROPERTIES COMPILE_FLAGS "--no-warnings") #"-w" is so archaic
+	endif()
 endif()
 
 add_executable(${PROJECT_NAME}
@@ -258,5 +266,35 @@ add_executable(${PROJECT_NAME}
 	tanks-game/_source/main.cpp
 )
 
-target_link_libraries(${PROJECT_NAME} PRIVATE GL)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+if (MSVC)
+	# Application icon:
+	target_sources(${PROJECT_NAME} PRIVATE ../tanks-game/tanks.rc)
+	# Startup project:
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
+	# Set the running directory to the source root:
+	# set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+endif()
+
+if(MSVC AND USE_SYSTEM_GLFW)
+	target_include_directories(${PROJECT_NAME} PRIVATE Dependencies/_misc/win32/glfw/include)
+endif()
+if(USE_TRACY)
+	target_include_directories(${PROJECT_NAME} PRIVATE Externals/tracy/public)
+endif()
+target_include_directories(${PROJECT_NAME} PRIVATE Dependencies/enkiTS)
+target_include_directories(${PROJECT_NAME} PRIVATE Dependencies/glad2/include)
+target_include_directories(${PROJECT_NAME} PRIVATE Dependencies/glm)
+target_include_directories(${PROJECT_NAME} PRIVATE Dependencies/rpmalloc)
+target_include_directories(${PROJECT_NAME} PRIVATE Dependencies/stb)
+target_include_directories(${PROJECT_NAME} PRIVATE Dependencies/_misc)
+
+if(MSVC)
+	if(USE_SYSTEM_GLFW)
+		target_link_libraries(${PROJECT_NAME} PRIVATE ../Dependencies/_misc/win32/glfw/lib-vc2022/glfw3)
+	else()
+		target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+	endif()
+else()
+	target_link_libraries(${PROJECT_NAME} PRIVATE GL)
+	target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+endif()

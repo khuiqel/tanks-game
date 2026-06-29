@@ -32,12 +32,26 @@ Clone this repository: `git clone https://github.com/khuiqel/tanks-game.git`
 
 ### Building (Windows)
 
-1. Install Visual Studio 2022
-    * Note: Compiling profiling builds requires Windows SDK >10.0.19041.0, [probably >=10.0.20348.0](https://github.com/MicrosoftDocs/sdk-api/commit/55f67ad9d9f2f863b8efd41863920707658218fb), due to not having `RelationProcessorDie` in `LOGICAL_PROCESSOR_RELATIONSHIP` from `<winnt.h>`; might be avoidable by dropping to Tracy <0.12
+#### Visual Studio
+
+Visual Studio is the current supported buildsystem for Windows, using the `.sln` project. The `CMakeLists.txt` file will work but isn't perfect, so don't use it.
+
+1. Note: Compiling profiling builds requires Windows SDK >10.0.19041.0, [probably >=10.0.20348.0](https://github.com/MicrosoftDocs/sdk-api/commit/55f67ad9d9f2f863b8efd41863920707658218fb), due to not having `RelationProcessorDie` in `LOGICAL_PROCESSOR_RELATIONSHIP` from `<winnt.h>`; might be avoidable by dropping to Tracy <0.12
 1. Build ReleaseDistribution (on the solution, not project)
 1. **[Pre-compiled executables](https://github.com/khuiqel/tanks-game/releases)** are provided if this isn't an option for you
 
-I tried to compile on MSYS2 but had no luck. This is what I tried:
+#### CMake & MSYS2
+
+Using CMake & Visual Studio, there's going to be issues but here's what to do:
+
+1. `mkdir build && cd build`
+1. `cmake ..`
+    * If you are interested in testing things out yourself, specify `-DCMAKE_BUILD_TYPE=[Release|Debug]`, because by default a few things are modified to act like an end-user product (by "a few" I mean just the dev mouse controls are always enabled if you specify the build type)
+1. Either open the `.sln` project that was just created or run `cmake --build . --config [Release|Debug] --target tanks-game`
+    * TODO: For some reason, every file gets compiled twice... I don't know why.
+1. TODO: also needs `res/` (and `mods/`) copied to the build dir
+
+Using MSYS2: I tried to compile on MSYS2 but had no luck. This is what I tried:
 
 1. Prerequisites: `pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-make mingw-w64-x86_64-glfw mingw-w64-x86_64-cmake`
 1. `mkdir build && cd build`

@@ -30,31 +30,6 @@ if(NOT CMAKE_BUILD_TYPE)
 	add_compile_definitions(RELEASE_DISTRIBUTION) #turns off a few things to feel more like an end-user product
 endif()
 
-find_package(OpenGL REQUIRED)
-if(USE_SYSTEM_GLFW)
-	if(NOT MSVC)
-		find_package(glfw3 REQUIRED)
-	endif()
-else()
-	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
-	set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
-	add_subdirectory(Externals/glfw EXCLUDE_FROM_ALL)
-endif()
-
-if(USE_RPMALLOC)
-	set(RPMALLOC_SOURCE_FILES Dependencies/rpmalloc/rpmalloc.c)
-else()
-	set(RPMALLOC_SOURCE_FILES)
-endif()
-
-if(USE_TRACY)
-	add_compile_definitions(TRACY_ENABLE)
-	set(TRACY_SOURCE_FILES Externals/tracy/public/TracyClient.cpp)
-else()
-	set(TRACY_SOURCE_FILES)
-endif()
-
 if(MSVC)
 	#change this yourself if desired
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE4.2")
@@ -82,6 +57,31 @@ else()
 	if(USE_TRACY)
 		SET_SOURCE_FILES_PROPERTIES(Externals/tracy/public/TracyClient.cpp PROPERTIES COMPILE_FLAGS "--no-warnings") #"-w" is so archaic
 	endif()
+endif()
+
+find_package(OpenGL REQUIRED)
+if(USE_SYSTEM_GLFW)
+	if(NOT MSVC)
+		find_package(glfw3 REQUIRED)
+	endif()
+else()
+	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
+	set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
+	add_subdirectory(Externals/glfw EXCLUDE_FROM_ALL)
+endif()
+
+if(USE_RPMALLOC)
+	set(RPMALLOC_SOURCE_FILES Dependencies/rpmalloc/rpmalloc.c)
+else()
+	set(RPMALLOC_SOURCE_FILES)
+endif()
+
+if(USE_TRACY)
+	add_compile_definitions(TRACY_ENABLE)
+	set(TRACY_SOURCE_FILES Externals/tracy/public/TracyClient.cpp)
+else()
+	set(TRACY_SOURCE_FILES)
 endif()
 
 add_executable(${PROJECT_NAME}

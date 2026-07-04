@@ -152,7 +152,7 @@ void WindowInitializer::WindowInitialize(int* argc, char** argv, std::string win
 	// Setup window position, size, and title
 	GLFWwindow* window;
 	WindowInitializer::window_width = GAME_WIDTH*sizeMultiplier; WindowInitializer::window_height = GAME_HEIGHT*sizeMultiplier;
-	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_FALSE);
+	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE); //required for some Linux distros/drivers to show anything
 	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
 	// printf("%i, %i, %i\n", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
 	#if !defined(_WIN32) && GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
@@ -181,7 +181,7 @@ void WindowInitializer::WindowInitialize(int* argc, char** argv, std::string win
 	glfwMakeContextCurrent(window);
 
 	//thanks to https://community.khronos.org/t/wglmakecurrent-issues/62656/3 for solving why a draw call would take ~15ms for no reason (it's just the V-sync time)
-	//glfwSwapInterval(0);
+	glfwSwapInterval(0); //needs to be set when the monitor refresh rate is less than the game
 
 	//initialize glad2
 	int version = gladLoadGL(glfwGetProcAddress);

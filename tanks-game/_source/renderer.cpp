@@ -198,6 +198,7 @@ void Renderer::Clear() {
 	renderingBackend->Clear();
 }
 
+#include "window-initializer.h"
 void Renderer::ActuallyFlush() {
 	auto start = FrameTimeGraph::getTime();
 	std::string currentShaderName = "";
@@ -247,7 +248,9 @@ void Renderer::ActuallyFlush() {
 		FrameTimeGraph::drawGraphTimes();
 	}
 
-	renderingBackend->Flush();
+	//TODO
+	//renderingBackend->Flush();
+	glfwSwapBuffers(WindowInitializer::glfw_window);
 
 	UnbindAll();
 }

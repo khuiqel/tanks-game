@@ -154,9 +154,11 @@ void WindowInitializer::WindowInitialize(int* argc, char** argv, std::string win
 	WindowInitializer::window_width = GAME_WIDTH*sizeMultiplier; WindowInitializer::window_height = GAME_HEIGHT*sizeMultiplier;
 	glfwWindowHint(GLFW_DOUBLEBUFFER, GLFW_TRUE); //required for some Linux distros/drivers to show anything
 	glfwWindowHint(GLFW_SCALE_TO_MONITOR, GLFW_TRUE);
-	// printf("%i, %i, %i\n", GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION);
-	#if !defined(_WIN32) && GLFW_VERSION_MAJOR >= 3 && GLFW_VERSION_MINOR >= 4
-	glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11); //GLFW 3.4 doesn't work on Wayland for some reason
+	#if !defined(_WIN32) && GLFW_VERSION_MAJOR == 3 && GLFW_VERSION_MINOR >= 4
+	//this doesn't do anything...
+	//glfwInitHint(GLFW_PLATFORM, GLFW_PLATFORM_X11);
+	//there will be issues with mouse pos on Wayland since this always returns 1.0:
+	//glfwGetMonitorContentScale(glfwGetPrimaryMonitor(), &xscale, &yscale);
 	#endif
 
 	window = glfwCreateWindow(WindowInitializer::window_width, WindowInitializer::window_height, windowName.c_str(), NULL, NULL);
@@ -175,7 +177,6 @@ void WindowInitializer::WindowInitialize(int* argc, char** argv, std::string win
 	glfwGetWindowSize(WindowInitializer::glfw_window, &WindowInitializer::old_window_width, &WindowInitializer::old_window_height); //required for monitor content scaling
 	WindowInitializer::window_width = WindowInitializer::old_window_width; WindowInitializer::window_height = WindowInitializer::old_window_height;
 	WindowInitializer::gamewindow_width = WindowInitializer::window_width; WindowInitializer::gamewindow_height = WindowInitializer::window_height;
-	//glfwGetMonitorContentScale(glfwGetPrimaryMonitor(), &xscale, &yscale);
 	WindowInitializer::SetWindowIcon("res/favicon-64.png"); //if the OS doesn't like 64x64, boo hoo, no window icon then
 
 	glfwMakeContextCurrent(window);

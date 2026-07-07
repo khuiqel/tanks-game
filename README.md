@@ -61,11 +61,12 @@ Using MSYS2: I tried to compile on MSYS2 but had no luck. This is what I tried:
 
 ### Building (Linux)
 
-1. Prerequisites: a compiler, Make, CMake, GLFW
+1. Prerequisites: a compiler, Make, CMake, GLFW (optional)
     * Ubuntu/Mint: `sudo apt install build-essential cmake libglfw3-dev`
     * Fedora: `sudo dnf install gcc-g++ make cmake glfw-devel`
     * Arch/Manjaro: `sudo pacman -S gcc make cmake glfw`
     * You can compile GLFW from source instead if desired. Disable the `USE_SYSTEM_GLFW` option in CMake and make sure you have the GLFW submodule (`git submodule update --init` if you didn't recursively download).
+    * If your monitor scaling isn't 100% and you are using Wayland, the game will not fill the whole window until the window is resized, and the dev mouse controls will have an incorrect position. This is a GLFW problem, and fixing it requires using X11 (disable `GLFW_BUILD_WAYLAND` in CMake) or using an older version to make X11 the default (`git checkout 3.3.10` in the submodule).
 1. `mkdir build && cd build`
 1. `cmake ..` (optional and recommended: `-DCMAKE_CXX_FLAGS=-march=native -DCMAKE_C_FLAGS=-march=native`)
     * If you are interested in testing things out yourself, specify `-DCMAKE_BUILD_TYPE=[Release|Debug]`, because by default a few things are modified to act like an end-user product (by "a few" I mean just the dev mouse controls are always enabled if you specify the build type)

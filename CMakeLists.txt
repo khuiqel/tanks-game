@@ -68,6 +68,10 @@ else()
 	set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
 	set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
+	if(NOT WIN32)
+		# If you are having display issues, you might want to disable Wayland to force X11:
+		#set(GLFW_BUILD_WAYLAND OFF CACHE BOOL "" FORCE)
+	endif()
 	add_subdirectory(Externals/glfw EXCLUDE_FROM_ALL)
 endif()
 

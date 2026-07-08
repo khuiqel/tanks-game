@@ -51,12 +51,13 @@ Using CMake & Visual Studio, there's going to be issues but here's what to do:
     * TODO: For some reason, every file gets compiled twice... I don't know why.
 1. TODO: also needs `res/` (and `mods/`) copied to the build dir
 
-Using MSYS2: I tried to compile on MSYS2 but had no luck. This is what I tried:
+Using MSYS2, it's a pain but works:
 
-1. Prerequisites: `pacman -S mingw-w64-x86_64-gcc mingw-w64-x86_64-make mingw-w64-x86_64-glfw mingw-w64-x86_64-cmake`
+1. Prerequisites: [`pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-glfw` and add your `msys64/ucrt64/bin` folder to PATH](https://code.visualstudio.com/docs/cpp/config-mingw)
+1. TODO: disable rpmalloc: set `USE_RPMALLOC` in CMake to `OFF` and comment out `#include <rpnew.h>` in `aaa_first.cpp`
 1. `mkdir build && cd build`
-1. (doesn't work) `/mingw64/bin/cmake.exe .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=mingw32-make -DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++`
-1. `mingw32-make -j$(nproc)`
+1. `cmake .. -G "MinGW Makefiles"`
+1. `mingw32-make -j%NUMBER_OF_PROCESSORS%`
 1. TODO: also needs `res/` (and `mods/`) copied to the build dir
 
 ### Building (Linux)

@@ -44,10 +44,9 @@ Visual Studio is the current supported buildsystem for Windows, using the `.sln`
 
 Using CMake & Visual Studio, there's going to be issues but here's what to do:
 
-1. `mkdir build && cd build`
-1. `cmake ..`
+1. `cmake -S . -B build`
     * If you are interested in testing things out yourself, specify `-DCMAKE_BUILD_TYPE=[Release|Debug]`, because by default a few things are modified to act like an end-user product (by "a few" I mean just the dev mouse controls are always enabled if you specify the build type)
-1. Either open the `.sln` project that was just created or run `cmake --build . --config [Release|Debug] --target tanks-game`
+1. Either open the `.sln` project that was just created or run `cmake --build build --config [Release|Debug] --target tanks-game`
     * TODO: For some reason, every file gets compiled twice... I don't know why.
 1. TODO: also needs `res/` (and `mods/`) copied to the build dir
 
@@ -55,9 +54,8 @@ Using MSYS2, it's a pain but works:
 
 1. Prerequisites: [`pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-glfw` and add your `msys64/ucrt64/bin` folder to PATH](https://code.visualstudio.com/docs/cpp/config-mingw)
 1. TODO: disable rpmalloc: set `USE_RPMALLOC` in CMake to `OFF` and comment out `#include <rpnew.h>` in `aaa_first.cpp`
-1. `mkdir build && cd build`
-1. `cmake .. -G "MinGW Makefiles"`
-1. `mingw32-make -j%NUMBER_OF_PROCESSORS%`
+1. `cmake -S . -B build -G "MinGW Makefiles"`
+1. `cmake --build build -j%NUMBER_OF_PROCESSORS%`
 1. TODO: also needs `res/` (and `mods/`) copied to the build dir
 
 ### Building (Linux)
@@ -68,8 +66,7 @@ Using MSYS2, it's a pain but works:
     * Arch/Manjaro: `sudo pacman -S gcc make cmake glfw`
     * You can compile GLFW from source instead if desired. Disable the `USE_SYSTEM_GLFW` option in CMake and make sure you have the GLFW submodule (`git submodule update --init` if you didn't recursively download).
     * If your monitor scaling isn't 100% and you are using Wayland, the game will not fill the whole window until the window is resized, and the dev mouse controls will have an incorrect position. This is a GLFW problem, and fixing it requires using X11 (disable `GLFW_BUILD_WAYLAND` in CMake) or using an older version to make X11 the default (`git checkout 3.3.10` in the submodule).
-1. `mkdir build && cd build`
-1. `cmake ..` (optional and recommended: `-DCMAKE_CXX_FLAGS=-march=native -DCMAKE_C_FLAGS=-march=native`)
+1. `cmake -S . -B build` (optional and recommended: `-DCMAKE_CXX_FLAGS=-march=native -DCMAKE_C_FLAGS=-march=native`)
     * If you are interested in testing things out yourself, specify `-DCMAKE_BUILD_TYPE=[Release|Debug]`, because by default a few things are modified to act like an end-user product (by "a few" I mean just the dev mouse controls are always enabled if you specify the build type)
 1. `make -j$(nproc)`
 1. TODO: also needs `res/` (and `mods/`) copied to the build dir

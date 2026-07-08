@@ -1,18 +1,5 @@
 cmake_minimum_required(VERSION 3.16...3.31)
-project(tanks-game VERSION 0.3.0)
-
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-	#nothing
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-	# maybe MATCHES would be better than STREQUAL as there are several Clang derivatives: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html
-	add_compile_options(-Wno-switch)
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-	#TODO: for some reason every file is compiled twice
-	add_compile_options(/MP)
-	add_compile_options(/experimental:c11atomics) #rpmalloc
-else()
-	message(WARNING "Unknown compiler, assuming it's fine...")
-endif()
+project(tanks-game)
 
 #note: when changing these defaults, you have to delete CMakeCache.txt
 option(USE_SYSTEM_GLFW "Use the system GLFW package" ON)
@@ -28,6 +15,19 @@ if(NOT CMAKE_BUILD_TYPE)
 	#options: Debug, Release, RelWithDebInfo, MinSizeRel
 	set(CMAKE_BUILD_TYPE "Release")
 	add_compile_definitions(RELEASE_DISTRIBUTION) #turns off a few things to feel more like an end-user product
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	#nothing
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+	# maybe MATCHES would be better than STREQUAL as there are several Clang derivatives: https://cmake.org/cmake/help/latest/variable/CMAKE_LANG_COMPILER_ID.html
+	add_compile_options(-Wno-switch)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+	#TODO: for some reason every file is compiled twice
+	add_compile_options(/MP)
+	add_compile_options(/experimental:c11atomics) #rpmalloc
+else()
+	message(WARNING "Unknown compiler, assuming it's fine...")
 endif()
 
 if(MSVC)
@@ -272,11 +272,11 @@ add_executable(${PROJECT_NAME}
 
 if (MSVC)
 	# Application icon:
-	target_sources(${PROJECT_NAME} PRIVATE ../tanks-game/tanks.rc)
+	target_sources(${PROJECT_NAME} PRIVATE tanks-game/tanks.rc)
 	# Startup project:
-	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME})
-	# Set the running directory to the source root:
-	# set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
+	set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT ${PROJECT_NAME}) #TODO: no longer works, is it because tanks-game.sln still exists?
+	# Set the running directory to the build dir:
+	set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
 endif()
 
 if(MSVC AND USE_SYSTEM_GLFW)

@@ -1,4 +1,7 @@
-/* rpmalloc.h  -  Memory allocator  -  Public Domain  -  2016-2024 Mattias Jansson
+/* rpmalloc.h  -  Memory allocator  -  2016-2024 Mattias Jansson
+ *
+ * SPDX-FileCopyrightText: 2016-2024 Mattias Jansson
+ * SPDX-License-Identifier: Unlicense OR MIT
  *
  * This library provides a cross-platform lock free thread caching malloc
  * implementation in C11. The latest source code is always available at
@@ -6,11 +9,22 @@
  * https://github.com/mjansson/rpmalloc
  *
  * This library is put in the public domain; you can redistribute it and/or
- * modify it without any restrictions.
+ * modify it without any restrictions. Or, if you choose, you can use it under
+ * the MIT license.
  *
  */
 
 #pragma once
+
+//! rpmalloc version. RPMALLOC_VERSION is a human-readable string and may carry a pre-release
+//  suffix such as "-rc1". RPMALLOC_VERSION_NUMBER is a monotonic integer for comparisons,
+//  computed as major*10000 + minor*100 + patch (pre-release suffixes are not encoded).
+#define RPMALLOC_VERSION "2.0.0"
+#define RPMALLOC_VERSION_MAJOR 2
+#define RPMALLOC_VERSION_MINOR 0
+#define RPMALLOC_VERSION_PATCH 0
+#define RPMALLOC_VERSION_NUMBER \
+	(RPMALLOC_VERSION_MAJOR * 10000 + RPMALLOC_VERSION_MINOR * 100 + RPMALLOC_VERSION_PATCH)
 
 #include <stddef.h>
 
@@ -96,35 +110,19 @@ typedef struct rpmalloc_global_statistics_t {
 } rpmalloc_global_statistics_t;
 
 typedef struct rpmalloc_thread_statistics_t {
-	//! Current number of bytes available in thread size class caches for small and medium sizes (<32KiB)
+	//! Current number of bytes available in thread size class caches (only if ENABLE_STATISTICS=1)
 	size_t sizecache;
-	//! Current number of bytes available in thread span caches for small and medium sizes (<32KiB)
+	//! Current number of bytes available in thread page caches (only if ENABLE_STATISTICS=1)
 	size_t spancache;
-	//! Total number of bytes transitioned from thread cache to global cache (only if ENABLE_STATISTICS=1)
-	size_t thread_to_global;
-	//! Total number of bytes transitioned from global cache to thread cache (only if ENABLE_STATISTICS=1)
-	size_t global_to_thread;
-	//! Per span count statistics (only if ENABLE_STATISTICS=1)
+	//! Per page type span statistics, indexed by page type (small, medium-small, medium-large,
+	//! large, huge)
 	struct {
-		//! Currently used number of spans
+		//! Currently mapped number of spans of this page type
 		size_t current;
-		//! High water mark of spans used
-		size_t peak;
-		//! Number of spans transitioned to global cache
-		size_t to_global;
-		//! Number of spans transitioned from global cache
-		size_t from_global;
-		//! Number of spans transitioned to thread cache
-		size_t to_cache;
-		//! Number of spans transitioned from thread cache
-		size_t from_cache;
-		//! Number of spans transitioned to reserved state
-		size_t to_reserved;
-		//! Number of spans transitioned from reserved state
-		size_t from_reserved;
-		//! Number of raw memory map calls (not hitting the reserve spans but resulting in actual OS mmap calls)
+		//! Number of raw memory map calls for this page type resulting in actual OS mmap calls
+		//! (only if ENABLE_STATISTICS=1)
 		size_t map_calls;
-	} span_use[64];
+	} span_use[5];
 	//! Per size class statistics (only if ENABLE_STATISTICS=1)
 	struct {
 		//! Current number of allocations
@@ -135,14 +133,6 @@ typedef struct rpmalloc_thread_statistics_t {
 		size_t alloc_total;
 		//! Total number of frees
 		size_t free_total;
-		//! Number of spans transitioned to cache
-		size_t spans_to_cache;
-		//! Number of spans transitioned from cache
-		size_t spans_from_cache;
-		//! Number of spans transitioned from reserved state
-		size_t spans_from_reserved;
-		//! Number of raw memory map calls (not hitting the reserve spans but resulting in actual OS mmap calls)
-		size_t map_calls;
 	} size_use[128];
 } rpmalloc_thread_statistics_t;
 
@@ -204,6 +194,10 @@ typedef struct rpmalloc_config_t {
 	//! Unmap all memory on finalize if set to 1. Normally you can let the OS unmap all pages
 	//  when process exits, but if using rpmalloc in a dynamic library you might want to unmap
 	//  all pages when the dynamic library unloads to avoid process memory leaks and bloat.
+	//  NOTE: this is ignored when rpmalloc is built with ENABLE_OVERRIDE, because the standard
+	//  library override makes rpmalloc the backing store for the C runtime's own allocations
+	//  (for example per-thread TLS). Returning all mappings to the OS while the process keeps
+	//  running would unmap memory the runtime still uses. Only honored without the override.
 	int unmap_on_finalize;
 #if defined(__linux__) || defined(__ANDROID__)
 	///! Allows to disable the Transparent Huge Page feature on Linux on a process basis,

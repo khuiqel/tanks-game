@@ -1,5 +1,7 @@
-/* rpmalloc.c  -  Memory allocator  -  Public Domain  -  2016-2020 Mattias
- * Jansson
+/* rpmalloc.c  -  Memory allocator  -  2016-2020 Mattias Jansson
+ *
+ * SPDX-FileCopyrightText: 2016-2020 Mattias Jansson
+ * SPDX-License-Identifier: Unlicense OR MIT
  *
  * This library provides a cross-platform lock free thread caching malloc
  * implementation in C11. The latest source code is always available at
@@ -7,7 +9,8 @@
  * https://github.com/mjansson/rpmalloc
  *
  * This library is put in the public domain; you can redistribute it and/or
- * modify it without any restrictions.
+ * modify it without any restrictions. Or, if you choose, you can use it under
+ * the MIT license.
  *
  */
 
@@ -77,6 +80,7 @@ static virtualalloc2_fn os_virtualalloc2;
 #include <sys/mman.h>
 #include <sched.h>
 #include <unistd.h>
+#include <fcntl.h>
 #include <pthread.h>
 static pthread_key_t pthread_key;
 #ifdef __FreeBSD__
@@ -155,12 +159,33 @@ madvise(caddr_t, size_t, int);
 #define ENABLE_DYNAMIC_LINK 0
 #endif
 #ifndef ENABLE_OVERRIDE
-//! Enable standard library malloc/free/new/delete overrides
+//! Enable standard library malloc/free/new/delete overrides. When enabled, rpmalloc becomes the
+//  backing store for the entire process, including the C runtime's own allocations (for example
+//  per-thread TLS allocated by the loader). Two finalize-time features are therefore adjusted:
+//  the unmap_on_finalize config option is ignored (see rpmalloc_initialize), since returning all
+//  mappings to the OS while the process keeps running would unmap memory the runtime still holds;
+//  and ENABLE_LEAK_DETECTION defaults off, since the runtime's still-live allocations are
+//  indistinguishable from application leaks at finalize.
 #define ENABLE_OVERRIDE 1
 #endif
 #ifndef ENABLE_STATISTICS
 //! Enable statistics
 #define ENABLE_STATISTICS 0
+#endif
+#ifndef ENABLE_LEAK_DETECTION
+//! Enable detection of allocations still outstanding at rpmalloc_finalize. Requires ENABLE_STATISTICS
+//  for the allocation counters, and follows it by default - except under ENABLE_OVERRIDE, where it
+//  defaults off: the override makes rpmalloc the backing store for the C runtime's own allocations
+//  (for example per-thread TLS allocated by the loader), which are still live at finalize and
+//  indistinguishable from application leaks, so the check would always report false positives.
+#if ENABLE_OVERRIDE
+#define ENABLE_LEAK_DETECTION 0
+#else
+#define ENABLE_LEAK_DETECTION ENABLE_STATISTICS
+#endif
+#endif
+#if ENABLE_LEAK_DETECTION && !ENABLE_STATISTICS
+#error ENABLE_LEAK_DETECTION requires ENABLE_STATISTICS
 #endif
 
 ////////////
@@ -171,6 +196,12 @@ madvise(caddr_t, size_t, int);
 
 #define PAGE_HEADER_SIZE 128
 #define SPAN_HEADER_SIZE PAGE_HEADER_SIZE
+
+//! Alignment of each heap control structure within a shared mapping. Keeps adjacent
+//  heaps on separate cache lines so cross-thread writes to one heap (thread_free) do
+//  not falsely share with a neighbour heap owned by another thread. Sized for a 128 byte
+//  cache line (Apple Silicon, x86 destructive interference) to cover 64 byte lines too.
+#define HEAP_ALIGNMENT 128
 
 #define SMALL_GRANULARITY 16
 
@@ -283,7 +314,47 @@ statistics_sub_saturating(atomic_size_t* counter, size_t value) {
 	    !atomic_compare_exchange_weak_explicit(counter, &current, next, memory_order_relaxed, memory_order_relaxed));
 }
 
+//! Per size class allocation counters, updated only by the owning thread (cross-thread frees are
+//  deferred and accounted when the owner processes them), so plain integers suffice
+typedef struct heap_size_use_t {
+	int32_t alloc_current;
+	int32_t alloc_peak;
+	int32_t alloc_total;
+	int32_t free_total;
+} heap_size_use_t;
+
+//! A successful allocation of the given size class on the owning heap
+#define _rpmalloc_stat_inc_alloc(heap, class_idx)                       \
+	do {                                                                \
+		heap_size_use_t* _su = (heap)->size_use + (class_idx);          \
+		if (++_su->alloc_current > _su->alloc_peak)                     \
+			_su->alloc_peak = _su->alloc_current;                       \
+		++_su->alloc_total;                                             \
+	} while (0)
+//! Account for a number of freed blocks of the given size class on the owning heap
+#define _rpmalloc_stat_add_free(heap, class_idx, count)                 \
+	do {                                                                \
+		heap_size_use_t* _su = (heap)->size_use + (class_idx);          \
+		_su->alloc_current -= (int32_t)(count);                         \
+		_su->free_total += (int32_t)(count);                            \
+	} while (0)
+//! A raw memory map call for a span of the given page type on the owning heap
+#define _rpmalloc_stat_inc_span_map(heap, page_type) \
+	do {                                             \
+		++(heap)->span_map_calls[page_type];         \
+	} while (0)
+
 #else
+
+#define _rpmalloc_stat_inc_alloc(heap, class_idx) \
+	do {                                          \
+	} while (0)
+#define _rpmalloc_stat_add_free(heap, class_idx, count) \
+	do {                                                \
+	} while (0)
+#define _rpmalloc_stat_inc_span_map(heap, page_type) \
+	do {                                             \
+	} while (0)
 
 #endif
 
@@ -297,13 +368,21 @@ static inline size_t
 rpmalloc_clz(uintptr_t x) {
 #if ARCH_64BIT
 #if defined(_MSC_VER) && !defined(__clang__)
+#if defined(_M_ARM64)
+	return (size_t)_CountLeadingZeros64(x);  // __lzcnt64 is x86-only
+#else
 	return (size_t)__lzcnt64(x);
+#endif
 #else
 	return (size_t)__builtin_clzll(x);
 #endif
 #else
 #if defined(_MSC_VER) && !defined(__clang__)
+#if defined(_M_ARM64) || defined(_M_ARM)
+	return (size_t)_CountLeadingZeros((unsigned long)x);  // __lzcnt32 is x86-only
+#else
 	return (size_t)__lzcnt32(x);
+#endif
 #else
 	return (size_t)__builtin_clzl(x);
 #endif
@@ -436,7 +515,12 @@ struct page_t {
 	uint32_t is_zero : 1;
 	//! Flag set if memory pages have been decommitted
 	uint32_t is_decommitted : 1;
-	//! Flag set if containing aligned blocks
+	//! Flag set if containing aligned blocks.
+	//  Note: has_aligned_block and is_full are read on the cross-thread free path while the
+	//  owner thread writes this packed flag word. The owner is the sole writer and the word is
+	//  naturally aligned (hardware-atomic access), and the read flags are monotonic/tolerant,
+	//  so the read/write race is benign. ThreadSanitizer still reports it; see
+	//  test/tsan-suppressions.txt.
 	uint32_t has_aligned_block : 1;
 	//! Fast combination flag for either huge, fully allocated or has aligned blocks
 	uint32_t generic_free : 1;
@@ -518,6 +602,12 @@ struct heap_t {
 #if RPMALLOC_HEAP_STATISTICS
 	struct rpmalloc_heap_statistics_t stats;
 #endif
+#if ENABLE_STATISTICS
+	//! Per size class allocation counters (current span_use count is computed live on demand)
+	heap_size_use_t size_use[SIZE_CLASS_COUNT];
+	//! Per page type raw span map call counters
+	uint32_t span_map_calls[5];
+#endif
 };
 
 _Static_assert(sizeof(page_t) <= PAGE_HEADER_SIZE, "Invalid page header size");
@@ -534,10 +624,19 @@ _Static_assert(sizeof(heap_t) <= 4096, "Invalid heap size");
 static RPMALLOC_CACHE_ALIGNED heap_t global_heap_fallback;
 //! Default heap
 static heap_t* global_heap_default = &global_heap_fallback;
-//! Available heaps
+//! Released heaps available for reuse. These have been used and may hold caches, so they are
+//  only handed to ordinary thread heaps, never to first-class heaps (which require pristine state)
 static heap_t* global_heap_queue;
+//! Pristine, never-used heaps carved from a shared block but not yet handed out. Safe for any
+//  request including first-class, which needs a heap with no prior allocations
+static heap_t* global_heap_pristine;
 //! In use heaps
 static heap_t* global_heap_used;
+//! Set while a thread is mapping and carving a new shared heap block, so concurrent thread
+//  starts wait for the carved heaps to reach a pool instead of each mapping their own block.
+//  A user memory interface callback must not allocate through rpmalloc on the creating thread:
+//  a nested heap creation would wait on this flag set by the same thread and deadlock
+static int global_heap_creating;
 //! Lock for heap queue
 static atomic_uintptr_t global_heap_lock;
 //! Heap ID counter
@@ -835,9 +934,10 @@ os_mmap(size_t size, size_t alignment, size_t* offset, size_t* mapped_size) {
 	if ((ptr == MAP_FAILED || !ptr) && os_huge_pages) {
 		ptr = mmap(0, map_size, PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (ptr && (ptr != MAP_FAILED)) {
-			int prm = madvise(ptr, map_size, MADV_HUGEPAGE);
-			(void)prm;
-			rpmalloc_assert((prm == 0), "Failed to promote the page to transparent huge page");
+			// Best-effort promotion to transparent huge pages; ignore failures (for
+			// example when THP is disabled system-wide, where madvise returns EINVAL).
+			// The mapping is still valid, just backed by normal pages.
+			(void)madvise(ptr, map_size, MADV_HUGEPAGE);
 		}
 	} else if (os_thp && ptr && (ptr != MAP_FAILED)) {
 		// Transparent huge page mode, advise the kernel to back this mapping with
@@ -1230,6 +1330,7 @@ page_put_local_free_block(page_t* page, block_t* block) {
 	block->next = page->local_free;
 	page->local_free = block;
 	++page->local_free_count;
+	_rpmalloc_stat_add_free(page->heap, page->size_class, 1);
 	if (UNEXPECTED(--page->block_used == 0)) {
 		page_available_to_free(page);
 	} else if (UNEXPECTED(page->is_full != 0)) {
@@ -1250,6 +1351,7 @@ page_adopt_thread_free_block_list(page_t* page) {
 		page->local_free_count = page_block_from_thread_free_list(page, thread_free, &page->local_free);
 		rpmalloc_assert(page->local_free_count <= page->block_used, "Page thread free list count internal failure");
 		page->block_used -= page->local_free_count;
+		_rpmalloc_stat_add_free(page->heap, page->size_class, page->local_free_count);
 	}
 }
 
@@ -1622,7 +1724,6 @@ span_deallocate_block(span_t* span, page_t* page, void* block) {
 	}
 
 	if (page->has_aligned_block) {
-		// Realign pointer to block start
 		block = page_block_realign(page, block);
 	}
 
@@ -1670,6 +1771,7 @@ block_deallocate(block_t* block) {
 			block->next = page->local_free;
 			page->local_free = block;
 			++page->local_free_count;
+			_rpmalloc_stat_add_free(page->heap, page->size_class, 1);
 			if (UNEXPECTED(--page->block_used == 0))
 				page_available_to_free(page);
 		} else {
@@ -1723,29 +1825,101 @@ heap_initialize(void* block) {
 	return heap;
 }
 
+// A heap control structure is much smaller than the mapping page size (and far smaller than a
+// huge page), so a single page-aligned mapping is carved into as many heaps as fit, the first
+// returned to the caller and the extras queued for reuse. This avoids mapping (and, under huge
+// pages, committing) a whole page per heap. Only the first heap records the mapping offset and
+// size; it owns the shared mapping and is the one heap that unmaps it at finalize.
+//
+// Block creation is serialized through global_heap_creating: when no heap is available, one thread
+// maps and carves a block while concurrent thread starts wait for the carved heaps to be published,
+// so a startup burst maps a single block instead of one block per thread. Ordinary requests reuse a
+// released heap first, then a pristine carved one. First-class requests need a heap with no prior
+// allocations, so they take only pristine heaps (a carved extra, or a freshly mapped master), never
+// a released one, but still wait so they do not map concurrently with another creation.
 static heap_t*
-heap_allocate_new(void) {
+heap_allocate_new(int first_class) {
 	if (!global_config.page_size)
 		rpmalloc_initialize(0);
-	size_t heap_size = get_page_aligned_size(sizeof(heap_t));
+
+	heap_lock_acquire();
+	while (1) {
+		if (!first_class && global_heap_queue) {
+			heap_t* heap = global_heap_queue;
+			global_heap_queue = heap->next;
+			heap_lock_release();
+			return heap;
+		}
+		if (global_heap_pristine) {
+			heap_t* heap = global_heap_pristine;
+			global_heap_pristine = heap->next;
+			heap_lock_release();
+			return heap;
+		}
+		if (!global_heap_creating)
+			break;
+		heap_lock_release();
+		wait_spin();
+		heap_lock_acquire();
+	}
+	global_heap_creating = 1;
+	heap_lock_release();
+
+	size_t aligned_heap_size = HEAP_ALIGNMENT * ((sizeof(heap_t) + (HEAP_ALIGNMENT - 1)) / HEAP_ALIGNMENT);
+	size_t block_size = get_page_aligned_size(aligned_heap_size);
 	size_t offset = 0;
 	size_t mapped_size = 0;
-	block_t* block = global_memory_interface->memory_map(heap_size, 0, &offset, &mapped_size);
+	block_t* block = global_memory_interface->memory_map(block_size, 0, &offset, &mapped_size);
 #if ENABLE_DECOMMIT
-	if (os_commit_on_demand() && (global_memory_interface->memory_commit(block, heap_size) != 0)) {
+	if (block && os_commit_on_demand() && (global_memory_interface->memory_commit(block, block_size) != 0)) {
 		global_memory_interface->memory_unmap(block, offset, mapped_size);
-		return 0;
+		block = 0;
 	}
 #endif
+	if (!block) {
+		heap_lock_acquire();
+		global_heap_creating = 0;
+		heap_lock_release();
+		return 0;
+	}
+
 	heap_t* heap = heap_initialize((void*)block);
 	heap->offset = (uint32_t)offset;
 	heap->mapped_size = mapped_size;
-#if ENABLE_STATISTICS
-	atomic_fetch_add_explicit(&global_statistics.heap_count, 1, memory_order_relaxed);
-#endif
+
+	// Carve the remaining heaps into a local chain, then splice it onto the pristine pool in one
+	// step so the lock is not held across the per-heap initialization. heap_initialize zeroes each
+	// structure, leaving mapped_size == 0 so the extras are not treated as mapping owners. They are
+	// pristine until handed out, so first-class requests may reuse them.
+	size_t heap_count = mapped_size / aligned_heap_size;
+	heap_t* chain_head = 0;
+	heap_t* chain_tail = 0;
+	heap_t* extra_heap = (heap_t*)pointer_offset(heap, aligned_heap_size);
+	for (size_t iheap = 1; iheap < heap_count; ++iheap) {
+		heap_initialize((void*)extra_heap);
+		if (!chain_tail)
+			chain_tail = extra_heap;
+		extra_heap->next = chain_head;
+		chain_head = extra_heap;
+		extra_heap = (heap_t*)pointer_offset(extra_heap, aligned_heap_size);
+	}
+
+	heap_lock_acquire();
+	if (chain_tail) {
+		chain_tail->next = global_heap_pristine;
+		global_heap_pristine = chain_head;
+	}
+	global_heap_creating = 0;
+	heap_lock_release();
 	return heap;
 }
 
+// Unmaps the shared block owned by this heap. INVARIANT: heap blocks are only ever unmapped here,
+// at global finalize, never while the allocator is running. Several heaps share a block, and a heap
+// may be borrowed by an unrelated owner's thread or by a first-class heap that outlives the thread
+// whose request mapped the block (see heap_allocate_new). Unmapping a block mid-run would leave
+// those borrowed heaps pointing at freed memory, so any future block reclamation must guarantee no
+// heap carved from the block is still live.
 static void
 heap_unmap(heap_t* heap) {
 	global_memory_interface->memory_unmap(heap, heap->offset, heap->mapped_size);
@@ -1753,15 +1927,7 @@ heap_unmap(heap_t* heap) {
 
 static heap_t*
 heap_allocate(int first_class) {
-	heap_t* heap = 0;
-	if (!first_class) {
-		heap_lock_acquire();
-		heap = global_heap_queue;
-		global_heap_queue = heap ? heap->next : 0;
-		heap_lock_release();
-	}
-	if (!heap)
-		heap = heap_allocate_new();
+	heap_t* heap = heap_allocate_new(first_class);
 	if (heap) {
 		uintptr_t current_thread_id = get_thread_id();
 		heap_lock_acquire();
@@ -1772,12 +1938,20 @@ heap_allocate(int first_class) {
 		global_heap_used = heap;
 		heap_lock_release();
 		heap->owner_thread = current_thread_id;
+#if ENABLE_STATISTICS
+		// Counters belong to the heap, not the thread, so alloc_current reflects the blocks live in
+		// the heap's pages regardless of which thread owns it.
+		atomic_fetch_add_explicit(&global_statistics.heap_count, 1, memory_order_relaxed);
+#endif
 	}
 	return heap;
 }
 
 static inline void
 heap_release(heap_t* heap) {
+#if ENABLE_STATISTICS
+	statistics_sub_saturating(&global_statistics.heap_count, 1);
+#endif
 	heap_lock_acquire();
 	if (heap->prev)
 		heap->prev->next = heap->next;
@@ -1850,6 +2024,9 @@ heap_get_span(heap_t* heap, page_type_t page_type) {
 	heap->stats.mapped_size += mapped_size;
 #endif
 	if (EXPECTED(span != 0)) {
+		rpmalloc_assert(!((uintptr_t)span & (SPAN_SIZE - 1)),
+		                "memory_map returned a block not aligned to the span size");
+		_rpmalloc_stat_inc_span_map(heap, page_type);
 		uint32_t page_count = 0;
 		uint32_t page_size = 0;
 		uintptr_t page_address_mask = 0;
@@ -1992,8 +2169,12 @@ heap_pop_local_free(heap_t* heap, uint32_t size_class) {
 static NOINLINE RPMALLOC_ALLOCATOR void*
 heap_allocate_block_small_to_large(heap_t* heap, uint32_t size_class, unsigned int zero) {
 	page_t* page = heap_get_page(heap, size_class);
-	if (EXPECTED(page != 0))
+	if (EXPECTED(page != 0)) {
+		// Count on the page owner, which may differ from heap when an uninitialized thread is routed
+		// to its real heap, so the allocation and its later free are accounted on the same heap
+		_rpmalloc_stat_inc_alloc(page->heap, size_class);
 		return page_allocate_block(page, zero);
+	}
 	return 0;
 }
 
@@ -2021,6 +2202,10 @@ heap_allocate_block_huge(heap_t* heap, size_t size, unsigned int zero) {
 		block = global_memory_interface->memory_map(alloc_size, SPAN_SIZE, &offset, &mapped_size);
 	if (block) {
 		span_t* span = block;
+		rpmalloc_assert(!((uintptr_t)span & (SPAN_SIZE - 1)),
+		                "memory_map returned a block not aligned to the span size");
+		if (!from_cache)
+			_rpmalloc_stat_inc_span_map(heap, PAGE_HUGE);
 #if ENABLE_DECOMMIT
 		if (!from_cache && os_commit_on_demand() &&
 		    (global_memory_interface->memory_commit(span, alloc_size) != 0)) {
@@ -2090,7 +2275,9 @@ heap_allocate_block_generic(heap_t* heap, size_t size, unsigned int zero) {
 
 		block_t* block = heap_pop_local_free(heap, size_class);
 		if (EXPECTED(block != 0)) {
-			// Fast track with small block available in heap level local free list
+			// Fast track with small block available in heap level local free list; a hit means this
+			// heap owns the block
+			_rpmalloc_stat_inc_alloc(heap, size_class);
 			if (zero)
 				memset(block, 0, global_size_class[size_class].block_size);
 			return block;
@@ -2115,6 +2302,7 @@ heap_allocate_block(heap_t* heap, size_t size, unsigned int zero) {
 #if RPMALLOC_HEAP_STATISTICS
 			heap->stats.allocated_size += global_size_class[size_class].block_size;
 #endif
+			_rpmalloc_stat_inc_alloc(heap, size_class);
 			return block;
 		}
 #if RPMALLOC_HEAP_STATISTICS
@@ -2122,6 +2310,7 @@ heap_allocate_block(heap_t* heap, size_t size, unsigned int zero) {
 #endif
 		// The size class is already known - refill directly, skipping the
 		// generic path size class recomputation and dead local free list pop
+		// (small_to_large counts the allocation on the owning heap)
 		return heap_allocate_block_small_to_large(heap, size_class, zero);
 	}
 	return heap_allocate_block_generic(heap, size, zero);
@@ -2184,7 +2373,7 @@ heap_reallocate_block(heap_t* heap, void* block, size_t size, size_t old_size, u
 			// Huge block
 			void* block_start = pointer_offset(span, SPAN_HEADER_SIZE);
 			if (!old_size)
-				old_size = ((size_t)span->page_size * (size_t)span->page_count) - SPAN_HEADER_SIZE;
+				old_size = ((size_t)span->page_size * (size_t)span->page_count) - (size_t)pointer_diff(block, span);
 			if ((size < old_size) && (size >= (old_size / 2)) && (size > LARGE_BLOCK_SIZE_LIMIT)) {
 				// Still fits in block, still huge and saves less than half the memory,
 				// never mind trying to save memory, but preserve data if alignment changed
@@ -2260,6 +2449,11 @@ heap_free_all(heap_t* heap) {
 		span_t* span = heap->span_used[itype];
 		while (span) {
 			span_t* span_next = span->next;
+#if ENABLE_STATISTICS
+			if (itype == PAGE_HUGE)
+				statistics_sub_saturating(&global_statistics.huge_alloc,
+				                          (size_t)span->page_count * span->page_size);
+#endif
 			global_memory_interface->memory_unmap(span, span->offset, span->mapped_size);
 			span = span_next;
 		}
@@ -2269,7 +2463,11 @@ heap_free_all(heap_t* heap) {
 	memset(heap->page_available, 0, sizeof(heap->page_available));
 
 #if ENABLE_STATISTICS
-	// TODO: Fix
+	// Every block in this heap has been released, so reverse the per size class allocation counters
+	for (uint32_t iclass = 0; iclass < SIZE_CLASS_COUNT; ++iclass) {
+		heap->size_use[iclass].free_total += heap->size_use[iclass].alloc_current;
+		heap->size_use[iclass].alloc_current = 0;
+	}
 #endif
 }
 
@@ -2420,6 +2618,10 @@ rpmalloc_usable_size(void* ptr) {
 	return (ptr ? block_usable_size(ptr) : 0);
 }
 
+extern void
+rpmalloc_linker_reference(void) {
+}
+
 ////////////
 ///
 /// Initialization and finalization
@@ -2435,6 +2637,32 @@ rpmalloc_thread_destructor(void* value) {
 	if (value)
 		rpmalloc_thread_finalize();
 }
+
+#if defined(__linux__) || defined(__ANDROID__)
+//! Read a small (pseudo) file such as /proc/meminfo into a caller provided stack buffer
+//! using raw syscalls. This deliberately avoids stdio (fopen/fgets), which allocates an
+//! internal buffer through malloc - during rpmalloc_initialize that allocation would
+//! re-enter the allocator (when the malloc override is enabled) before the page size is
+//! established. Returns the number of bytes read (buffer is always null terminated), or 0.
+static size_t
+os_read_system_file(const char* path, char* buffer, size_t capacity) {
+	if (capacity < 2)
+		return 0;
+	int fd = open(path, O_RDONLY | O_CLOEXEC);
+	if (fd < 0)
+		return 0;
+	size_t total = 0;
+	while ((total + 1) < capacity) {
+		ssize_t got = read(fd, buffer + total, (capacity - 1) - total);
+		if (got <= 0)
+			break;
+		total += (size_t)got;
+	}
+	close(fd);
+	buffer[total] = 0;
+	return total;
+}
+#endif
 
 extern int
 rpmalloc_initialize_config(rpmalloc_interface_t* memory_interface, rpmalloc_config_t* config) {
@@ -2465,6 +2693,10 @@ rpmalloc_initialize(rpmalloc_interface_t* memory_interface) {
 
 	global_rpmalloc_initialized = 1;
 
+	// Remember whether the caller explicitly requested huge pages, the detection below
+	// overwrites global_config.enable_huge_pages with what is actually available.
+	const int huge_pages_requested = global_config.enable_huge_pages;
+
 	global_memory_interface = memory_interface ? memory_interface : &global_memory_interface_default;
 	if (!global_memory_interface->memory_map || !global_memory_interface->memory_unmap) {
 		global_memory_interface->memory_map = os_mmap;
@@ -2472,6 +2704,14 @@ rpmalloc_initialize(rpmalloc_interface_t* memory_interface) {
 		global_memory_interface->memory_decommit = os_mdecommit;
 		global_memory_interface->memory_unmap = os_munmap;
 	}
+
+#if ENABLE_OVERRIDE
+	// With the standard library override, rpmalloc backs the C runtime's own allocations (for
+	// example per-thread TLS allocated by the loader). Unmapping everything at finalize while the
+	// process keeps running would pull that memory out from under the runtime, so the option
+	// cannot be honored here; clear it (also reflected back through the effective config).
+	global_config.unmap_on_finalize = 0;
+#endif
 
 #if PLATFORM_WINDOWS
 	SYSTEM_INFO system_info;
@@ -2496,6 +2736,16 @@ rpmalloc_initialize(rpmalloc_interface_t* memory_interface) {
 	os_huge_pages = 0;
 	os_thp = 0;
 	os_huge_page_shift = 0;
+
+	rpmalloc_assert(!(global_config.page_size & (global_config.page_size - 1)),
+	                "Configured page size must be a power of two");
+
+	// Establish a valid (normal) page size up front so the allocator never observes a
+	// zero page size during the rest of initialization. Huge page detection below may
+	// raise it to the huge page size once availability has been confirmed.
+	if (!memory_interface || (global_config.page_size < os_page_size))
+		global_config.page_size = os_page_size;
+
 	if (global_config.enable_huge_pages) {
 #if PLATFORM_WINDOWS
 		HANDLE token = 0;
@@ -2532,15 +2782,11 @@ rpmalloc_initialize(rpmalloc_interface_t* memory_interface) {
 		}
 #elif defined(__linux__)
 		size_t huge_page_size = 0;
-		FILE* meminfo = fopen("/proc/meminfo", "r");
-		if (meminfo) {
-			char line[128];
-			while (!huge_page_size && fgets(line, sizeof(line) - 1, meminfo)) {
-				line[sizeof(line) - 1] = 0;
-				if (strstr(line, "Hugepagesize:"))
-					huge_page_size = (size_t)strtol(line + 13, 0, 10) * 1024;
-			}
-			fclose(meminfo);
+		char meminfo[4096];
+		if (os_read_system_file("/proc/meminfo", meminfo, sizeof(meminfo))) {
+			const char* line = strstr(meminfo, "Hugepagesize:");
+			if (line)
+				huge_page_size = (size_t)strtol(line + 13, 0, 10) * 1024;
 		}
 		// Sanity check the detected default huge page size, the builtin page geometry
 		// cannot use huge pages larger than the largest builtin page size (e.g. 1GiB
@@ -2550,11 +2796,31 @@ rpmalloc_initialize(rpmalloc_interface_t* memory_interface) {
 			huge_page_size = 0;
 		if (huge_page_size > LARGE_PAGE_SIZE)
 			huge_page_size = 2 * 1024 * 1024;
+#if defined(MAP_HUGETLB)
 		if (huge_page_size) {
-			os_huge_pages = 1;
-			os_page_size = huge_page_size;
-			os_map_granularity = huge_page_size;
+			// Hugepagesize in /proc/meminfo only reports the configured huge page size, not
+			// whether any huge pages are actually available (the static pool can be empty,
+			// HugePages_Total == 0). Probe by mapping a single huge page with the same flags
+			// used for real mappings and only enable huge pages if the request can actually
+			// be satisfied (static pool or overcommit). This also covers the case where the
+			// page size is reported but the kernel rejects that specific MAP_HUGE_* size.
+			size_t huge_shift = 0;
+			while (((size_t)1 << huge_shift) < huge_page_size)
+				++huge_shift;
+			int probe_flags = MAP_PRIVATE | MAP_ANONYMOUS | MAP_HUGETLB;
+#if defined(MAP_HUGE_SHIFT)
+			probe_flags |= (int)(huge_shift << MAP_HUGE_SHIFT);
+#endif
+			void* probe = mmap(0, huge_page_size, PROT_READ | PROT_WRITE, probe_flags, -1, 0);
+			if ((probe != MAP_FAILED) && probe) {
+				munmap(probe, huge_page_size);
+				os_huge_pages = 1;
+				os_huge_page_shift = huge_shift;
+				os_page_size = huge_page_size;
+				os_map_granularity = huge_page_size;
+			}
 		}
+#endif
 #elif defined(__FreeBSD__)
 		int rc;
 		size_t sz = sizeof(rc);
@@ -2578,6 +2844,16 @@ rpmalloc_initialize(rpmalloc_interface_t* memory_interface) {
 #endif
 	}
 
+	if (huge_pages_requested && !os_huge_pages) {
+		// Explicit huge pages were requested but are not available on this system. Fail
+		// initialization rather than silently backing the heap with normal pages behind a
+		// huge page size. Leave the allocator uninitialized (and the requested flag cleared)
+		// so the caller can detect this and re-initialize without huge pages if desired.
+		global_config.enable_huge_pages = 0;
+		global_rpmalloc_initialized = 0;
+		return -1;
+	}
+
 	global_config.enable_huge_pages = os_huge_pages;
 
 	if (os_huge_pages) {
@@ -2597,8 +2873,16 @@ rpmalloc_initialize(rpmalloc_interface_t* memory_interface) {
 #if defined(__linux__) || defined(__ANDROID__)
 	// Transparent huge pages, advise mappings to be huge page backed without requiring
 	// a preallocated huge page pool and without affecting page size or decommit
-	if (global_config.enable_thp && !os_huge_pages && !global_config.disable_thp)
-		os_thp = 1;
+	if (global_config.enable_thp && !os_huge_pages && !global_config.disable_thp) {
+		// When THP is disabled system-wide (mode "never") madvise(MADV_HUGEPAGE) is a
+		// no-op, so report it as disabled rather than claiming THP is in use.
+		char thp_state[64];
+		int thp_never = 0;
+		if (os_read_system_file("/sys/kernel/mm/transparent_hugepage/enabled", thp_state, sizeof(thp_state)))
+			thp_never = (strstr(thp_state, "[never]") != 0);
+		if (!thp_never)
+			os_thp = 1;
+	}
 	if (global_config.disable_thp)
 		(void)prctl(PR_SET_THP_DISABLE, 1, 0, 0, 0);
 #endif
@@ -2634,6 +2918,65 @@ rpmalloc_config(void) {
 	return &global_config;
 }
 
+#if ENABLE_LEAK_DETECTION
+//! Number of size class blocks still allocated across every heap. A non-zero value once all threads
+//! have finalized means the application has not freed all its allocations (leak or double free).
+static long long
+statistics_outstanding_blocks(void) {
+	heap_t* lists[3] = {global_heap_used, global_heap_queue, global_heap_pristine};
+	long long outstanding = 0;
+	for (int ilist = 0; ilist < 3; ++ilist) {
+		for (heap_t* heap = lists[ilist]; heap; heap = heap->next) {
+			for (uint32_t iclass = 0; iclass < SIZE_CLASS_COUNT; ++iclass)
+				outstanding += heap->size_use[iclass].alloc_current;
+		}
+	}
+	return outstanding;
+}
+
+//! Number of cross-thread freed blocks parked in a span's per page deferred lists, counting every
+//! initialized page (a full page is not reachable from page_available but can still hold deferred
+//! frees, since adoption is skipped while a page has a local free list). Page count is in the token
+//! high bits.
+static long long
+span_deferred_block_count(span_t* span) {
+	long long deferred = 0;
+	for (uint32_t ipage = 0; ipage < span->page_initialized; ++ipage) {
+		page_t* page = (page_t*)pointer_offset(span, (size_t)span->page_size * ipage);
+		uint64_t token = atomic_load_explicit(&page->thread_free, memory_order_relaxed);
+		deferred += (long long)(uint32_t)(token >> 32ULL);
+	}
+	return deferred;
+}
+
+//! Number of blocks freed cross-thread but not yet applied to the owning heap's alloc_current,
+//! waiting in the deferred free lists. These are accounted in alloc_current until processed, so
+//! subtracting them from the outstanding count yields the blocks the application has truly leaked.
+static long long
+statistics_pending_deferred_blocks(void) {
+	heap_t* lists[3] = {global_heap_used, global_heap_queue, global_heap_pristine};
+	long long deferred = 0;
+	for (int ilist = 0; ilist < 3; ++ilist) {
+		for (heap_t* heap = lists[ilist]; heap; heap = heap->next) {
+			// Page types small through large carry the per heap full page deferred list and the per
+			// page deferred lists of every span. Huge blocks are never deferred per block.
+			for (uint32_t itype = 0; itype < 4; ++itype) {
+				block_t* block = (block_t*)atomic_load_explicit(&heap->thread_free[itype], memory_order_relaxed);
+				while (block) {
+					++deferred;
+					block = block->next;
+				}
+				if (heap->span_partial[itype])
+					deferred += span_deferred_block_count(heap->span_partial[itype]);
+				for (span_t* span = heap->span_used[itype]; span; span = span->next)
+					deferred += span_deferred_block_count(span);
+			}
+		}
+	}
+	return deferred;
+}
+#endif
+
 extern void
 rpmalloc_finalize(void) {
 	rpmalloc_thread_finalize();
@@ -2644,13 +2987,41 @@ rpmalloc_finalize(void) {
 	huge_cache_flush();
 #endif
 
+#if ENABLE_LEAK_DETECTION && ENABLE_ASSERTS
+	// Leak detection: every thread has finalized, so blocks still allocated and not merely waiting
+	// in a deferred cross-thread free list are blocks the application never freed (or freed twice).
+	rpmalloc_assert(statistics_outstanding_blocks() <= statistics_pending_deferred_blocks(),
+	                "Memory leak detected");
+	rpmalloc_assert(atomic_load_explicit(&global_statistics.huge_alloc, memory_order_relaxed) == 0,
+	                "Memory leak detected");
+#endif
+
+
 	if (global_config.unmap_on_finalize) {
-		heap_t* heap = global_heap_queue;
+		// Heaps can share a mapping (heap_allocate_new); only the owner carries mapped_size != 0.
+		// Resources are freed while every heap is still mapped, then owners are unmapped in a
+		// separate pass so a heap is never dereferenced after its shared mapping is gone.
+		heap_t* owners = 0;
+		heap_t* heap = global_heap_pristine;
+		global_heap_pristine = 0;
+		while (heap) {
+			heap_t* heap_next = heap->next;
+			heap_free_all(heap);
+			if (heap->mapped_size) {
+				heap->next = owners;
+				owners = heap;
+			}
+			heap = heap_next;
+		}
+		heap = global_heap_queue;
 		global_heap_queue = 0;
 		while (heap) {
 			heap_t* heap_next = heap->next;
 			heap_free_all(heap);
-			heap_unmap(heap);
+			if (heap->mapped_size) {
+				heap->next = owners;
+				owners = heap;
+			}
 			heap = heap_next;
 		}
 		heap = global_heap_used;
@@ -2658,8 +3029,16 @@ rpmalloc_finalize(void) {
 		while (heap) {
 			heap_t* heap_next = heap->next;
 			heap_free_all(heap);
-			heap_unmap(heap);
+			if (heap->mapped_size) {
+				heap->next = owners;
+				owners = heap;
+			}
 			heap = heap_next;
+		}
+		while (owners) {
+			heap_t* owner_next = owners->next;
+			heap_unmap(owners);
+			owners = owner_next;
 		}
 #if ENABLE_STATISTICS
 		memset(&global_statistics, 0, sizeof(global_statistics));
@@ -2674,6 +3053,7 @@ rpmalloc_finalize(void) {
 	pthread_key = 0;
 #endif
 
+	global_heap_creating = 0;
 	global_main_thread_id = 0;
 	global_rpmalloc_initialized = 0;
 }
@@ -2698,6 +3078,51 @@ rpmalloc_thread_collect(void) {
 }
 
 void
+rpmalloc_thread_statistics(rpmalloc_thread_statistics_t* stats) {
+	memset(stats, 0, sizeof(rpmalloc_thread_statistics_t));
+#if ENABLE_STATISTICS
+	heap_t* heap = get_thread_heap();
+	if (!heap || (heap->id == 0))
+		return;
+
+	// Size class cache: blocks available without mapping a new page. A page's block_used counts the
+	// blocks held on the heap free list, so those are counted from the heap list and each page adds
+	// its remaining blocks (page free list plus the not yet initialized tail).
+	for (uint32_t iclass = 0; iclass < SIZE_CLASS_COUNT; ++iclass) {
+		size_t block_size = global_size_class[iclass].block_size;
+		size_t free_count = 0;
+		for (block_t* block = heap->local_free[iclass]; block; block = block->next)
+			++free_count;
+		for (page_t* page = heap->page_available[iclass]; page; page = page->next)
+			free_count += (size_t)(page->block_count - page->block_used);
+		stats->sizecache += free_count * block_size;
+
+		stats->size_use[iclass].alloc_current = (size_t)heap->size_use[iclass].alloc_current;
+		stats->size_use[iclass].alloc_peak = (size_t)heap->size_use[iclass].alloc_peak;
+		stats->size_use[iclass].alloc_total = (size_t)heap->size_use[iclass].alloc_total;
+		stats->size_use[iclass].free_total = (size_t)heap->size_use[iclass].free_total;
+	}
+
+	// Span cache: free but still committed pages retained per page type
+	static const size_t page_type_size[4] = {SMALL_PAGE_SIZE, MEDIUM_SMALL_PAGE_SIZE, MEDIUM_LARGE_PAGE_SIZE,
+	                                          LARGE_PAGE_SIZE};
+	for (uint32_t itype = 0; itype < 4; ++itype)
+		stats->spancache += (size_t)heap->page_free_commit_count[itype] * page_type_size[itype];
+
+	// Per page type span use: current spans in use computed live (partial plus full), map calls counted
+	for (uint32_t itype = 0; itype < 5; ++itype) {
+		size_t current = 0;
+		if ((itype < 4) && heap->span_partial[itype])
+			++current;
+		for (span_t* span = heap->span_used[itype]; span; span = span->next)
+			++current;
+		stats->span_use[itype].current = current;
+		stats->span_use[itype].map_calls = (size_t)heap->span_map_calls[itype];
+	}
+#endif
+}
+
+void
 rpmalloc_dump_statistics(void* file) {
 #if ENABLE_STATISTICS
 	fprintf(file, "Mapped pages:        %llu\n",
@@ -2716,8 +3141,46 @@ rpmalloc_dump_statistics(void* file) {
 	        (unsigned long long)atomic_load_explicit(&global_statistics.huge_alloc, memory_order_relaxed));
 	fprintf(file, "Huge bytes (peak):   %llu\n",
 	        (unsigned long long)atomic_load_explicit(&global_statistics.huge_alloc_peak, memory_order_relaxed));
-	fprintf(file, "Heaps created:       %llu\n",
+	fprintf(file, "Heaps in use:        %llu\n",
 	        (unsigned long long)atomic_load_explicit(&global_statistics.heap_count, memory_order_relaxed));
+#if ENABLE_LEAK_DETECTION
+	fprintf(file, "Outstanding blocks:  %lld\n",
+	        statistics_outstanding_blocks() - statistics_pending_deferred_blocks());
+#endif
+
+	// Aggregate per size class and per page type counters across all in-use heaps. This walks live
+	// heaps without stopping the world, so the values are a best-effort snapshot.
+	heap_size_use_t size_use[SIZE_CLASS_COUNT];
+	memset(size_use, 0, sizeof(size_use));
+	uint64_t span_map_calls[5];
+	memset(span_map_calls, 0, sizeof(span_map_calls));
+	heap_lock_acquire();
+	for (heap_t* heap = global_heap_used; heap; heap = heap->next) {
+		for (uint32_t iclass = 0; iclass < SIZE_CLASS_COUNT; ++iclass) {
+			size_use[iclass].alloc_current += heap->size_use[iclass].alloc_current;
+			size_use[iclass].alloc_peak += heap->size_use[iclass].alloc_peak;
+			size_use[iclass].alloc_total += heap->size_use[iclass].alloc_total;
+			size_use[iclass].free_total += heap->size_use[iclass].free_total;
+		}
+		for (uint32_t itype = 0; itype < 5; ++itype)
+			span_map_calls[itype] += heap->span_map_calls[itype];
+	}
+	heap_lock_release();
+
+	fprintf(file, "SizeClass  CurAlloc PeakAlloc  TotAlloc   TotFree BlockSize\n");
+	for (uint32_t iclass = 0; iclass < SIZE_CLASS_COUNT; ++iclass) {
+		if (!size_use[iclass].alloc_total)
+			continue;
+		fprintf(file, "%9u %9d %9d %9d %9d %9u\n", iclass, size_use[iclass].alloc_current,
+		        size_use[iclass].alloc_peak, size_use[iclass].alloc_total, size_use[iclass].free_total,
+		        global_size_class[iclass].block_size);
+	}
+	fprintf(file, "PageType  MapCalls\n");
+	for (uint32_t itype = 0; itype < 5; ++itype) {
+		if (!span_map_calls[itype])
+			continue;
+		fprintf(file, "%8u %9llu\n", itype, (unsigned long long)span_map_calls[itype]);
+	}
 #else
 	(void)sizeof(file);
 #endif
@@ -2744,10 +3207,10 @@ rpmalloc_global_statistics(rpmalloc_global_statistics_t* stats) {
 
 rpmalloc_heap_t*
 rpmalloc_heap_acquire(void) {
-	// Must be a pristine heap from newly mapped memory pages, or else memory blocks
-	// could already be allocated from the heap which would (wrongly) be released when
-	// heap is cleared with rpmalloc_heap_free_all(). Also heaps guaranteed to be
-	// pristine from the dedicated orphan list can be used.
+	// Must be a pristine heap, or else memory blocks could already be allocated from the heap
+	// which would (wrongly) be released when heap is cleared with rpmalloc_heap_free_all().
+	// heap_allocate(1) returns either a never-used heap carved from a shared block (whether that
+	// block was mapped for an ordinary heap or a prior first-class heap) or a freshly mapped one.
 	heap_t* heap = heap_allocate(1);
 	rpmalloc_assume(heap != 0);
 	heap->owner_thread = 0;
@@ -2897,7 +3360,6 @@ rpmalloc_heap_thread_set_current(rpmalloc_heap_t* heap) {
 
 rpmalloc_heap_t*
 rpmalloc_get_heap_for_ptr(void* ptr) {
-	// Grab the span, and then the heap from the span
 	span_t* span = (span_t*)((uintptr_t)ptr & SPAN_MASK);
 	if (span)
 		return span_get_page_from_block(span, ptr)->heap;

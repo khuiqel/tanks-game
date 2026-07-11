@@ -53,7 +53,6 @@ Using CMake & Visual Studio, there's going to be issues but here's what to do:
 Using MSYS2, it's a pain but works:
 
 1. Prerequisites: [`pacman -S --needed base-devel mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-glfw` and add your `msys64/ucrt64/bin` folder to PATH](https://code.visualstudio.com/docs/cpp/config-mingw)
-1. TODO: disable rpmalloc: set `USE_RPMALLOC` in CMake to `OFF` and comment out `#include <rpnew.h>` in `aaa_first.cpp`
 1. `cmake -S . -B build -G "MinGW Makefiles"`
 1. `cmake --build build -j%NUMBER_OF_PROCESSORS%`
 1. TODO: also needs `res/` (and `mods/`) copied to the build dir

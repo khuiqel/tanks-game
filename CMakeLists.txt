@@ -49,11 +49,9 @@ endif()
 
 if(MSVC)
 	add_compile_options(/wd4018 /wd4244 /wd4267 /wd4305 /wd4312 /wd4838)
-	SET_SOURCE_FILES_PROPERTIES(Dependencies/enkiTS/TaskScheduler.cpp PROPERTIES COMPILE_DEFINITIONS "_SILENCE_CXX20_IS_POD_DEPRECATION_WARNING")
 else()
 	set(CMAKE_C_FLAGS     "${CMAKE_C_FLAGS} -Wno-narrowing -Wno-int-to-pointer-cast")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-narrowing -Wno-int-to-pointer-cast -Wno-delete-incomplete")
-	SET_SOURCE_FILES_PROPERTIES(Dependencies/enkiTS/TaskScheduler.cpp PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations")
 	if(USE_TRACY)
 		SET_SOURCE_FILES_PROPERTIES(Externals/tracy/public/TracyClient.cpp PROPERTIES COMPILE_FLAGS "--no-warnings") #"-w" is so archaic
 	endif()

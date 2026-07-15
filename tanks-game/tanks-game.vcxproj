@@ -165,12 +165,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Dependencies\enkiTS\TaskScheduler.cpp">
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_SILENCE_CXX20_IS_POD_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_SILENCE_CXX20_IS_POD_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='ReleaseDistribution|x64'">_SILENCE_CXX20_IS_POD_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='ReleaseProfiling|x64'">_SILENCE_CXX20_IS_POD_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
+    <ClCompile Include="..\Dependencies\enkiTS\TaskScheduler.cpp" />
     <ClCompile Include="..\Dependencies\glad2\src\gl.c" />
     <ClCompile Include="..\Dependencies\rpmalloc\rpmalloc.c" />
     <ClCompile Include="..\Externals\tracy\public\TracyClient.cpp">

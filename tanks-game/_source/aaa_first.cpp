@@ -1,6 +1,7 @@
 #include "aaa_first.h"
 
-#ifdef _WIN32
+#ifdef _MSC_VER
+//segfaults on MinGW
 #include <rpnew.h>
 #endif
 

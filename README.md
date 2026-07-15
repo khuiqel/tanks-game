@@ -49,6 +49,7 @@ Using CMake & Visual Studio, there's going to be issues but here's what to do:
 1. Either open the `.sln` project that was just created or run `cmake --build build --config [Release|Debug] --target tanks-game`
     * TODO: For some reason, every file gets compiled twice... I don't know why.
 1. TODO: also needs `res/` (and `mods/`) copied to the build dir
+1. TODO: if you want to disable rpmalloc, comment out the include in `aaa_first.cpp`
 
 Using MSYS2, it's a pain but works:
 
@@ -56,6 +57,8 @@ Using MSYS2, it's a pain but works:
 1. `cmake -S . -B build -G "MinGW Makefiles"`
 1. `cmake --build build -j%NUMBER_OF_PROCESSORS%`
 1. TODO: also needs `res/` (and `mods/`) copied to the build dir
+
+Using rpmalloc without `<rpnew.h>` increases binary size, but a debugger doesn't hit its functions; including `<rpnew.h>` does hit its functions but segfaults; not sure if it's actually being used...
 
 ### Building (Linux)
 

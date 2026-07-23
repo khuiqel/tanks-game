@@ -7,14 +7,13 @@ struct TankUpdateStruct;
 
 #include "game-thing.h"
 #include "circle.h"
-#include "drawable-thing.h"
 #include "tank-power.h"
 
 #include "color-value-holder.h"
 #include "simple-vector-2d.h"
 #include "cannon-point.h"
 
-class Tank : public GameThing, public Circle, public DrawableThing {
+class Tank : public GameThing, public Circle {
 	friend class ResetThings;
 	friend class PowerFunctionHelper;
 	friend class EndGameHandler; //calls this->kill()

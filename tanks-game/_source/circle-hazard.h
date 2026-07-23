@@ -8,7 +8,6 @@ struct CircleHazardUpdateStruct;
 
 #include "game-thing.h"
 #include "circle.h"
-#include "drawable-thing.h"
 
 #include "tank.h"
 #include "bullet.h"
@@ -48,7 +47,7 @@ enum class CircleHazardCollisionType {
 	under
 };
 
-class CircleHazard : public GameThing, public Circle, public DrawableThing {
+class CircleHazard : public GameThing, public Circle {
 public:
 	virtual std::vector<std::string> getHazardTypes() const = 0;
 	virtual std::unordered_map<std::string, float> getWeights() const = 0; //intended range: (0,1]

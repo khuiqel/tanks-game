@@ -5,13 +5,14 @@ class Level;
 #include <vector>
 #include <unordered_map>
 
-#include "drawable-thing.h"
+#include "game-thing.h"
 #include "level-effect.h"
 
 #include "color-value-holder.h"
 #include "generic-factory-construction-data.h"
 
-class Level : public DrawableThing {
+//only a GameThing to be drawable
+class Level : public GameThing {
 	friend class LevelManager; //actually needs this unlike the other managers because the manager has more control
 
 protected:
@@ -39,6 +40,7 @@ public:
 	void drawLevelEffects() const;
 	void drawLevelEffects(DrawingLayers) const;
 
+	Level() : GameThing(DEFAULT_TEAM, ObjectType::None) {}
 	virtual ~Level();
 	//static Level* factory(const GenericFactoryConstructionData&); //not necessary
 	//static Level* factory();

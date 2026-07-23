@@ -4,7 +4,7 @@
 #include <unordered_map>
 
 #include "game-scene.h"
-#include "drawable-thing.h" //for DrawingLayers
+#include "game-thing.h" //for DrawingLayers
 
 #include "tank.h"
 #include "bullet.h"

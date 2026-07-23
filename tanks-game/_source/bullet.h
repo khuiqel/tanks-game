@@ -7,7 +7,6 @@ struct BulletUpdateStruct;
 
 #include "game-thing.h"
 #include "circle.h"
-#include "drawable-thing.h"
 #include "bullet-power.h"
 
 #include "color-value-holder.h"
@@ -20,7 +19,7 @@ enum class BulletParentType {
 	none //anything?
 };
 
-class Bullet : public GameThing, public Circle, public DrawableThing {
+class Bullet : public GameThing, public Circle {
 	friend class ResetThings;
 	friend class PowerFunctionHelper;
 	friend class EndGameHandler;

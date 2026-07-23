@@ -4,11 +4,10 @@ struct WallUpdateStruct;
 
 #include "game-thing.h"
 #include "rect.h"
-#include "drawable-thing.h"
 
 #include "color-value-holder.h"
 
-class Wall : public GameThing, public Rect, public DrawableThing {
+class Wall : public GameThing, public Rect {
 	friend class ResetThings; //not really needed
 	friend class PowerFunctionHelper;
 

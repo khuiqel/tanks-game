@@ -827,9 +827,6 @@
     <ClInclude Include="_source\levels\hiding-places-level.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="_source\drawable-thing.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="_source\graphics\rendering-context.h">
       <Filter>Header Files</Filter>
     </ClInclude>

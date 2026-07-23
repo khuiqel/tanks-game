@@ -367,7 +367,6 @@
     <ClInclude Include="_source\custom-level-interpreter.h" />
     <ClInclude Include="_source\custom-power-interpreter.h" />
     <ClInclude Include="_source\developer-manager.h" />
-    <ClInclude Include="_source\drawable-thing.h" />
     <ClInclude Include="_source\end-game-handler.h" />
     <ClInclude Include="_source\frame-time-graph.h" />
     <ClInclude Include="_source\game-main-loop.h" />

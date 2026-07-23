@@ -5,13 +5,13 @@ class LevelEffect;
 #include <vector>
 #include <unordered_map>
 
-#include "drawable-thing.h"
+#include "game-thing.h"
 
 #include "level.h"
 #include "generic-factory-construction-data.h"
 
 //TODO: level effects basically need to be powers but for levels (needs to be able to override some things in GameMainLoop, I think)
-class LevelEffect : public DrawableThing {
+class LevelEffect : public GameThing {
 public:
 	virtual std::string getName() const = 0;
 	virtual std::vector<std::string> getLevelEffectTypes() const = 0;
@@ -36,6 +36,7 @@ public:
 	virtual void ghostDraw(float alpha) const override { return; }
 	virtual void ghostDraw(DrawingLayers, float alpha) const override { return; }
 
+	LevelEffect() : GameThing(DEFAULT_TEAM, ObjectType::None) {}
 	virtual ~LevelEffect() { return; }
 	//static LevelEffect* factory(const GenericFactoryConstructionData&);
 };

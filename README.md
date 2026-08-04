@@ -70,7 +70,7 @@ Using rpmalloc without `<rpnew.h>` increases binary size, but a debugger doesn't
     * If your monitor scaling isn't 100% and you are using Wayland, the game will not fill the whole window until the window is resized, and the dev mouse controls will have an incorrect position. This is a GLFW problem, and fixing it requires using X11 (disable `GLFW_BUILD_WAYLAND` in CMake) or using an older version to make X11 the default (`git checkout 3.3.10` in the submodule).
 1. `cmake -S . -B build` (optional and recommended: `-DCMAKE_CXX_FLAGS=-march=native -DCMAKE_C_FLAGS=-march=native`)
     * If you are interested in testing things out yourself, specify `-DCMAKE_BUILD_TYPE=[Release|Debug]`, because by default a few things are modified to act like an end-user product (by "a few" I mean just the dev mouse controls are always enabled if you specify the build type)
-1. `make -j$(nproc)`
+1. `cmake --build build -j$(nproc)`
 1. TODO: also needs `res/` (and `mods/`) copied to the build dir
 1. Note: On Ubuntu, going fullscreen seems to force the window to the largest monitor, unless "Auto-hide the Dock" is enabled. It appears that Ubuntu forces windows that are too large for the current screen (which means full height is too much due to the dock) to the largest screen.
 
@@ -84,34 +84,10 @@ Linux: enable the `USE_TRACY` option in CMake
 
 ### Linux display issues
 
-After *extensive* testing, I have found that not all distributions and desktop environments play nicely. Nearly all can compile and run the game, however they will not necessarily display anything. Some of them only work under X11, maybe due to incorrect environment parameters getting passed on to GLFW (I really don't know, I'm not a Linux display system expert). Here's what I've found:
+Linux + GLFW has a couple problems.
 
-Works without issue:
-
-* Ubuntu 22.04/24.04 GNOME
-* Linux Mint 21/22 Cinnamon & Xfce
-* Fedora Xfce
-* Arch Xfce & MATE
-* Manjaro Plasma & GNOME & Xfce & Cinnamon
-
-Works with workarounds:
-
-* Ubuntu 25.04: switch to X11 (*first* select your user, *then* click the gear in the bottom right)
-    * 24.04 works just fine but 25.04 doesn't because the GLFW library version bump (3.3.10 to 3.4) made Wayland preferred, and it seems GLFW isn't ready for Wayland yet
-* Fedora Plasma: switch to X11 (select the text in the bottom left), requires `sudo dnf install plasma-workspace-x11`
-
-Doesn't work but might (I tested all of these in a virtual machine, so bare metal might fare differently):
-
-* Arch Plasma & GNOME
-
-Doesn't work:
-
-* Fedora GNOME (no X11 option)
-
-Untested:
-
-* Gentoo
-* Alpine
+* Fullscreen doesn't work on Wayland, as GLFW cannot set the window position for some reason
+* Monitor scaling is always treated as 100%, which results in the game not filling the whole window until a resize, also the dev mouse pos is incorrect
 
 ![superfast shooting video](readme-video-other.gif)
 

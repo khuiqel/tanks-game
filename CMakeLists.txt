@@ -25,7 +25,9 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 elseif(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	#TODO: for some reason every file is compiled twice
 	add_compile_options(/MP)
-	add_compile_options(/experimental:c11atomics) #rpmalloc
+	if(USE_RPMALLOC)
+		add_compile_options(/experimental:c11atomics)
+	endif()
 else()
 	message(WARNING "Unknown compiler, assuming it's fine...")
 endif()

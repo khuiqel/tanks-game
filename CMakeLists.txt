@@ -32,6 +32,11 @@ else()
 	message(WARNING "Unknown compiler, assuming it's fine...")
 endif()
 
+# Work around compiler bug that only occurs with C++20 and -Os, see https://github.com/msys2/MINGW-packages/issues/31015
+if(MINGW AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	add_compile_options($<$<AND:$<COMPILE_LANGUAGE:CXX>,$<CONFIG:MinSizeRel>>:-fno-declone-ctor-dtor>)
+endif()
+
 if(MSVC)
 	#change this yourself if desired
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:SSE4.2")

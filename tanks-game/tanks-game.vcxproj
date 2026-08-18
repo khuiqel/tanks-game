@@ -183,7 +183,6 @@
     <ClCompile Include="_source\color-cache.cpp" />
     <ClCompile Include="_source\color-mixer.cpp" />
     <ClCompile Include="_source\color-value-holder.cpp" />
-    <ClCompile Include="_source\constants.cpp" />
     <ClCompile Include="_source\custom-level-interpreter.cpp" />
     <ClCompile Include="_source\custom-power-interpreter.cpp" />
     <ClCompile Include="_source\developer-manager.cpp" />

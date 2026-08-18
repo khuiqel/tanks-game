@@ -45,9 +45,6 @@
     <ClCompile Include="_source\wall.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="_source\constants.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="_source\color-mixer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -108,7 +108,6 @@ add_executable(${PROJECT_NAME}
 	tanks-game/_source/color-cache.cpp
 	tanks-game/_source/color-mixer.cpp
 	tanks-game/_source/color-value-holder.cpp
-	tanks-game/_source/constants.cpp
 	tanks-game/_source/custom-level-interpreter.cpp
 	tanks-game/_source/custom-power-interpreter.cpp
 	tanks-game/_source/developer-manager.cpp

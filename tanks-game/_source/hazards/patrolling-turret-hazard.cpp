@@ -145,8 +145,8 @@ bool PatrollingTurretHazard::isCloseAsPossibleToCurrentPoint() const {
 	//if distance is less than current velocity, not close enough
 	double xDist = this->x - getRoutePosX(currentPatrolTarget);
 	double yDist = this->y - getRoutePosY(currentPatrolTarget);
-	float dist = std::sqrt(xDist*xDist + yDist*yDist);
-	return (dist < velocity.getMagnitude());
+	float distSquared = xDist*xDist + yDist*yDist;
+	return (distSquared < velocity.getMagnitude() * velocity.getMagnitude());
 }
 
 bool PatrollingTurretHazard::isWaitingAtPoint() const {
@@ -211,17 +211,15 @@ bool PatrollingTurretHazard::reasonableLocation() const {
 			}
 		}
 
-		Circle* testBody = new Circle();
-		testBody->x = getRoutePosX(i);
-		testBody->y = getRoutePosY(i);
-		testBody->r = this->r;
+		Circle testBody;
+		testBody.x = getRoutePosX(i);
+		testBody.y = getRoutePosY(i);
+		testBody.r = this->r;
 		for (int j = 0; j < WallManager::getNumWalls(); j++) {
-			if (CollisionHandler::partiallyCollided(testBody, WallManager::getWall(j))) {
-				delete testBody;
+			if (CollisionHandler::partiallyCollided(&testBody, WallManager::getWall(j))) {
 				return false;
 			}
 		}
-		delete testBody;
 
 		//testing if the turret can see the tank at any point along its path: just accept doing some marching and call it a day
 		for (int k = 0; k < TankManager::getNumTanks(); k++) {
@@ -247,27 +245,23 @@ bool PatrollingTurretHazard::reasonableLocation() const {
 		}
 
 		//other hazards: just test the stopping location, don't bother with the full path
-		testBody = new Circle(); //yes this is copy-paste from above, oh well, fix later
-		testBody->x = getRoutePosX(i);
-		testBody->y = getRoutePosY(i);
-		testBody->r = this->r;
+		testBody.x = getRoutePosX(i);
+		testBody.y = getRoutePosY(i);
+		testBody.r = this->r;
 		for (int j = 0; j < HazardManager::getNumCircleHazards(); j++) {
 			const CircleHazard* ch = HazardManager::getCircleHazard(j);
 			if (ch->getGameID() != this->getGameID()) [[likely]] {
-				if ((ch->getCollisionType() != CircleHazardCollisionType::under) && CollisionHandler::partiallyCollided(testBody, ch)) {
-					delete testBody;
+				if ((ch->getCollisionType() != CircleHazardCollisionType::under) && CollisionHandler::partiallyCollided(&testBody, ch)) {
 					return false;
 				}
 			}
 		}
 		for (int j = 0; j < HazardManager::getNumRectHazards(); j++) {
 			const RectHazard* rh = HazardManager::getRectHazard(j);
-			if ((rh->getCollisionType() != RectHazardCollisionType::under) && CollisionHandler::partiallyCollided(testBody, rh)) {
-				delete testBody;
+			if ((rh->getCollisionType() != RectHazardCollisionType::under) && CollisionHandler::partiallyCollided(&testBody, rh)) {
 				return false;
 			}
 		}
-		delete testBody;
 	}
 
 	return TargetingTurretHazard::reasonableLocation();
@@ -483,15 +477,16 @@ CircleHazard* PatrollingTurretHazard::randomizingFactory(double x_start, double 
 				stoppingLocations[0] = LevelRNG::randNumInRange(x_start + realRadius, x_start + area_width - realRadius);
 				stoppingLocations[1] = LevelRNG::randNumInRange(y_start + realRadius, y_start + area_height - realRadius);
 
-				Circle* testStop = new Circle();
-				testStop->x = stoppingLocations[0]; testStop->y = stoppingLocations[1]; testStop->r = 0;
+				Circle testStop;
+				testStop.x = stoppingLocations[0];
+				testStop.y = stoppingLocations[1];
+				testStop.r = 0;
 				for (int j = 0; j < WallManager::getNumWalls(); j++) {
-					if (CollisionHandler::partiallyCollided(testStop, WallManager::getWall(j))) {
+					if (CollisionHandler::partiallyCollided(&testStop, WallManager::getWall(j))) {
 						blockedPosition = true;
 						break;
 					}
 				}
-				delete testStop;
 
 				location_attempts++;
 			} while (blockedPosition && (location_attempts < 16));
@@ -517,15 +512,16 @@ CircleHazard* PatrollingTurretHazard::randomizingFactory(double x_start, double 
 					outOfBounds = true;
 					blockedPosition = true; //otherwise it will exit early
 				} else {
-					Circle* testStop = new Circle();
-					testStop->x = stoppingLocations[i*2]; testStop->y = stoppingLocations[i*2+1]; testStop->r = 0;
+					Circle testStop;
+					testStop.x = stoppingLocations[i*2];
+					testStop.y = stoppingLocations[i*2+1];
+					testStop.r = 0;
 					for (int j = 0; j < WallManager::getNumWalls(); j++) {
-						if (CollisionHandler::partiallyCollided(testStop, WallManager::getWall(j))) {
+						if (CollisionHandler::partiallyCollided(&testStop, WallManager::getWall(j))) {
 							blockedPosition = true;
 							break;
 						}
 					}
-					delete testStop;
 				}
 
 				location_attempts++;

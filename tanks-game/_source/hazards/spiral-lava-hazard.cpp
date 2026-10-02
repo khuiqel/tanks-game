@@ -139,18 +139,16 @@ inline double SpiralLavaHazard::getLavaBlobRadius() const {
 
 bool SpiralLavaHazard::canReachTanks() const {
 	const double reachDist = maxLavaDist + getLavaBlobRadius();
-	Circle* testCircle = new Circle;
-	testCircle->x = this->x + this->w/2;
-	testCircle->y = this->y + this->h/2;
-	testCircle->r = reachDist;
+	Circle testCircle;
+	testCircle.x = this->x + this->w/2;
+	testCircle.y = this->y + this->h/2;
+	testCircle.r = reachDist;
 	for (int i = 0; i < TankManager::getNumTanks(); i++) {
 		const Tank* t = TankManager::getTank(i);
-		if (CollisionHandler::partiallyCollided(testCircle, t)) {
-			delete testCircle;
+		if (CollisionHandler::partiallyCollided(&testCircle, t)) {
 			return true;
 		}
 	}
-	delete testCircle;
 	return false;
 }
 

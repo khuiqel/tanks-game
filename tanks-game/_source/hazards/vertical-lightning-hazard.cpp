@@ -36,12 +36,12 @@ VerticalLightningHazard::VerticalLightningHazard(double xpos, double ypos, doubl
 	//canAcceptPowers = false;
 }
 
-inline Circle* VerticalLightningHazard::getTopPoint() const {
-	return new Point(x + w/2, y + h);
+inline Circle VerticalLightningHazard::getTopPoint() const {
+	return Point(x + w/2, y + h);
 }
 
-inline Circle* VerticalLightningHazard::getBottomPoint() const {
-	return new Point(x + w/2, y);
+inline Circle VerticalLightningHazard::getBottomPoint() const {
+	return Point(x + w/2, y);
 }
 
 VerticalLightningHazard::~VerticalLightningHazard() {
@@ -66,15 +66,15 @@ RectHazard* VerticalLightningHazard::factory(const GenericFactoryConstructionDat
 }
 
 void VerticalLightningHazard::specialEffectCircleCollision(const Circle* c) {
-	const Circle* bottomPoint = getBottomPoint();
-	const Circle* topPoint = getTopPoint();
-	const Circle* circleCenter = new Point(c->x, c->y);
+	const Circle bottomPoint = getBottomPoint();
+	const Circle topPoint = getTopPoint();
+	const Circle circleCenter = Point(c->x, c->y);
 	double intersectionXD, intersectionXU, intersectionYD, intersectionYU;
 	int boltPointsD, boltPointsU;
 
 	double xpos, ypos; //circle adjusted x and y
 
-	if (CollisionHandler::fullyCollided(circleCenter, this)) {
+	if (CollisionHandler::fullyCollided(&circleCenter, this)) {
 		//circle center inside rectangle area
 		xpos = c->x;
 		ypos = c->y;
@@ -96,12 +96,12 @@ void VerticalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 		}
 	}
 
-	if (CollisionHandler::fullyCollided(bottomPoint, c)) {
+	if (CollisionHandler::fullyCollided(&bottomPoint, c)) {
 		intersectionXD = c->x;
 		intersectionYD = c->y;
 		boltPointsD = 2;
 	} else {
-		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, bottomPoint->x, bottomPoint->y);
+		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, bottomPoint.x, bottomPoint.y);
 		if (c->x < x + w/2) {
 			intersectionXD = std::max(intersections.first.x, intersections.second.x);
 		} else {
@@ -117,15 +117,15 @@ void VerticalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 			std::cerr << "WARNING: vertical lightning endpoint Y (bottom half) out of range!" << std::endl;
 			intersectionYD = std::clamp<double>(intersectionYD, y, y+h);
 		}
-		boltPointsD = getDefaultNumBoltPoints(std::sqrt((intersectionXD - bottomPoint->x)*(intersectionXD - bottomPoint->x) + (intersectionYD - bottomPoint->y)*(intersectionYD - bottomPoint->y)));
+		boltPointsD = getDefaultNumBoltPoints(std::sqrt((intersectionXD - bottomPoint.x)*(intersectionXD - bottomPoint.x) + (intersectionYD - bottomPoint.y)*(intersectionYD - bottomPoint.y)));
 	}
 
-	if (CollisionHandler::fullyCollided(topPoint, c)) {
+	if (CollisionHandler::fullyCollided(&topPoint, c)) {
 		intersectionXU = c->x;
 		intersectionYU = c->y;
 		boltPointsU = 2;
 	} else {
-		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, topPoint->x, topPoint->y);
+		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, topPoint.x, topPoint.y);
 		if (c->x < x + w/2) {
 			intersectionXU = std::max(intersections.first.x, intersections.second.x);
 		} else {
@@ -141,13 +141,12 @@ void VerticalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 			std::cerr << "WARNING: vertical lightning endpoint Y (top half) out of range!" << std::endl;
 			intersectionYU = std::clamp<double>(intersectionYU, y, y+h);
 		}
-		boltPointsU = getDefaultNumBoltPoints(std::sqrt((intersectionXU - topPoint->x)*(intersectionXU - topPoint->x) + (intersectionYU - topPoint->y)*(intersectionYU - topPoint->y)));
+		boltPointsU = getDefaultNumBoltPoints(std::sqrt((intersectionXU - topPoint.x)*(intersectionXU - topPoint.x) + (intersectionYU - topPoint.y)*(intersectionYU - topPoint.y)));
 	}
 
 	pushBolt(new LightningBolt(w/2, 0, intersectionXD-x, intersectionYD-y, boltPointsD), false);
 	pushBolt(new LightningBolt(intersectionXD-x, intersectionYD-y, intersectionXU-x, intersectionYU-y, 2), false);
 	pushBolt(new LightningBolt(intersectionXU-x, intersectionYU-y, w/2, h, boltPointsU), false);
-	delete bottomPoint; delete topPoint; delete circleCenter;
 }
 
 void VerticalLightningHazard::pushBolt(LightningBolt* l, bool simpleRefresh) {
@@ -177,7 +176,6 @@ bool VerticalLightningHazard::validLocation() const {
 		if (CollisionHandler::partiallyCollidedIgnoreEdge(wa, this)) {
 			return false;
 		}
-		//maybe wrap this in (!(wallOnBottom && wallOnTop))
 		if ((wa->x <= x) && (wa->x + wa->w >= x + w)) {
 			if (y == wa->y + wa->h) {
 				wallOnBottom = true;

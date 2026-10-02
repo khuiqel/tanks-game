@@ -146,19 +146,19 @@ inline float GravityWellHazard::getInnerGravityCircleRadius() const {
 	}
 }
 
-inline Circle* GravityWellHazard::getGravityRangeCircle() const {
-	Circle* c = new Circle();
-	c->x = this->x;
-	c->y = this->y;
-	c->r = this->gravityRange;
+inline Circle GravityWellHazard::getGravityRangeCircle() const {
+	Circle c;
+	c.x = this->x;
+	c.y = this->y;
+	c.r = this->gravityRange;
 	return c;
 }
 
 void GravityWellHazard::tick() {
-	const Circle* gravityBounds = getGravityRangeCircle();
+	const Circle gravityBounds = getGravityRangeCircle();
 	for (int i = 0; i < TankManager::getNumTanks(); i++) {
 		Tank* t = TankManager::getTank(i);
-		if (CollisionHandler::partiallyCollidedIgnoreEdge(t, gravityBounds)) {
+		if (CollisionHandler::partiallyCollidedIgnoreEdge(t, &gravityBounds)) {
 			const SimpleVector2D distToTank = SimpleVector2D(t->x - this->x, t->y - this->y);
 			const double distFromSurfaceToClosestPoint = distToTank.getMagnitude() - (t->r + this->r);
 			SimpleVector2D tankMovement = SimpleVector2D(distToTank.getAngle(), getGravityStrength(distFromSurfaceToClosestPoint), true);
@@ -169,7 +169,7 @@ void GravityWellHazard::tick() {
 	}
 	for (int i = 0; i < BulletManager::getNumBullets(); i++) {
 		Bullet* b = BulletManager::getBullet(i);
-		if (CollisionHandler::partiallyCollidedIgnoreEdge(b, gravityBounds)) {
+		if (CollisionHandler::partiallyCollidedIgnoreEdge(b, &gravityBounds)) {
 			const SimpleVector2D distToBullet = SimpleVector2D(b->x - this->x, b->y - this->y);
 			const double distFromSurfaceToClosestPoint = distToBullet.getMagnitude() - (b->r + this->r);
 			SimpleVector2D bulletMovement = SimpleVector2D(distToBullet.getAngle(), getGravityStrength(distFromSurfaceToClosestPoint), true);
@@ -179,7 +179,6 @@ void GravityWellHazard::tick() {
 		}
 	}
 	//doesn't change angles because that's complex
-	delete gravityBounds;
 
 	tickCount++;
 	if (tickCount >= tickCycle) {

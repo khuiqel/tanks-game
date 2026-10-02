@@ -12,8 +12,8 @@ protected:
 	virtual void pushBolt(LightningBolt*, bool simpleRefresh);
 	virtual void pushDefaultBolt(int num, bool randomize) override;
 
-	[[nodiscard]] inline Circle* getTopPoint() const; //for checks when a bullet/tank collides
-	[[nodiscard]] inline Circle* getBottomPoint() const;
+	inline Circle getTopPoint() const; //for checks when a bullet/tank collides
+	inline Circle getBottomPoint() const;
 
 public:
 	//virtual std::vector<std::string> getHazardTypes() const override; //matched with RectangularLightningHazard

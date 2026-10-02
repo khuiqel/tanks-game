@@ -18,7 +18,7 @@ protected:
 	inline bool isGravityReversed() const { return (minGravityStrength < 0 && maxGravityStrength < 0); }
 	inline float getGravityStrength(double dist) const;
 	inline float getInnerGravityCircleRadius() const;
-	[[nodiscard]] inline Circle* getGravityRangeCircle() const;
+	inline Circle getGravityRangeCircle() const;
 
 public:
 	virtual std::vector<std::string> getHazardTypes() const override {

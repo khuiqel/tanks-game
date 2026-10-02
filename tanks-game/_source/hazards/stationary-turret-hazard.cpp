@@ -38,13 +38,13 @@ std::unordered_map<std::string, float> StationaryTurretHazard::getWeights() cons
 StationaryTurretHazard::StationaryTurretHazard(double xpos, double ypos, double angle) : CircleHazard(HAZARD_TEAM) {
 	x = xpos;
 	y = ypos;
-	velocity = SimpleVector2D(angle, 0, true);
 	r = TANK_RADIUS / 4;
+	velocity = SimpleVector2D(angle, 0, true);
 
 	tickCount = 0;
 	tickCycle = 100; //100 is JS default (because of shooting speed)
 	currentState = 0;
-	double temp[maxState] = { 2, 1, 2 };
+	constexpr double temp[maxState] = { 2, 1, 2 };
 	std::copy(temp, temp + maxState, stateMultiplier);
 
 	//canAcceptPowers = false;

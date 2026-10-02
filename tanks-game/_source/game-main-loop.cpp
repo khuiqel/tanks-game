@@ -279,8 +279,8 @@ void GameMainLoop::everythingToEverything() {
 }
 
 void GameMainLoop::everythingToEverything_tank_tank(int i, int j, std::unordered_map<Game_ID, TankUpdateStruct>& tankUpdates) {
-	Tank* t_first = static_cast<Tank*>(GameManager::getObject(i));
-	Tank* t_second = static_cast<Tank*>(GameManager::getObject(j));
+	const Tank* t_first = static_cast<Tank*>(GameManager::getObject(i));
+	const Tank* t_second = static_cast<Tank*>(GameManager::getObject(j));
 	bool t_firstShouldDie = false;
 	bool t_secondShouldDie = false;
 	bool overridedTankCollision = false;
@@ -391,8 +391,8 @@ void GameMainLoop::everythingToEverything_tank_tank(int i, int j, std::unordered
 }
 
 void GameMainLoop::everythingToEverything_tank_wall(int i, int j, std::unordered_map<Game_ID, TankUpdateStruct>& tankUpdates, std::vector<Game_ID>& wallDeletionList, std::unordered_map<Game_ID, WallUpdateStruct>& wallUpdates) {
-	Tank* t = static_cast<Tank*>(GameManager::getObject(i));
-	Wall* w = static_cast<Wall*>(GameManager::getObject(j));
+	const Tank* t = static_cast<Tank*>(GameManager::getObject(i));
+	const Wall* w = static_cast<Wall*>(GameManager::getObject(j));
 	bool killTank = false; //unlikely to be set
 	bool killWall = false;
 	bool overridedWallCollision = false;
@@ -468,8 +468,8 @@ void GameMainLoop::everythingToEverything_tank_wall(int i, int j, std::unordered
 }
 
 void GameMainLoop::everythingToEverything_tank_circlehazard(int i, int j, std::unordered_map<Game_ID, TankUpdateStruct>& tankUpdates, std::vector<Game_ID>& circleHazardDeletionList, std::unordered_map<Game_ID, CircleHazardUpdateStruct>& circleHazardUpdates) {
-	Tank* t = static_cast<Tank*>(GameManager::getObject(i));
-	CircleHazard* ch = static_cast<CircleHazard*>(GameManager::getObject(j));
+	const Tank* t = static_cast<Tank*>(GameManager::getObject(i));
+	const CircleHazard* ch = static_cast<CircleHazard*>(GameManager::getObject(j));
 	bool killTank = false;
 	bool killCircleHazard = false;
 	bool overridedCircleHazardCollision = false;
@@ -547,8 +547,8 @@ void GameMainLoop::everythingToEverything_tank_circlehazard(int i, int j, std::u
 }
 
 void GameMainLoop::everythingToEverything_tank_recthazard(int i, int j, std::unordered_map<Game_ID, TankUpdateStruct>& tankUpdates, std::vector<Game_ID>& rectHazardDeletionList, std::unordered_map<Game_ID, RectHazardUpdateStruct>& rectHazardUpdates) {
-	Tank* t = static_cast<Tank*>(GameManager::getObject(i));
-	RectHazard* rh = static_cast<RectHazard*>(GameManager::getObject(j));
+	const Tank* t = static_cast<Tank*>(GameManager::getObject(i));
+	const RectHazard* rh = static_cast<RectHazard*>(GameManager::getObject(j));
 	bool killTank = false;
 	bool killRectHazard = false;
 	bool overridedRectHazardCollision = false;
@@ -627,8 +627,8 @@ void GameMainLoop::everythingToEverything_tank_recthazard(int i, int j, std::uno
 
 void GameMainLoop::everythingToEverything_bullet_tank(int i, int j, std::vector<Game_ID>& bulletDeletionList, std::unordered_map<Game_ID, BulletUpdateStruct>& bulletUpdates, std::unordered_map<Game_ID, TankUpdateStruct>& tankUpdates) {
 	//bullets can have custom collision with tanks but not vice versa; does it really matter? probably not
-	Bullet* b = static_cast<Bullet*>(GameManager::getObject(i));
-	Tank* t = static_cast<Tank*>(GameManager::getObject(j));
+	const Bullet* b = static_cast<Bullet*>(GameManager::getObject(i));
+	const Tank* t = static_cast<Tank*>(GameManager::getObject(j));
 	bool killBullet = false;
 	bool killTank = false;
 	bool overridedTankCollision = false;
@@ -694,8 +694,8 @@ void GameMainLoop::everythingToEverything_bullet_tank(int i, int j, std::vector<
 
 void GameMainLoop::everythingToEverything_bullet_bullet(int i, int j, std::vector<Game_ID>& bulletDeletionList, std::unordered_map<Game_ID, BulletUpdateStruct>& bulletUpdates) {
 	//bullets do not get custom collision with other bullets
-	Bullet* b_first = static_cast<Bullet*>(GameManager::getObject(i));
-	Bullet* b_second = static_cast<Bullet*>(GameManager::getObject(j));
+	const Bullet* b_first = static_cast<Bullet*>(GameManager::getObject(i));
+	const Bullet* b_second = static_cast<Bullet*>(GameManager::getObject(j));
 	bool b_firstShouldDie = false;
 	bool b_secondShouldDie = false;
 
@@ -718,8 +718,8 @@ void GameMainLoop::everythingToEverything_bullet_bullet(int i, int j, std::vecto
 }
 
 void GameMainLoop::everythingToEverything_bullet_wall(int i, int j, std::vector<Game_ID>& bulletDeletionList, std::unordered_map<Game_ID, BulletUpdateStruct>& bulletUpdates, std::vector<Game_ID>& wallDeletionList, std::unordered_map<Game_ID, WallUpdateStruct>& wallUpdates) {
-	Bullet* b = static_cast<Bullet*>(GameManager::getObject(i));
-	Wall* w = static_cast<Wall*>(GameManager::getObject(j));
+	const Bullet* b = static_cast<Bullet*>(GameManager::getObject(i));
+	const Wall* w = static_cast<Wall*>(GameManager::getObject(j));
 	bool killBullet = false;
 	bool killWall = false;
 	bool overridedWallCollision = false;
@@ -778,8 +778,8 @@ void GameMainLoop::everythingToEverything_bullet_wall(int i, int j, std::vector<
 }
 
 void GameMainLoop::everythingToEverything_bullet_circlehazard(int i, int j, std::vector<Game_ID>& bulletDeletionList, std::unordered_map<Game_ID, BulletUpdateStruct>& bulletUpdates, std::vector<Game_ID>& circleHazardDeletionList, std::unordered_map<Game_ID, CircleHazardUpdateStruct>& circleHazardUpdates) {
-	Bullet* b = static_cast<Bullet*>(GameManager::getObject(i));
-	CircleHazard* ch = static_cast<CircleHazard*>(GameManager::getObject(j));
+	const Bullet* b = static_cast<Bullet*>(GameManager::getObject(i));
+	const CircleHazard* ch = static_cast<CircleHazard*>(GameManager::getObject(j));
 	bool killBullet = false;
 	bool killCircleHazard = false;
 	bool overridedCircleHazardCollision = false;
@@ -860,8 +860,8 @@ void GameMainLoop::everythingToEverything_bullet_circlehazard(int i, int j, std:
 }
 
 void GameMainLoop::everythingToEverything_bullet_recthazard(int i, int j, std::vector<Game_ID>& bulletDeletionList, std::unordered_map<Game_ID, BulletUpdateStruct>& bulletUpdates, std::vector<Game_ID>& rectHazardDeletionList, std::unordered_map<Game_ID, RectHazardUpdateStruct>& rectHazardUpdates) {
-	Bullet* b = static_cast<Bullet*>(GameManager::getObject(i));
-	RectHazard* rh = static_cast<RectHazard*>(GameManager::getObject(j));
+	const Bullet* b = static_cast<Bullet*>(GameManager::getObject(i));
+	const RectHazard* rh = static_cast<RectHazard*>(GameManager::getObject(j));
 	bool killBullet = false;
 	bool killRectHazard = false;
 	bool overridedRectHazardCollision = false;

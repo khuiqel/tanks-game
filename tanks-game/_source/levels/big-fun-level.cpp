@@ -50,7 +50,7 @@ void BigFunLevel::initialize() {
 	//that leaves these powers reasonable for randomization: speed, bounce, multishot, big, barrier, shotgun, fire, maybe triple
 	//fire + big is not good, triple is unnecessary when shotgun is already in, so that leaves these powers:
 	const std::string possiblePowers[] = { "speed", "bounce", "multishot", "big", "barrier", "shotgun" };
-	constexpr int possiblePowersCount = sizeof(possiblePowers) / sizeof(possiblePowers[0]);
+	constexpr int possiblePowersCount = std::size(possiblePowers);
 	//TODO: rewrite how powers (and levels and hazards) are called: use a pair of {type, name} instead of separate type and name
 
 	float weights[] = { 6.0f, 3.0f, 1.0f }; //JS: 1/4 chance to get +1 power (so theoretically unlimited amount)

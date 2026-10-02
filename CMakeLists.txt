@@ -9,6 +9,7 @@ option(USE_TRACY "Enable Tracy for performance profiling" OFF)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED False)
 set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(CMAKE_C_STANDARD 17)
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -82,15 +83,11 @@ endif()
 
 if(USE_RPMALLOC)
 	set(RPMALLOC_SOURCE_FILES Dependencies/rpmalloc/rpmalloc.c)
-else()
-	set(RPMALLOC_SOURCE_FILES)
 endif()
 
 if(USE_TRACY)
 	add_compile_definitions(TRACY_ENABLE)
 	set(TRACY_SOURCE_FILES Externals/tracy/public/TracyClient.cpp)
-else()
-	set(TRACY_SOURCE_FILES)
 endif()
 
 add_executable(${PROJECT_NAME}

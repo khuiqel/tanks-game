@@ -36,12 +36,12 @@ HorizontalLightningHazard::HorizontalLightningHazard(double xpos, double ypos, d
 	//canAcceptPowers = false;
 }
 
-inline Circle* HorizontalLightningHazard::getLeftPoint() const {
-	return new Point(x, y + h/2);
+inline Circle HorizontalLightningHazard::getLeftPoint() const {
+	return Point(x, y + h/2);
 }
 
-inline Circle* HorizontalLightningHazard::getRightPoint() const {
-	return new Point(x + w, y + h/2);
+inline Circle HorizontalLightningHazard::getRightPoint() const {
+	return Point(x + w, y + h/2);
 }
 
 HorizontalLightningHazard::~HorizontalLightningHazard() {
@@ -66,15 +66,15 @@ RectHazard* HorizontalLightningHazard::factory(const GenericFactoryConstructionD
 }
 
 void HorizontalLightningHazard::specialEffectCircleCollision(const Circle* c) {
-	const Circle* leftPoint = getLeftPoint();
-	const Circle* rightPoint = getRightPoint();
-	const Circle* circleCenter = new Point(c->x, c->y);
+	const Circle leftPoint = getLeftPoint();
+	const Circle rightPoint = getRightPoint();
+	const Circle circleCenter = Point(c->x, c->y);
 	double intersectionXL, intersectionXR, intersectionYL, intersectionYR;
 	int boltPointsL, boltPointsR;
 
 	double xpos, ypos; //circle adjusted x and y
 
-	if (CollisionHandler::fullyCollided(circleCenter, this)) {
+	if (CollisionHandler::fullyCollided(&circleCenter, this)) {
 		//circle center inside rectangle area
 		xpos = c->x;
 		ypos = c->y;
@@ -96,12 +96,12 @@ void HorizontalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 		}
 	}
 
-	if (CollisionHandler::fullyCollided(leftPoint, c)) {
+	if (CollisionHandler::fullyCollided(&leftPoint, c)) {
 		intersectionXL = c->x;
 		intersectionYL = c->y;
 		boltPointsL = 2;
 	} else {
-		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, leftPoint->x, leftPoint->y);
+		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, leftPoint.x, leftPoint.y);
 		intersectionXL = std::min(intersections.first.x, intersections.second.x);
 		if (c->y < y + h/2) {
 			intersectionYL = std::max(intersections.first.y, intersections.second.y);
@@ -117,15 +117,15 @@ void HorizontalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 			std::cerr << "WARNING: horizontal lightning endpoint Y (left half) out of range!" << std::endl;
 			intersectionYL = std::clamp<double>(intersectionYL, y, y+h);
 		}
-		boltPointsL = getDefaultNumBoltPoints(std::sqrt((intersectionXL - leftPoint->x)*(intersectionXL - leftPoint->x) + (intersectionYL - leftPoint->y)*(intersectionYL - leftPoint->y)));
+		boltPointsL = getDefaultNumBoltPoints(std::sqrt((intersectionXL - leftPoint.x)*(intersectionXL - leftPoint.x) + (intersectionYL - leftPoint.y)*(intersectionYL - leftPoint.y)));
 	}
 
-	if (CollisionHandler::fullyCollided(rightPoint, c)) {
+	if (CollisionHandler::fullyCollided(&rightPoint, c)) {
 		intersectionXR = c->x;
 		intersectionYR = c->y;
 		boltPointsR = 2;
 	} else {
-		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, rightPoint->x, rightPoint->y);
+		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, rightPoint.x, rightPoint.y);
 		intersectionXR = std::max(intersections.first.x, intersections.second.x);
 		if (c->y < y + h/2) {
 			intersectionYR = std::max(intersections.first.y, intersections.second.y);
@@ -141,13 +141,12 @@ void HorizontalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 			std::cerr << "WARNING: horizontal lightning endpoint Y (right half) out of range!" << std::endl;
 			intersectionYR = std::clamp<double>(intersectionYR, y, y+h);
 		}
-		boltPointsR = getDefaultNumBoltPoints(std::sqrt((intersectionXR - rightPoint->x)*(intersectionXR - rightPoint->x) + (intersectionYR - rightPoint->y)*(intersectionYR - rightPoint->y)));
+		boltPointsR = getDefaultNumBoltPoints(std::sqrt((intersectionXR - rightPoint.x)*(intersectionXR - rightPoint.x) + (intersectionYR - rightPoint.y)*(intersectionYR - rightPoint.y)));
 	}
 
 	pushBolt(new LightningBolt(0, h/2, intersectionXL-x, intersectionYL-y, boltPointsL), false);
 	pushBolt(new LightningBolt(intersectionXL-x, intersectionYL-y, intersectionXR-x, intersectionYR-y, 2), false);
 	pushBolt(new LightningBolt(intersectionXR-x, intersectionYR-y, w, h/2, boltPointsR), false);
-	delete leftPoint; delete rightPoint; delete circleCenter;
 }
 
 void HorizontalLightningHazard::pushBolt(LightningBolt* l, bool simpleRefresh) {
@@ -177,7 +176,6 @@ bool HorizontalLightningHazard::validLocation() const {
 		if (CollisionHandler::partiallyCollidedIgnoreEdge(wa, this)) {
 			return false;
 		}
-		//maybe wrap this in (!(wallOnLeft && wallOnRight))
 		if ((wa->y <= y) && (wa->y + wa->h >= y + h)) {
 			if (x == wa->x + wa->w) {
 				wallOnLeft = true;

@@ -36,7 +36,7 @@ RectangularLightningHazard::RectangularLightningHazard(double xpos, double ypos,
 
 	tickCount = 0;
 	tickCycle = 100; //100 is JS default (because of power speed)
-	double temp[2] = { 2, 2 };
+	constexpr double temp[2] = { 2, 2 };
 	std::copy(temp, temp+2, stateMultiplier);
 	currentlyActive = false;
 
@@ -49,8 +49,8 @@ RectangularLightningHazard::RectangularLightningHazard(double xpos, double ypos,
 	//canAcceptPowers = false;
 }
 
-inline Circle* RectangularLightningHazard::getCenterPoint() const {
-	return new Point(x + w/2, y + h/2);
+inline Circle RectangularLightningHazard::getCenterPoint() const {
+	return Point(x + w/2, y + h/2);
 }
 
 RectangularLightningHazard::~RectangularLightningHazard() {
@@ -75,22 +75,22 @@ RectHazard* RectangularLightningHazard::factory(const GenericFactoryConstruction
 }
 
 void RectangularLightningHazard::specialEffectCircleCollision(const Circle* c) {
-	const Circle* centerPoint = getCenterPoint();
+	const Circle centerPoint = getCenterPoint();
 	double intersectionX, intersectionY;
 	int boltPoints;
-	if (CollisionHandler::fullyCollided(centerPoint, c)) {
+	if (CollisionHandler::fullyCollided(&centerPoint, c)) {
 		intersectionX = c->x;
 		intersectionY = c->y;
 		boltPoints = 2;
 	} else {
 		//if the circle's center isn't fully in the rectangle area, then the endpoint may not be inside the rectangle
-		const Circle* circleCenter = new Point(c->x, c->y);
-		if (CollisionHandler::fullyCollided(circleCenter, this)) {
+		const Circle circleCenter = Point(c->x, c->y);
+		if (CollisionHandler::fullyCollided(&circleCenter, this)) {
 			//circle center inside rectangle area
-			SimpleVector2D distToCircle = SimpleVector2D(c->x - centerPoint->x, c->y - centerPoint->y);
+			SimpleVector2D distToCircle = SimpleVector2D(c->x - centerPoint.x, c->y - centerPoint.y);
 			distToCircle.changeMagnitude(-1 * c->r);
-			intersectionX = centerPoint->x + distToCircle.getXComp();
-			intersectionY = centerPoint->y + distToCircle.getYComp();
+			intersectionX = centerPoint.x + distToCircle.getXComp();
+			intersectionY = centerPoint.y + distToCircle.getYComp();
 			boltPoints = getDefaultNumBoltPoints(distToCircle.getMagnitude());
 		} else {
 			//circle center outside rectangle area
@@ -110,7 +110,7 @@ void RectangularLightningHazard::specialEffectCircleCollision(const Circle* c) {
 				ypos = c->y; //circle's y-position is fine
 			}
 
-			std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, centerPoint->x, centerPoint->y);
+			std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, centerPoint.x, centerPoint.y);
 			if (c->x < x + w/2) {
 				intersectionX = std::max(intersections.first.x, intersections.second.x);
 			} else {
@@ -130,13 +130,11 @@ void RectangularLightningHazard::specialEffectCircleCollision(const Circle* c) {
 				std::cerr << "WARNING: rectangular lightning endpoint Y out of range!" << std::endl;
 				intersectionY = std::clamp<double>(intersectionY, y, y+h);
 			}
-			boltPoints = getDefaultNumBoltPoints(std::sqrt((intersectionX - centerPoint->x)*(intersectionX - centerPoint->x) + (intersectionY - centerPoint->y)*(intersectionY - centerPoint->y)));
+			boltPoints = getDefaultNumBoltPoints(std::sqrt((intersectionX - centerPoint.x)*(intersectionX - centerPoint.x) + (intersectionY - centerPoint.y)*(intersectionY - centerPoint.y)));
 		}
-		delete circleCenter;
 	}
 
 	pushBolt(new LightningBolt(w/2, h/2, intersectionX - x, intersectionY - y, boltPoints));
-	delete centerPoint;
 }
 
 void RectangularLightningHazard::specialEffectTankCollision(const Tank* t) {

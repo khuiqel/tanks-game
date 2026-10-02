@@ -39,7 +39,7 @@ CircularLightningHazard::CircularLightningHazard(double xpos, double ypos, doubl
 
 	tickCount = 0;
 	tickCycle = 100; //100 is JS default (because of power speed)
-	double temp[2] = { 2, 2 };
+	constexpr double temp[2] = { 2, 2 };
 	std::copy(temp, temp+2, stateMultiplier);
 	currentlyActive = false;
 	//flexible = false;
@@ -55,8 +55,8 @@ CircularLightningHazard::CircularLightningHazard(double xpos, double ypos, doubl
 	initializeVertices();
 }
 
-inline Circle* CircularLightningHazard::getCenterPoint() const {
-	return new Point(x, y);
+inline Circle CircularLightningHazard::getCenterPoint() const {
+	return Point(x, y);
 }
 
 CircularLightningHazard::~CircularLightningHazard() {
@@ -109,22 +109,21 @@ CircleHazard* CircularLightningHazard::factory(const GenericFactoryConstructionD
 }
 
 void CircularLightningHazard::specialEffectCircleCollision(const Circle* c) {
-	const Circle* centerPoint = getCenterPoint();
+	const Circle centerPoint = getCenterPoint();
 	double intersectionX, intersectionY;
 	int boltPoints;
-	if (CollisionHandler::fullyCollided(centerPoint, c)) {
+	if (CollisionHandler::fullyCollided(&centerPoint, c)) {
 		intersectionX = c->x;
 		intersectionY = c->y;
 		boltPoints = 2;
 	} else {
-		SimpleVector2D distToCircle = SimpleVector2D(c->x - centerPoint->x, c->y - centerPoint->y);
+		SimpleVector2D distToCircle = SimpleVector2D(c->x - centerPoint.x, c->y - centerPoint.y);
 		distToCircle.changeMagnitude(-1 * c->r);
-		intersectionX = centerPoint->x + distToCircle.getXComp();
-		intersectionY = centerPoint->y + distToCircle.getYComp();
+		intersectionX = centerPoint.x + distToCircle.getXComp();
+		intersectionY = centerPoint.y + distToCircle.getYComp();
 		boltPoints = getDefaultNumBoltPoints(distToCircle.getMagnitude());
 	}
 	pushBolt(new LightningBolt(0, 0, intersectionX - x, intersectionY - y, boltPoints));
-	delete centerPoint;
 }
 
 void CircularLightningHazard::specialEffectTankCollision(const Tank* t) {

@@ -427,7 +427,7 @@ void Renderer::BulletFlush(const Bullet_VertexData* drawData) {
 	instanced_vb_bvalues->modifyData(drawData->m_bulletValues.data(), drawData->m_bulletValues.size() * sizeof(float));
 
 	const unsigned int bulletCount = drawData->m_bulletValues.size() / 7;
-	renderingBackend->DrawInstanced(sizeof(Bullet::instanced_indices)/sizeof(*Bullet::instanced_indices), bulletCount);
+	renderingBackend->DrawInstanced(std::size(Bullet::instanced_indices), bulletCount);
 }
 
 void Renderer::BeginScene(const std::string& name) {

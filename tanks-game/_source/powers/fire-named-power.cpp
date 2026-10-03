@@ -43,7 +43,7 @@ FireNamedPower::FireNamedPower() {
 
 #include "../rng.h"
 
-void FireNamedTankPower::additionalShooting(Tank* t, const CannonPoint& c, const ExtraCannonPoint& c2) {
+void FireNamedTankPower::additionalShooting(Tank* t, const TankCannonPoint& c, const TankExtraCannonPoint& c2) {
 	for (int i = 0; i < FireNamedPower::bulletAmount; i++) {
 		float tempAngle = (GameRNG::randFuncf()+GameRNG::randFuncf() - 1) * FireNamedPower::bulletAngleDeviation; //[-1,1) * deviation
 		t->defaultMakeBullet(t->velocity.getAngle() + c.angleFromCenter + c2.angleFromCenter + tempAngle, c2.angleFromEdge);

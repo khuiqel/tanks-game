@@ -674,7 +674,7 @@ InteractionBoolHolder CustomTankPower::modifiedDeathHandling(const Tank* parent)
 	return { false, false };
 }
 
-void CustomTankPower::additionalShooting(Tank* t, const CannonPoint& c, const ExtraCannonPoint& c2) {
+void CustomTankPower::additionalShooting(Tank* t, const TankCannonPoint& c, const TankExtraCannonPoint& c2) {
 	for (int i = 0; i < additionalShooting_BulletCount; i++) {
 		float tempAngle_fromTank = (GameRNG::randFuncf()*2 - 1) * additionalShooting_AngleRelativeToTank;
 		float tempAngle_fromCannon = (GameRNG::randFuncf()*2 - 1) * additionalShooting_AngleRelativeToCannon;

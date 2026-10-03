@@ -34,7 +34,7 @@ SwarmPower::SwarmPower() {
 
 
 
-void SwarmTankPower::additionalShooting(Tank* t, const CannonPoint& c, const ExtraCannonPoint& c2) {
+void SwarmTankPower::additionalShooting(Tank* t, const TankCannonPoint& c, const TankExtraCannonPoint& c2) {
 	if (leftRightToggle) {
 		t->defaultMakeBullet(t->velocity.getAngle() + c.angleFromCenter + c2.angleFromCenter, c2.angleFromEdge - SwarmPower::initialAngleDiff);
 	} else {

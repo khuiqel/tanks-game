@@ -1,5 +1,7 @@
 #pragma once
 class Tank;
+struct TankCannonPoint;
+struct TankExtraCannonPoint;
 struct TankUpdateStruct;
 
 #include <string>
@@ -11,7 +13,28 @@ struct TankUpdateStruct;
 
 #include "color-value-holder.h"
 #include "simple-vector-2d.h"
-#include "cannon-point.h"
+
+struct TankCannonPoint {
+	float angleFromCenter;
+	TankCannonPoint(float angle) {
+		angleFromCenter = angle;
+	}
+	TankCannonPoint() { angleFromCenter = 0; }
+};
+
+struct TankExtraCannonPoint {
+	float angleFromCenter;
+	float angleFromEdge; //0 means straight out from center
+	TankExtraCannonPoint(float angle) {
+		angleFromCenter = angle;
+		angleFromEdge = 0;
+	}
+	TankExtraCannonPoint(float angleCenter, float angleEdge) {
+		angleFromCenter = angleCenter;
+		angleFromEdge = angleEdge;
+	}
+	TankExtraCannonPoint() { angleFromCenter = angleFromEdge = 0; }
+};
 
 class Tank : public GameThing, public Circle {
 	friend class ResetThings;
@@ -24,8 +47,8 @@ public:
 	float acceleration; // = 1.0/16; //intentional acceleration, not total
 	float turningIncrement; // = 64;
 	bool dead = false; //only kill() should modify this
-	std::vector<CannonPoint> shootingPoints;
-	std::vector<ExtraCannonPoint> extraShootingPoints;
+	std::vector<TankCannonPoint> shootingPoints;
+	std::vector<TankExtraCannonPoint> extraShootingPoints;
 	std::vector<TankPower*> tankPowers;
 	double shootCount;
 	double maxShootCount;

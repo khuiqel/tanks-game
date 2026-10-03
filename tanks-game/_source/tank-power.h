@@ -8,7 +8,6 @@ class TankPower;
 #include "color-value-holder.h"
 
 #include "tank.h"
-#include "cannon-point.h"
 #include "bullet.h"
 #include "wall.h"
 #include "circle-hazard.h"
@@ -90,7 +89,7 @@ public:
 	*/
 
 	bool modifiesAdditionalShooting = false;
-	virtual void additionalShooting(Tank* parent, const CannonPoint&, const ExtraCannonPoint&) { return; } //for regular powerups (fire/blast, mines(?))
+	virtual void additionalShooting(Tank* parent, const TankCannonPoint&, const TankExtraCannonPoint&) { return; } //for regular powerups (fire/blast, mines(?))
 	bool overridesAdditionalShooting = false; //true if default shooting won't be used
 	bool additionalShootingCanWorkWithOthers = true; //probably should only be true
 

@@ -355,7 +355,6 @@
     <ClInclude Include="_source\bullet-manager.h" />
     <ClInclude Include="_source\bullet-power.h" />
     <ClInclude Include="_source\bullet.h" />
-    <ClInclude Include="_source\cannon-point.h" />
     <ClInclude Include="_source\circle-hazard.h" />
     <ClInclude Include="_source\circle.h" />
     <ClInclude Include="_source\collision-handler.h" />

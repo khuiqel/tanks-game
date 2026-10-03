@@ -45,7 +45,7 @@ void MinesTankPower::tick(Tank* t) {
 	this->overridesAdditionalShooting = true;
 }
 
-void MinesTankPower::additionalShooting(Tank* t, const CannonPoint& c, const ExtraCannonPoint& c2) {
+void MinesTankPower::additionalShooting(Tank* t, const TankCannonPoint& c, const TankExtraCannonPoint& c2) {
 	t->preciseMakeBullet((t->r * MinesPower::bulletDistance) * std::cos(t->velocity.getAngle() + c.angleFromCenter + c2.angleFromCenter),
 	                     (t->r * MinesPower::bulletDistance) * std::sin(t->velocity.getAngle() + c.angleFromCenter + c2.angleFromCenter),
 	                     t->velocity.getAngle() + c.angleFromCenter + c2.angleFromCenter + c2.angleFromEdge);

@@ -611,9 +611,6 @@
     <ClInclude Include="_source\powers\wallhack-power.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="_source\cannon-point.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="_source\powers\multishot-power.h">
       <Filter>Header Files</Filter>
     </ClInclude>

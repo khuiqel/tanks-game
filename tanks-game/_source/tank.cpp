@@ -38,8 +38,8 @@ Tank::Tank(double x_, double y_, float angle, Team_ID teamID, std::string name_,
 	shootCount = 0;
 	maxShootCount = shootCooldown;
 
-	shootingPoints = std::vector<CannonPoint>();
-	extraShootingPoints = std::vector<ExtraCannonPoint>();
+	shootingPoints = std::vector<TankCannonPoint>();
+	extraShootingPoints = std::vector<TankExtraCannonPoint>();
 	determineShootingAngles();
 	updateAllValues();
 
@@ -265,9 +265,9 @@ void Tank::preciseMakeBullet(double x, double y, float angle) {
 
 void Tank::determineShootingAngles() {
 	shootingPoints.clear();
-	shootingPoints.push_back(CannonPoint(0));
+	shootingPoints.push_back(TankCannonPoint(0));
 	extraShootingPoints.clear();
-	extraShootingPoints.push_back(ExtraCannonPoint(0, 0));
+	extraShootingPoints.push_back(TankExtraCannonPoint(0, 0));
 
 	for (int i = 0; i < tankPowers.size(); i++) {
 		if (tankPowers[i]->addsShootingPoints) {
@@ -303,7 +303,7 @@ inline void Tank::determineShootingAngles_helper(std::vector<float>* newCannonPo
 
 		for (int j = 0; j < newCannonPoints->size(); j++) {
 			const float newAngle = angle_diff * newCannonPoints->data()[j];
-			CannonPoint temp = CannonPoint(newAngle + shootingPoints[i].angleFromCenter);
+			TankCannonPoint temp = TankCannonPoint(newAngle + shootingPoints[i].angleFromCenter);
 			shootingPoints.insert(shootingPoints.begin() + i + j + 1, temp);
 		}
 	}

@@ -240,7 +240,7 @@ public:
 
 	InteractionBoolHolder modifiedDeathHandling(const Tank* parent) override;
 
-	void additionalShooting(Tank* parent, const CannonPoint&, const ExtraCannonPoint&) override;
+	void additionalShooting(Tank* parent, const TankCannonPoint&, const TankExtraCannonPoint&) override;
 
 	std::vector<float>* addShootingPoints() const override;
 

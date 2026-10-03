@@ -73,7 +73,7 @@ void DangerousCenterLevel::initialize() {
 
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, (GAME_HEIGHT/2+40)-(top_gap+side_length), GAME_HEIGHT/2-(top_gap), 20, top_gap);
-		posArr = new double[4]{ pos.x, pos.y, 20, top_gap };
+		posArr = new double[4]{ pos.first, pos.second, 20, top_gap };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
 	}

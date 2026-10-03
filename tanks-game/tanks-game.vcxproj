@@ -471,7 +471,6 @@
     <ClInclude Include="_source\mod-processor.h" />
     <ClInclude Include="_source\mylib.h" />
     <ClInclude Include="_source\physics-handler.h" />
-    <ClInclude Include="_source\position-holder.h" />
     <ClInclude Include="_source\power-function-helper.h" />
     <ClInclude Include="_source\power-square.h" />
     <ClInclude Include="_source\power.h" />

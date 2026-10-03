@@ -101,11 +101,11 @@ void HorizontalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 		boltPointsL = 2;
 	} else {
 		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, leftPoint.x, leftPoint.y);
-		intersectionXL = std::min(intersections.first.x, intersections.second.x);
+		intersectionXL = std::min(intersections.first.first, intersections.second.first);
 		if (c->y < y + h/2) {
-			intersectionYL = std::max(intersections.first.y, intersections.second.y);
+			intersectionYL = std::max(intersections.first.second, intersections.second.second);
 		} else {
-			intersectionYL = std::min(intersections.first.y, intersections.second.y);
+			intersectionYL = std::min(intersections.first.second, intersections.second.second);
 		}
 
 		if (intersectionXL < x || intersectionXL > x+w) [[unlikely]] {
@@ -125,11 +125,11 @@ void HorizontalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 		boltPointsR = 2;
 	} else {
 		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, rightPoint.x, rightPoint.y);
-		intersectionXR = std::max(intersections.first.x, intersections.second.x);
+		intersectionXR = std::max(intersections.first.first, intersections.second.first);
 		if (c->y < y + h/2) {
-			intersectionYR = std::max(intersections.first.y, intersections.second.y);
+			intersectionYR = std::max(intersections.first.second, intersections.second.second);
 		} else {
-			intersectionYR = std::min(intersections.first.y, intersections.second.y);
+			intersectionYR = std::min(intersections.first.second, intersections.second.second);
 		}
 
 		if (intersectionXR < x || intersectionXR > x+w) [[unlikely]] {

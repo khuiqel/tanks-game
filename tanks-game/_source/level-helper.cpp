@@ -20,7 +20,7 @@ void LevelHelper::pushClassicWalls(const ColorValueHolder& c) {
 	for (int i = 0; i < 4; i++) {
 		//classic JS walls
 		PositionHolder pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2-40*2-32, GAME_HEIGHT/2-128, 32, 128);
-		WallManager::pushWall(new Wall(pos.x, pos.y, 32, 128, c));
+		WallManager::pushWall(new Wall(pos.first, pos.second, 32, 128, c));
 	}
 
 	//compiler warning C4506: can't inline a function if it's not defined right away, unless extern is used
@@ -29,24 +29,24 @@ void LevelHelper::pushClassicWalls(const ColorValueHolder& c) {
 
 void LevelHelper::pushSymmetricPowerups_LR(double x_center, double y_center, double x_offset, std::string type, std::string name) {
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_LR(0, x_center, y_center, x_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, type, name));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, type, name));
 	pos = LevelHelper::getSymmetricPowerupPositions_LR(1, x_center, y_center, x_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, type, name));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, type, name));
 }
 
 void LevelHelper::pushSymmetricPowerups_LR(double x_center, double y_center, double x_offset, const std::string* types, const std::string* names, int count) {
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_LR(0, x_center, y_center, x_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types, names, count));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types, names, count));
 	pos = LevelHelper::getSymmetricPowerupPositions_LR(1, x_center, y_center, x_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types, names, count));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types, names, count));
 }
 
 void LevelHelper::pushSymmetricPowerups_LR_Alternate(double x_center, double y_center, double x_offset, std::string type1, std::string name1, std::string type2, std::string name2) {
 	int tempRand = LevelRNG::randFunc() * 2;
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_LR(0, x_center, y_center, x_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, LevelHelper::simplePowerAlternate(0, tempRand, type1, type2), LevelHelper::simplePowerAlternate(0, tempRand, name1, name2)));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, LevelHelper::simplePowerAlternate(0, tempRand, type1, type2), LevelHelper::simplePowerAlternate(0, tempRand, name1, name2)));
 	pos = LevelHelper::getSymmetricPowerupPositions_LR(1, x_center, y_center, x_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, LevelHelper::simplePowerAlternate(1, tempRand, type1, type2), LevelHelper::simplePowerAlternate(1, tempRand, name1, name2)));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, LevelHelper::simplePowerAlternate(1, tempRand, type1, type2), LevelHelper::simplePowerAlternate(1, tempRand, name1, name2)));
 	//is the double simplePowerAlternate() call ideal? probably not, but save that refactor for later (use std::pair?)
 }
 
@@ -55,38 +55,38 @@ void LevelHelper::pushSymmetricPowerups_LR_Alternate(double x_center, double y_c
 	int tempRand = LevelRNG::randFunc() * 2;
 	if (tempRand == 0) {
 		pos = LevelHelper::getSymmetricPowerupPositions_LR(0, x_center, y_center, x_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types1, names1, count1));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types1, names1, count1));
 		pos = LevelHelper::getSymmetricPowerupPositions_LR(1, x_center, y_center, x_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types2, names2, count2));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types2, names2, count2));
 	} else {
 		pos = LevelHelper::getSymmetricPowerupPositions_LR(0, x_center, y_center, x_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types2, names2, count2));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types2, names2, count2));
 		pos = LevelHelper::getSymmetricPowerupPositions_LR(1, x_center, y_center, x_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types1, names1, count1));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types1, names1, count1));
 	}
 	//is this branch ideal? probably, at least it's clean and easy
 }
 
 void LevelHelper::pushSymmetricPowerups_UD(double x_center, double y_center, double y_offset, std::string type, std::string name) {
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_UD(0, x_center, y_center, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, type, name));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, type, name));
 	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, x_center, y_center, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, type, name));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, type, name));
 }
 
 void LevelHelper::pushSymmetricPowerups_UD(double x_center, double y_center, double y_offset, const std::string* types, const std::string* names, int count) {
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_UD(0, x_center, y_center, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types, names, count));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types, names, count));
 	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, x_center, y_center, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types, names, count));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types, names, count));
 }
 
 void LevelHelper::pushSymmetricPowerups_UD_Alternate(double x_center, double y_center, double y_offset, std::string type1, std::string name1, std::string type2, std::string name2) {
 	int tempRand = LevelRNG::randFunc() * 2;
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_UD(0, x_center, y_center, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, LevelHelper::simplePowerAlternate(0, tempRand, type1, type2), LevelHelper::simplePowerAlternate(0, tempRand, name1, name2)));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, LevelHelper::simplePowerAlternate(0, tempRand, type1, type2), LevelHelper::simplePowerAlternate(0, tempRand, name1, name2)));
 	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, x_center, y_center, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, LevelHelper::simplePowerAlternate(1, tempRand, type1, type2), LevelHelper::simplePowerAlternate(1, tempRand, name1, name2)));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, LevelHelper::simplePowerAlternate(1, tempRand, type1, type2), LevelHelper::simplePowerAlternate(1, tempRand, name1, name2)));
 }
 
 void LevelHelper::pushSymmetricPowerups_UD_Alternate(double x_center, double y_center, double y_offset, const std::string* types1, const std::string* names1, int count1, const std::string* types2, const std::string* names2, int count2) {
@@ -94,28 +94,28 @@ void LevelHelper::pushSymmetricPowerups_UD_Alternate(double x_center, double y_c
 	int tempRand = LevelRNG::randFunc() * 2;
 	if (tempRand == 0) {
 		pos = LevelHelper::getSymmetricPowerupPositions_UD(0, x_center, y_center, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types1, names1, count1));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types1, names1, count1));
 		pos = LevelHelper::getSymmetricPowerupPositions_UD(1, x_center, y_center, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types2, names2, count2));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types2, names2, count2));
 	} else {
 		pos = LevelHelper::getSymmetricPowerupPositions_UD(0, x_center, y_center, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types2, names2, count2));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types2, names2, count2));
 		pos = LevelHelper::getSymmetricPowerupPositions_UD(1, x_center, y_center, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types1, names1, count1));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types1, names1, count1));
 	}
 }
 
 void LevelHelper::pushSymmetricPowerups_Corners(double x_center, double y_center, double x_offset, double y_offset, std::string type, std::string name) {
 	for (int i = 0; i < 4; i++) {
 		PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, type, name));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, type, name));
 	}
 }
 
 void LevelHelper::pushSymmetricPowerups_Corners(double x_center, double y_center, double x_offset, double y_offset, const std::string* types, const std::string* names, int count) {
 	for (int i = 0; i < 4; i++) {
 		PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types, names, count));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types, names, count));
 	}
 }
 
@@ -123,7 +123,7 @@ void LevelHelper::pushSymmetricPowerups_Corners_Alternate(double x_center, doubl
 	int tempRand = LevelRNG::randFunc() * 2;
 	for (int i = 0; i < 4; i++) {
 		PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, LevelHelper::powerAlternate(i, tempRand, type1, type2), LevelHelper::powerAlternate(i, tempRand, name1, name2)));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, LevelHelper::powerAlternate(i, tempRand, type1, type2), LevelHelper::powerAlternate(i, tempRand, name1, name2)));
 	}
 }
 
@@ -132,33 +132,33 @@ void LevelHelper::pushSymmetricPowerups_Corners_Alternate(double x_center, doubl
 	for (int i = 0; i < 4; i++) {
 		PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, x_center, y_center, x_offset, y_offset);
 		if (LevelHelper::powerAlternateNum(i, tempRand) == 0) {
-			PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types1, names1, count1));
+			PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types1, names1, count1));
 		} else {
-			PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types2, names2, count2));
+			PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types2, names2, count2));
 		}
 	}
 }
 
 void LevelHelper::pushSymmetricPowerups_DiagForwardSlash(double x_center, double y_center, double x_offset, double y_offset, std::string type, std::string name) {
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_DiagForwardSlash(0, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, type, name));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, type, name));
 	pos = LevelHelper::getSymmetricPowerupPositions_DiagForwardSlash(1, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, type, name));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, type, name));
 }
 
 void LevelHelper::pushSymmetricPowerups_DiagForwardSlash(double x_center, double y_center, double x_offset, double y_offset, const std::string* types, const std::string* names, int count) {
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_DiagForwardSlash(0, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types, names, count));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types, names, count));
 	pos = LevelHelper::getSymmetricPowerupPositions_DiagForwardSlash(1, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types, names, count));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types, names, count));
 }
 
 void LevelHelper::pushSymmetricPowerups_DiagForwardSlash_Alternate(double x_center, double y_center, double x_offset, double y_offset, std::string type1, std::string name1, std::string type2, std::string name2) {
 	int tempRand = LevelRNG::randFunc() * 2;
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_DiagForwardSlash(0, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, LevelHelper::simplePowerAlternate(0, tempRand, type1, type2), LevelHelper::simplePowerAlternate(0, tempRand, name1, name2)));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, LevelHelper::simplePowerAlternate(0, tempRand, type1, type2), LevelHelper::simplePowerAlternate(0, tempRand, name1, name2)));
 	pos = LevelHelper::getSymmetricPowerupPositions_DiagForwardSlash(1, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, LevelHelper::simplePowerAlternate(1, tempRand, type1, type2), LevelHelper::simplePowerAlternate(1, tempRand, name1, name2)));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, LevelHelper::simplePowerAlternate(1, tempRand, type1, type2), LevelHelper::simplePowerAlternate(1, tempRand, name1, name2)));
 }
 
 void LevelHelper::pushSymmetricPowerups_DiagForwardSlash_Alternate(double x_center, double y_center, double x_offset, double y_offset, const std::string* types1, const std::string* names1, int count1, const std::string* types2, const std::string* names2, int count2) {
@@ -166,37 +166,37 @@ void LevelHelper::pushSymmetricPowerups_DiagForwardSlash_Alternate(double x_cent
 	int tempRand = LevelRNG::randFunc() * 2;
 	if (tempRand == 0) {
 		pos = LevelHelper::getSymmetricPowerupPositions_DiagForwardSlash(0, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types1, names1, count1));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types1, names1, count1));
 		pos = LevelHelper::getSymmetricPowerupPositions_DiagForwardSlash(1, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types2, names2, count2));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types2, names2, count2));
 	} else {
 		pos = LevelHelper::getSymmetricPowerupPositions_DiagForwardSlash(0, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types2, names2, count2));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types2, names2, count2));
 		pos = LevelHelper::getSymmetricPowerupPositions_DiagForwardSlash(1, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types1, names1, count1));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types1, names1, count1));
 	}
 }
 
 void LevelHelper::pushSymmetricPowerups_DiagBackwardSlash(double x_center, double y_center, double x_offset, double y_offset, std::string type, std::string name) {
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_DiagBackwardSlash(0, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, type, name));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, type, name));
 	pos = LevelHelper::getSymmetricPowerupPositions_DiagBackwardSlash(1, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, type, name));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, type, name));
 }
 
 void LevelHelper::pushSymmetricPowerups_DiagBackwardSlash(double x_center, double y_center, double x_offset, double y_offset, const std::string* types, const std::string* names, int count) {
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_DiagBackwardSlash(0, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types, names, count));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types, names, count));
 	pos = LevelHelper::getSymmetricPowerupPositions_DiagBackwardSlash(1, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types, names, count));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types, names, count));
 }
 
 void LevelHelper::pushSymmetricPowerups_DiagBackwardSlash_Alternate(double x_center, double y_center, double x_offset, double y_offset, std::string type1, std::string name1, std::string type2, std::string name2) {
 	int tempRand = LevelRNG::randFunc() * 2;
 	PositionHolder pos = LevelHelper::getSymmetricPowerupPositions_DiagBackwardSlash(0, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, LevelHelper::simplePowerAlternate(0, tempRand, type1, type2), LevelHelper::simplePowerAlternate(0, tempRand, name1, name2)));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, LevelHelper::simplePowerAlternate(0, tempRand, type1, type2), LevelHelper::simplePowerAlternate(0, tempRand, name1, name2)));
 	pos = LevelHelper::getSymmetricPowerupPositions_DiagBackwardSlash(1, x_center, y_center, x_offset, y_offset);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, LevelHelper::simplePowerAlternate(1, tempRand, type1, type2), LevelHelper::simplePowerAlternate(1, tempRand, name1, name2)));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, LevelHelper::simplePowerAlternate(1, tempRand, type1, type2), LevelHelper::simplePowerAlternate(1, tempRand, name1, name2)));
 }
 
 void LevelHelper::pushSymmetricPowerups_DiagBackwardSlash_Alternate(double x_center, double y_center, double x_offset, double y_offset, const std::string* types1, const std::string* names1, int count1, const std::string* types2, const std::string* names2, int count2) {
@@ -204,50 +204,50 @@ void LevelHelper::pushSymmetricPowerups_DiagBackwardSlash_Alternate(double x_cen
 	int tempRand = LevelRNG::randFunc() * 2;
 	if (tempRand == 0) {
 		pos = LevelHelper::getSymmetricPowerupPositions_DiagBackwardSlash(0, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types1, names1, count1));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types1, names1, count1));
 		pos = LevelHelper::getSymmetricPowerupPositions_DiagBackwardSlash(1, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types2, names2, count2));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types2, names2, count2));
 	} else {
 		pos = LevelHelper::getSymmetricPowerupPositions_DiagBackwardSlash(0, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types2, names2, count2));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types2, names2, count2));
 		pos = LevelHelper::getSymmetricPowerupPositions_DiagBackwardSlash(1, x_center, y_center, x_offset, y_offset);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, types1, names1, count1));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, types1, names1, count1));
 	}
 }
 
 void LevelHelper::pushSymmetricWalls_LR(double x_center, double y_center, double x_offset, double wallWidth, double wallHeight, const ColorValueHolder& c) {
 	PositionHolder pos = LevelHelper::getSymmetricWallPositions_LR(0, x_center, y_center, x_offset, wallWidth, wallHeight);
-	WallManager::pushWall(new Wall(pos.x, pos.y, wallWidth, wallHeight, c));
+	WallManager::pushWall(new Wall(pos.first, pos.second, wallWidth, wallHeight, c));
 	pos = LevelHelper::getSymmetricWallPositions_LR(1, x_center, y_center, x_offset, wallWidth, wallHeight);
-	WallManager::pushWall(new Wall(pos.x, pos.y, wallWidth, wallHeight, c));
+	WallManager::pushWall(new Wall(pos.first, pos.second, wallWidth, wallHeight, c));
 }
 
 void LevelHelper::pushSymmetricWalls_UD(double x_center, double y_center, double y_offset, double wallWidth, double wallHeight, const ColorValueHolder& c) {
 	PositionHolder pos = LevelHelper::getSymmetricWallPositions_UD(0, x_center, y_center, y_offset, wallWidth, wallHeight);
-	WallManager::pushWall(new Wall(pos.x, pos.y, wallWidth, wallHeight, c));
+	WallManager::pushWall(new Wall(pos.first, pos.second, wallWidth, wallHeight, c));
 	pos = LevelHelper::getSymmetricWallPositions_UD(1, x_center, y_center, y_offset, wallWidth, wallHeight);
-	WallManager::pushWall(new Wall(pos.x, pos.y, wallWidth, wallHeight, c));
+	WallManager::pushWall(new Wall(pos.first, pos.second, wallWidth, wallHeight, c));
 }
 
 void LevelHelper::pushSymmetricWalls_Corners(double x_center, double y_center, double x_offset, double y_offset, double wallWidth, double wallHeight, const ColorValueHolder& c) {
 	for (int i = 0; i < 4; i++) {
 		PositionHolder pos = LevelHelper::getSymmetricWallPositions_Corners(i, x_center, y_center, x_offset, y_offset, wallWidth, wallHeight);
-		WallManager::pushWall(new Wall(pos.x, pos.y, wallWidth, wallHeight, c));
+		WallManager::pushWall(new Wall(pos.first, pos.second, wallWidth, wallHeight, c));
 	}
 }
 
 void LevelHelper::pushSymmetricWalls_DiagForwardSlash(double x_center, double y_center, double x_offset, double y_offset, double wallWidth, double wallHeight, const ColorValueHolder& c) {
 	PositionHolder pos = LevelHelper::getSymmetricWallPositions_DiagForwardSlash(0, x_center, y_center, x_offset, y_offset, wallWidth, wallHeight);
-	WallManager::pushWall(new Wall(pos.x, pos.y, wallWidth, wallHeight, c));
+	WallManager::pushWall(new Wall(pos.first, pos.second, wallWidth, wallHeight, c));
 	pos = LevelHelper::getSymmetricWallPositions_DiagForwardSlash(1, x_center, y_center, x_offset, y_offset, wallWidth, wallHeight);
-	WallManager::pushWall(new Wall(pos.x, pos.y, wallWidth, wallHeight, c));
+	WallManager::pushWall(new Wall(pos.first, pos.second, wallWidth, wallHeight, c));
 }
 
 void LevelHelper::pushSymmetricWalls_DiagBackwardSlash(double x_center, double y_center, double x_offset, double y_offset, double wallWidth, double wallHeight, const ColorValueHolder& c) {
 	PositionHolder pos = LevelHelper::getSymmetricWallPositions_DiagBackwardSlash(0, x_center, y_center, x_offset, y_offset, wallWidth, wallHeight);
-	WallManager::pushWall(new Wall(pos.x, pos.y, wallWidth, wallHeight, c));
+	WallManager::pushWall(new Wall(pos.first, pos.second, wallWidth, wallHeight, c));
 	pos = LevelHelper::getSymmetricWallPositions_DiagBackwardSlash(1, x_center, y_center, x_offset, y_offset, wallWidth, wallHeight);
-	WallManager::pushWall(new Wall(pos.x, pos.y, wallWidth, wallHeight, c));
+	WallManager::pushWall(new Wall(pos.first, pos.second, wallWidth, wallHeight, c));
 }
 
 

@@ -51,11 +51,11 @@ void ShowcaseLevel1::initialize() {
 	LevelHelper::pushSymmetricWalls_LR(GAME_WIDTH/2 + 192, GAME_HEIGHT/2 - 96, 10, 10, 20, color);
 
 	pos = LevelHelper::getSymmetricWallPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2-40, 20, 20);
-	posArr = new double[4]{ pos.x, pos.y, 20, 20 };
+	posArr = new double[4]{ pos.first, pos.second, 20, 20 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "no_bullet_zone", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2-40, 20, 20);
-	posArr = new double[4]{ pos.x, pos.y, 20, 20 };
+	posArr = new double[4]{ pos.first, pos.second, 20, 20 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "no_bullet_zone", constructionData);
 }

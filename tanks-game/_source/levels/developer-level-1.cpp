@@ -30,15 +30,15 @@ void DeveloperLevel1::initialize() {
 	std::string* names;
 
 	PositionHolder wallPos1 = LevelHelper::getSymmetricWallPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, 60, 20, 80);
-	WallManager::pushWall(new Wall(wallPos1.x, wallPos1.y, 20, 80, color));
+	WallManager::pushWall(new Wall(wallPos1.first, wallPos1.second, 20, 80, color));
 	PositionHolder wallPos2 = LevelHelper::getSymmetricWallPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, 60, 20, 80);
-	WallManager::pushWall(new Wall(wallPos2.x, wallPos2.y, 20, 80, color));
-	WallManager::pushWall(new Wall(wallPos2.x, GAME_HEIGHT-20, 20, 20, color));
+	WallManager::pushWall(new Wall(wallPos2.first, wallPos2.second, 20, 80, color));
+	WallManager::pushWall(new Wall(wallPos2.first, GAME_HEIGHT-20, 20, 20, color));
 
-	posArr = new double[4]{ wallPos2.x, wallPos2.y+80, 20, (GAME_HEIGHT-20)-(wallPos2.y+80) };
+	posArr = new double[4]{ wallPos2.first, wallPos2.second+80, 20, (GAME_HEIGHT-20)-(wallPos2.second+80) };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
-	posArr = new double[4]{ wallPos1.x, wallPos1.y+80, 20, GAME_HEIGHT-(wallPos1.y+80) };
+	posArr = new double[4]{ wallPos1.first, wallPos1.second+80, 20, GAME_HEIGHT-(wallPos1.second+80) };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
 	posArr = new double[4]{ GAME_WIDTH/2 - 80 + 20, GAME_HEIGHT/2 - 40, 60*2, 20*2 - 10 };

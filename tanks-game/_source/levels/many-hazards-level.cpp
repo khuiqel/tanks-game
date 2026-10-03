@@ -38,19 +38,19 @@ void ManyHazardsLevel::initialize() {
 	HazardManager::pushRectHazard("vanilla", "no_bullet_zone", constructionData);
 
 	const int TURRET_COUNT = 16; //stationary turret count, not regular turret count
-	//const double turretDistance = (wallArray[3].x - (wallArray[0].x+32)) / (TURRET_COUNT+1);
-	const double turretDistance = (wallArray[3].x - (wallArray[0].x+32) - 8) / (TURRET_COUNT+1);
+	//const double turretDistance = (wallArray[3].first - (wallArray[0].first+32)) / (TURRET_COUNT+1);
+	const double turretDistance = (wallArray[3].first - (wallArray[0].first+32) - 8) / (TURRET_COUNT+1);
 	for (int i = 0; i < TURRET_COUNT; i++) {
 		//bottom half
-		//posArr = new double[3]{ wallArray[0].x+32 + turretDistance * (i+1), 16, PI/2 };
-		posArr = new double[3]{ wallArray[0].x+32+8/2 + turretDistance * (i+1), 16, PI/2 };
+		//posArr = new double[3]{ wallArray[0].first+32 + turretDistance * (i+1), 16, PI/2 };
+		posArr = new double[3]{ wallArray[0].first+32+8/2 + turretDistance * (i+1), 16, PI/2 };
 		constructionData = GenericFactoryConstructionData(3, posArr);
 		HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
 	}
 	for (int i = 0; i < TURRET_COUNT; i++) {
 		//top half
-		//posArr = new double[3]{ wallArray[0].x+32 + turretDistance * (i+1), GAME_HEIGHT-16, -PI/2 };
-		posArr = new double[3]{ wallArray[0].x+32+8/2 + turretDistance * (i+1), GAME_HEIGHT-16, -PI/2 };
+		//posArr = new double[3]{ wallArray[0].first+32 + turretDistance * (i+1), GAME_HEIGHT-16, -PI/2 };
+		posArr = new double[3]{ wallArray[0].first+32+8/2 + turretDistance * (i+1), GAME_HEIGHT-16, -PI/2 };
 		constructionData = GenericFactoryConstructionData(3, posArr);
 		HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
 	}
@@ -59,56 +59,56 @@ void ManyHazardsLevel::initialize() {
 
 	//this is too much:
 	//for (int i = 0; i < TURRET_COUNT-1; i++) {
-	//	posArr = new double[3]{ wallArray[0].x+32+8/2 + turretDistance * (i+1) + 4+8, 16, PI/2 };
+	//	posArr = new double[3]{ wallArray[0].first+32+8/2 + turretDistance * (i+1) + 4+8, 16, PI/2 };
 	//	constructionData = GenericFactoryConstructionData(3, posArr);
 	//	HazardManager::pushCircleHazard("vanilla", "targeting_turret", constructionData);
 	//}
 	//for (int i = 0; i < TURRET_COUNT-1; i++) {
-	//	posArr = new double[3]{ wallArray[0].x+32+8/2 + turretDistance * (i+1) + 4+8, GAME_HEIGHT-16, -PI/2 };
+	//	posArr = new double[3]{ wallArray[0].first+32+8/2 + turretDistance * (i+1) + 4+8, GAME_HEIGHT-16, -PI/2 };
 	//	constructionData = GenericFactoryConstructionData(3, posArr);
 	//	HazardManager::pushCircleHazard("vanilla", "targeting_turret", constructionData);
 	//}
 
 	for (int i = 0; i < 4; i++) {
-		pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - ((wallArray[0].x+32) + (TANK_RADIUS/2 * 1.5)), 32 + 20 + (TANK_RADIUS/2 * 2.5));
-		//pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - ((wallArray[0].x+32) + (TANK_RADIUS/2 * 1.5) + 4), 32 + 20 + (TANK_RADIUS/2 * 2.5));
-		posArr = new double[3]{ pos.x, pos.y, PI * (i%2) };
+		pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - ((wallArray[0].first+32) + (TANK_RADIUS/2 * 1.5)), 32 + 20 + (TANK_RADIUS/2 * 2.5));
+		//pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - ((wallArray[0].first+32) + (TANK_RADIUS/2 * 1.5) + 4), 32 + 20 + (TANK_RADIUS/2 * 2.5));
+		posArr = new double[3]{ pos.first, pos.second, PI * (i%2) };
 		constructionData = GenericFactoryConstructionData(3, posArr);
 		HazardManager::pushCircleHazard("vanilla", "targeting_turret", constructionData);
 	}
 
 	//useless traps:
-	//LevelHelper::pushSymmetricPowerups_Corners(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - (wallArray[0].x+32 + 20), GAME_HEIGHT/2 - 48, "vanilla", "speed");
+	//LevelHelper::pushSymmetricPowerups_Corners(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - (wallArray[0].first+32 + 20), GAME_HEIGHT/2 - 48, "vanilla", "speed");
 
 	PositionHolder wallPos1 = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, (GAME_HEIGHT - 128*2)/2, 160, 20);
-	WallManager::pushWall(new Wall(wallPos1.x, wallPos1.y, 160, 20, color));
+	WallManager::pushWall(new Wall(wallPos1.first, wallPos1.second, 160, 20, color));
 	PositionHolder wallPos2 = LevelHelper::getSymmetricWallPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, (GAME_HEIGHT - 128*2)/2, 160, 20);
-	WallManager::pushWall(new Wall(wallPos2.x, wallPos2.y, 160, 20, color));
+	WallManager::pushWall(new Wall(wallPos2.first, wallPos2.second, 160, 20, color));
 
 	for (int i = 0; i < 4; i++) {
-		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 160/2, (GAME_HEIGHT - 128*2)/2, (GAME_WIDTH/2 - 160/2 - (wallArray[0].x+32)), 20);
-		posArr = new double[4]{ pos.x, pos.y, GAME_WIDTH/2 - 160/2 - (wallArray[0].x+32), 20 };
+		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 160/2, (GAME_HEIGHT - 128*2)/2, (GAME_WIDTH/2 - 160/2 - (wallArray[0].first+32)), 20);
+		posArr = new double[4]{ pos.first, pos.second, GAME_WIDTH/2 - 160/2 - (wallArray[0].first+32), 20 };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushRectHazard("vanilla", "horizontal_lightning", constructionData);
 	}
 
 	pos = LevelHelper::getSymmetricPowerupPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, 160/4 * 1.5);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, "vanilla-extra", "barrier")); //replace barrier with speed?
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, "vanilla-extra", "barrier")); //replace barrier with speed?
 	pos = LevelHelper::getSymmetricPowerupPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, 160/4 * 1.5);
-	PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, "vanilla-extra", "barrier"));
+	PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, "vanilla-extra", "barrier"));
 
-	pos = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - wallPos1.y, 160/2, 50);
-	posArr = new double[4]{ pos.x, pos.y, 160/2, 50 };
+	pos = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - wallPos1.second, 160/2, 50);
+	posArr = new double[4]{ pos.first, pos.second, 160/2, 50 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "lava", constructionData);
-	pos = LevelHelper::getSymmetricWallPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - wallPos1.y, 160/2, 50);
-	posArr = new double[4]{ pos.x, pos.y, 160/2, 50 };
+	pos = LevelHelper::getSymmetricWallPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - wallPos1.second, 160/2, 50);
+	posArr = new double[4]{ pos.first, pos.second, 160/2, 50 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "lava", constructionData);
 
 	for (int i = 0; i < 4; i++) {
-		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 160/4, GAME_HEIGHT/2 - wallPos1.y, 160/4, 50);
-		posArr = new double[4]{ pos.x, pos.y, 160/4, 50 };
+		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 160/4, GAME_HEIGHT/2 - wallPos1.second, 160/4, 50);
+		posArr = new double[4]{ pos.first, pos.second, 160/4, 50 };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushRectHazard("vanilla", "lightning", constructionData);
 	}

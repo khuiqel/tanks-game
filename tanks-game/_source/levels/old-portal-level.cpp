@@ -28,16 +28,16 @@ void OldPortalLevel::initialize() {
 	const PositionHolder* wallArray = LevelHelper::getClassicWallPositions();
 
 	//LR:
-	LevelHelper::pushRandomWalls(6, wallArray[0].x+32 + 40, 40, 64, GAME_HEIGHT - 40*2, color, 8, 16, 12, 64);
-	LevelHelper::pushRandomWalls(6, wallArray[3].x-64 - 40, 40, 64, GAME_HEIGHT - 40*2, color, 8, 16, 12, 64);
+	LevelHelper::pushRandomWalls(6, wallArray[0].first+32 + 40, 40, 64, GAME_HEIGHT - 40*2, color, 8, 16, 12, 64);
+	LevelHelper::pushRandomWalls(6, wallArray[3].first-64 - 40, 40, 64, GAME_HEIGHT - 40*2, color, 8, 16, 12, 64);
 
 	//UD:
-	LevelHelper::pushRandomWalls(4, (wallArray[0].x+32 + 40) + 64, 40,                (wallArray[3].x-64 - 40)-(wallArray[0].x+32 + 40 + 64), 64, color, 12, 64, 8, 16); //TODO: that 152 depends on the initial walls; also this doesn't do anything with the 424-152 stuff, find out what that does
-	LevelHelper::pushRandomWalls(4, (wallArray[0].x+32 + 40) + 64, GAME_HEIGHT-64-40, (wallArray[3].x-64 - 40)-(wallArray[0].x+32 + 40 + 64), 64, color, 12, 64, 8, 16); //TODO: that 152 depends on the initial walls; also this doesn't do anything with the 424-152 stuff, find out what that does
+	LevelHelper::pushRandomWalls(4, (wallArray[0].first+32 + 40) + 64, 40,                (wallArray[3].first-64 - 40)-(wallArray[0].first+32 + 40 + 64), 64, color, 12, 64, 8, 16); //TODO: that 152 depends on the initial walls; also this doesn't do anything with the 424-152 stuff, find out what that does
+	LevelHelper::pushRandomWalls(4, (wallArray[0].first+32 + 40) + 64, GAME_HEIGHT-64-40, (wallArray[3].first-64 - 40)-(wallArray[0].first+32 + 40 + 64), 64, color, 12, 64, 8, 16); //TODO: that 152 depends on the initial walls; also this doesn't do anything with the 424-152 stuff, find out what that does
 
 	PowerupManager::pushPowerup(new PowerSquare(GAME_WIDTH/2, GAME_HEIGHT/2, "vanilla", "wallhack"));
 
-	LevelHelper::pushSymmetricPowerups_Corners_Alternate(GAME_WIDTH/2, GAME_HEIGHT/2, (wallArray[3].x - (wallArray[0].x + 32))/2 - 20, 32+20,
+	LevelHelper::pushSymmetricPowerups_Corners_Alternate(GAME_WIDTH/2, GAME_HEIGHT/2, (wallArray[3].first - (wallArray[0].first + 32))/2 - 20, 32+20,
 		"vanilla", "multishot", "vanilla", "triple");
 
 	//traps:

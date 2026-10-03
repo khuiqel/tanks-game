@@ -40,11 +40,11 @@ void LoneTurretLevel::initialize() {
 	//HazardManager::pushRectHazard("vanilla", "lightning", constructionData);
 
 	pos = LevelHelper::getSymmetricWallPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, 80, 20, 80);
-	posArr = new double[4]{ pos.x, pos.y, 20, 80 };
+	posArr = new double[4]{ pos.first, pos.second, 20, 80 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "no_bullet_zone", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, 80, 20, 80);
-	posArr = new double[4]{ pos.x, pos.y, 20, 80 };
+	posArr = new double[4]{ pos.first, pos.second, 20, 80 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "no_bullet_zone", constructionData);
 

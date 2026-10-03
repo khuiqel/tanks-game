@@ -53,12 +53,12 @@ void UntraditionalDividerLevel::initialize() {
 
 	for (int i = 0; i < 4; i++) {
 		PositionHolder posOuter = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 240-20,           10+50, 20, GAME_HEIGHT/2 - (10+50));
-		posArr = new double[4]{ posOuter.x, posOuter.y, 20, GAME_HEIGHT/2 - (10+50) };
+		posArr = new double[4]{ posOuter.first, posOuter.second, 20, GAME_HEIGHT/2 - (10+50) };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushRectHazard("vanilla", "lava", constructionData);
 
 		PositionHolder posInner = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 240-20 - (80+20), 10+50, 20, GAME_HEIGHT/2 - (10+50));
-		posArr = new double[4]{ posInner.x, posInner.y, 20, GAME_HEIGHT/2 - (10+50) };
+		posArr = new double[4]{ posInner.first, posInner.second, 20, GAME_HEIGHT/2 - (10+50) };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushRectHazard("vanilla", "lava", constructionData);
 	}
@@ -74,7 +74,7 @@ void UntraditionalDividerLevel::initialize() {
 	for (int j = 0; j < turretCount; j++) {
 		for (int i = 0; i < 4; i++) {
 			pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 240-20 - (80+20) + 20/2 + .01, (10+50) + j*(GAME_HEIGHT/2 - (10+50) - 20)/(turretCount-1) + 20/2);
-			posArr = new double[3]{ pos.x, pos.y, PI * (i%2) };
+			posArr = new double[3]{ pos.first, pos.second, PI * (i%2) };
 			constructionData = GenericFactoryConstructionData(3, posArr);
 			HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
 			//TODO: the bullets don't collide with each other because they don't actually hit each other; maybe have a better solution than adjust positioning by .01?
@@ -112,7 +112,7 @@ void UntraditionalDividerLevel::initialize() {
 	/*
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 240-20 - 80/2, GAME_HEIGHT/2 - 20);
-		posArr = new double[3]{ pos.x, pos.y, 16 };
+		posArr = new double[3]{ pos.first, pos.second, 16 };
 		constructionData = GenericFactoryConstructionData(3, posArr);
 		HazardManager::pushCircleHazard("vanilla", "lightning", constructionData);
 	}
@@ -136,7 +136,7 @@ UntraditionalDividerLevel::UntraditionalDividerLevel() {
 		PositionHolder posOuter = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 240-20,           10+50, 20, GAME_HEIGHT/2 - (10+50));
 		PositionHolder posInner = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 240-20 - (80+20), 10+50, 20, GAME_HEIGHT/2 - (10+50));
 
-		double* minefieldData = new double[4]{ (posOuter.x < posInner.x ? posOuter.x : posInner.x) + 20, posOuter.y, 80, GAME_HEIGHT/2 - (10+50) };
+		double* minefieldData = new double[4]{ (posOuter.first < posInner.first ? posOuter.first : posInner.first) + 20, posOuter.second, 80, GAME_HEIGHT/2 - (10+50) };
 		GenericFactoryConstructionData constructionData(4, minefieldData);
 		constructionData.pushData(2, mineCount);
 		effects.push_back(LevelManager::makeLevelEffect("vanilla", "minefield", constructionData));

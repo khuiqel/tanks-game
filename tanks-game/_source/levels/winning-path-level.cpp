@@ -49,11 +49,11 @@ void WinningPathLevel::initialize() {
 		double w = LevelRNG::randNumInRange(WALL_MIN_WIDTH, WALL_MAX_WIDTH);
 		double h = LevelRNG::randNumInRange(WALL_MIN_HEIGHT, WALL_MAX_HEIGHT);
 		//JS floored w and h (also, it didn't allow w=8 or h=4 for some reason)
-		double x_offset = LevelRNG::randFunc() * ((wallArray[3].x - 40) - (GAME_WIDTH/2 + 20+20) - w);
+		double x_offset = LevelRNG::randFunc() * ((wallArray[3].first - 40) - (GAME_WIDTH/2 + 20+20) - w);
 		double y_offset = LevelRNG::randFunc() * ((GAME_HEIGHT/2 - 40) - (GAME_HEIGHT/4) - h);
 		//space from LR walls' corner to classic walls, minus 40 for the tanks to move around
 		pos = LevelHelper::getSymmetricWallPositions_Corners(i%4, GAME_WIDTH/2, GAME_HEIGHT/2, 20+20 + x_offset, GAME_HEIGHT/4 + y_offset, w, h);
-		WallManager::pushWall(new Wall(pos.x, pos.y, w, h, color));
+		WallManager::pushWall(new Wall(pos.first, pos.second, w, h, color));
 	}
 
 	delete[] wallArray;

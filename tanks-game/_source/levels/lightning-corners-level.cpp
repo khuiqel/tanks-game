@@ -61,27 +61,27 @@ void LightningCornersLevel::initialize() {
 
 	//not here in the JS level but I feel it should be here:
 	pos = LevelHelper::getSymmetricPowerupPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, 80+20);
-	posArr = new double[3]{ pos.x, pos.y, 0 };
+	posArr = new double[3]{ pos.first, pos.second, 0 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
 	pos = LevelHelper::getSymmetricPowerupPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, 80+20);
-	posArr = new double[3]{ pos.x, pos.y, PI };
+	posArr = new double[3]{ pos.first, pos.second, PI };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
 	pos = LevelHelper::getSymmetricPowerupPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, 80+20);
-	posArr = new double[3]{ pos.x, pos.y, PI/2 };
+	posArr = new double[3]{ pos.first, pos.second, PI/2 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
 	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, 80+20);
-	posArr = new double[3]{ pos.x, pos.y, -PI/2 };
+	posArr = new double[3]{ pos.first, pos.second, -PI/2 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
 
 	//just trying stuff
-	//posArr = new double[4]{ wallArray[0].x+32, 0, 16, GAME_HEIGHT };
+	//posArr = new double[4]{ wallArray[0].first+32, 0, 16, GAME_HEIGHT };
 	//constructionData = GenericFactoryConstructionData(4, posArr);
 	//HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
-	//posArr = new double[4]{ wallArray[3].x-16, 0, 16, GAME_HEIGHT };
+	//posArr = new double[4]{ wallArray[3].first-16, 0, 16, GAME_HEIGHT };
 	//constructionData = GenericFactoryConstructionData(4, posArr);
 	//HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
 }

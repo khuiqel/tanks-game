@@ -48,11 +48,11 @@ void UnnamedLevel13::initialize() {
 	HazardManager::pushCircleHazard("vanilla-extra", "gravity_well", constructionData);
 
 	pos = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, 64+20, 64*2, 20);
-	posArr = new double[4]{ pos.x, pos.y, 64*2, 20 };
+	posArr = new double[4]{ pos.first, pos.second, 64*2, 20 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("dev", "reflecktor", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, 64+20, 64*2, 20);
-	posArr = new double[4]{ pos.x, pos.y, 64*2, 20 };
+	posArr = new double[4]{ pos.first, pos.second, 64*2, 20 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("dev", "reflecktor", constructionData);
 
@@ -66,19 +66,19 @@ void UnnamedLevel13::initialize() {
 
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 64+40, 22, 20, 48*2);
-		posArr = new double[4]{ pos.x, pos.y, 20, 48*2 };
+		posArr = new double[4]{ pos.first, pos.second, 20, 48*2 };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushRectHazard("dev", "reflecktor", constructionData);
 	}
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, (64+40)+20+10+48, 22+48);
-		posArr = new double[4]{ pos.x, pos.y, 16, 48 };
+		posArr = new double[4]{ pos.first, pos.second, 16, 48 };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushCircleHazard("vanilla-extra", "gravity_well", constructionData);
 	}
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, ((64+40)+20+10+48) + 48+10, 22, 20, 48*2);
-		posArr = new double[4]{ pos.x, pos.y, 20, 48*2 };
+		posArr = new double[4]{ pos.first, pos.second, 20, 48*2 };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushRectHazard("dev", "reflecktor", constructionData);
 	}

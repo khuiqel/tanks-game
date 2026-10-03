@@ -1,8 +1,9 @@
 #pragma once
 #include <string>
 
-#include "position-holder.h"
 #include "wall.h"
+
+using PositionHolder = std::pair<double, double>;
 
 class LevelHelper { //has stuff for randomizing stuff in levels
 public:

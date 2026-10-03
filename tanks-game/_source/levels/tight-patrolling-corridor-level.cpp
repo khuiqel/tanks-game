@@ -61,9 +61,9 @@ void TightPatrollingCorridorLevel::initialize() {
 
 	//inner walls
 	pos = LevelHelper::getSymmetricWallPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, 60, 20, (40+40)*2);
-	WallManager::pushWall(new Wall(pos.x, pos.y, 20, (40+40)*2, color));
+	WallManager::pushWall(new Wall(pos.first, pos.second, 20, (40+40)*2, color));
 	pos = LevelHelper::getSymmetricWallPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, 60, 20, (40+40)*2);
-	WallManager::pushWall(new Wall(pos.x, pos.y, 20, (40+40)*2, color));
+	WallManager::pushWall(new Wall(pos.first, pos.second, 20, (40+40)*2, color));
 
 	//good center powerup
 	names = new std::string[4]{ "bounce", "homing", "banana", "banana" };
@@ -73,20 +73,20 @@ void TightPatrollingCorridorLevel::initialize() {
 	//"inner" powers
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 60+20+20/2, 40+40/2);
-		//PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, "vanilla-extra", "shield"));
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, "vanilla-extra", "barrier"));
+		//PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, "vanilla-extra", "shield"));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, "vanilla-extra", "barrier"));
 	}
 
 	//next layer
 	//pos = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, (40+30) + 40, (60+20/2 + 30)*2, 20);
 	pos = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - 20, (60+20 + 40)*2, 20);
-	WallManager::pushWall(new Wall(pos.x, pos.y, (60+20 + 40)*2, 20, color));
+	WallManager::pushWall(new Wall(pos.first, pos.second, (60+20 + 40)*2, 20, color));
 	pos = LevelHelper::getSymmetricWallPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - 20, (60+20 + 40)*2, 20);
-	WallManager::pushWall(new Wall(pos.x, pos.y, (60+20 + 40)*2, 20, color));
+	WallManager::pushWall(new Wall(pos.first, pos.second, (60+20 + 40)*2, 20, color));
 
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, (60+20 + 40) + 20 + 20/2, 40-10, 20/2, 40+10*2);
-		WallManager::pushWall(new Wall(pos.x, pos.y, 20/2, 40+10*2, color));
+		WallManager::pushWall(new Wall(pos.first, pos.second, 20/2, 40+10*2, color));
 		//alternatively: no bullet zones
 	}
 
@@ -113,23 +113,23 @@ void TightPatrollingCorridorLevel::initialize() {
 	//outer walls
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, (60+20 + 40) + 80, 20, 20, GAME_HEIGHT/2-(20+40));
-		WallManager::pushWall(new Wall(pos.x, pos.y, 20, GAME_HEIGHT/2-(20+40), color));
+		WallManager::pushWall(new Wall(pos.first, pos.second, 20, GAME_HEIGHT/2-(20+40), color));
 	}
 	//extra
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, (60+20 + 40) + 80 + 20, GAME_HEIGHT/2-(20+40), GAME_WIDTH/2 - ((60+20 + 40) + 80 + 20), 20);
-		WallManager::pushWall(new Wall(pos.x, pos.y, GAME_WIDTH/2 - ((60+20 + 40) + 80 + 20), 20, color));
+		WallManager::pushWall(new Wall(pos.first, pos.second, GAME_WIDTH/2 - ((60+20 + 40) + 80 + 20), 20, color));
 	}
 
 	//extra powers
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - 20, GAME_HEIGHT/2 - 20);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, "vanilla", "speed"));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, "vanilla", "speed"));
 	}
 	//experimental power positions
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - 10, GAME_HEIGHT/2 - (20+20+20+10));
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, "vanilla", "invincible"));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, "vanilla", "invincible"));
 	}
 
 	//UL and UR turrets

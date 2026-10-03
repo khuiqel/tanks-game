@@ -102,11 +102,11 @@ void VerticalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 	} else {
 		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, bottomPoint.x, bottomPoint.y);
 		if (c->x < x + w/2) {
-			intersectionXD = std::max(intersections.first.x, intersections.second.x);
+			intersectionXD = std::max(intersections.first.first, intersections.second.first);
 		} else {
-			intersectionXD = std::min(intersections.first.x, intersections.second.x);
+			intersectionXD = std::min(intersections.first.first, intersections.second.first);
 		}
-		intersectionYD = std::min(intersections.first.y, intersections.second.y);
+		intersectionYD = std::min(intersections.first.second, intersections.second.second);
 
 		if (intersectionXD < x || intersectionXD > x+w) [[unlikely]] {
 			std::cerr << "WARNING: vertical lightning endpoint X (bottom half) out of range!" << std::endl;
@@ -126,11 +126,11 @@ void VerticalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 	} else {
 		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, topPoint.x, topPoint.y);
 		if (c->x < x + w/2) {
-			intersectionXU = std::max(intersections.first.x, intersections.second.x);
+			intersectionXU = std::max(intersections.first.first, intersections.second.first);
 		} else {
-			intersectionXU = std::min(intersections.first.x, intersections.second.x);
+			intersectionXU = std::min(intersections.first.first, intersections.second.first);
 		}
-		intersectionYU = std::max(intersections.first.y, intersections.second.y);
+		intersectionYU = std::max(intersections.first.second, intersections.second.second);
 
 		if (intersectionXU < x || intersectionXU > x+w) [[unlikely]] {
 			std::cerr << "WARNING: vertical lightning endpoint X (top half) out of range!" << std::endl;

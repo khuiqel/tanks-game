@@ -51,14 +51,14 @@ void TimedRewardLevel::initialize() {
 	double* posArr;
 
 	pos = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, 40, 120*2, 40);
-	WallManager::pushWall(new Wall(pos.x, pos.y, 120*2, 40, color));
+	WallManager::pushWall(new Wall(pos.first, pos.second, 120*2, 40, color));
 	pos = LevelHelper::getSymmetricWallPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, 40, 120*2, 40);
-	WallManager::pushWall(new Wall(pos.x, pos.y, 120*2, 40, color));
+	WallManager::pushWall(new Wall(pos.first, pos.second, 120*2, 40, color));
 
 	//moving walls
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 120-20, 20/2, 20, 40+20);
-		Wall* tempWall = new Wall(pos.x, pos.y, 20, 40+20, color);
+		Wall* tempWall = new Wall(pos.first, pos.second, 20, 40+20, color);
 		movingWalls[i] = tempWall->getGameID();
 		WallManager::pushWall(tempWall);
 	}
@@ -67,8 +67,8 @@ void TimedRewardLevel::initialize() {
 
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 120 - 20 - 4*2, 40 - 4*2);
-		SimpleVector2D distToCenter = SimpleVector2D(GAME_WIDTH/2 - pos.x, GAME_HEIGHT/2 - pos.y);
-		posArr = new double[3]{ pos.x, pos.y, distToCenter.getAngle() };
+		SimpleVector2D distToCenter = SimpleVector2D(GAME_WIDTH/2 - pos.first, GAME_HEIGHT/2 - pos.second);
+		posArr = new double[3]{ pos.first, pos.second, distToCenter.getAngle() };
 		constructionData = GenericFactoryConstructionData(3, posArr);
 		HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
 	}
@@ -79,11 +79,11 @@ void TimedRewardLevel::initialize() {
 	LevelHelper::pushSymmetricPowerups_Corners(GAME_WIDTH/2, GAME_HEIGHT/2, 120 + 60, GAME_HEIGHT/2 - (40+40)/2, "vanilla-extra", "shield");
 
 	pos = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, 40+40, 20, (GAME_HEIGHT/2 - (40+40)));
-	posArr = new double[4]{ pos.x, pos.y, 20, GAME_HEIGHT/2 - (40+40) };
+	posArr = new double[4]{ pos.first, pos.second, 20, GAME_HEIGHT/2 - (40+40) };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, 40+40, 20, (GAME_HEIGHT/2 - (40+40)));
-	posArr = new double[4]{ pos.x, pos.y, 20, GAME_HEIGHT/2 - (40+40) };
+	posArr = new double[4]{ pos.first, pos.second, 20, GAME_HEIGHT/2 - (40+40) };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
 

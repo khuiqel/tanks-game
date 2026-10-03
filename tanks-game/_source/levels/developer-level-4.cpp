@@ -35,7 +35,7 @@ void DeveloperLevel4::initialize() {
 
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 60, 60, 30, 30);
-		posArr = new double[4]{ pos.x, pos.y, 30, 30 };
+		posArr = new double[4]{ pos.first, pos.second, 30, 30 };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushRectHazard("dev", "reflecktor", constructionData);
 	}

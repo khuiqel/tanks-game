@@ -746,9 +746,6 @@
     <ClInclude Include="_source\levels\few-obstacles-level.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="_source\position-holder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="_source\levels\concealed-powerups-level.h">
       <Filter>Header Files</Filter>
     </ClInclude>

@@ -111,14 +111,14 @@ void RectangularLightningHazard::specialEffectCircleCollision(const Circle* c) {
 
 			std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, centerPoint.x, centerPoint.y);
 			if (c->x < x + w/2) {
-				intersectionX = std::max(intersections.first.x, intersections.second.x);
+				intersectionX = std::max(intersections.first.first, intersections.second.first);
 			} else {
-				intersectionX = std::min(intersections.first.x, intersections.second.x);
+				intersectionX = std::min(intersections.first.first, intersections.second.first);
 			}
 			if (c->y < y + h/2) {
-				intersectionY = std::max(intersections.first.y, intersections.second.y);
+				intersectionY = std::max(intersections.first.second, intersections.second.second);
 			} else {
-				intersectionY = std::min(intersections.first.y, intersections.second.y);
+				intersectionY = std::min(intersections.first.second, intersections.second.second);
 			}
 
 			if (intersectionX < x || intersectionX > x+w) [[unlikely]] {

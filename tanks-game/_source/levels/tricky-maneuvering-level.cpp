@@ -47,10 +47,10 @@ void TrickyManeuveringLevel::initialize() {
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
 
-	posArr = new double[4]{ wallArray[0].x+32, 0, wallArray[3].x - (wallArray[0].x+32), 16 };
+	posArr = new double[4]{ wallArray[0].first+32, 0, wallArray[3].first - (wallArray[0].first+32), 16 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "lava", constructionData);
-	posArr = new double[4]{ wallArray[0].x+32, GAME_HEIGHT - 16, wallArray[3].x - (wallArray[0].x+32), 16 };
+	posArr = new double[4]{ wallArray[0].first+32, GAME_HEIGHT - 16, wallArray[3].first - (wallArray[0].first+32), 16 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "lava", constructionData);
 
@@ -76,7 +76,7 @@ void TrickyManeuveringLevel::initialize() {
 
 	types = new std::string[2]{ "vanilla", "vanilla-extra" };
 	names = new std::string[2]{ "speed", "barrier" };
-	LevelHelper::pushSymmetricPowerups_Corners(GAME_WIDTH/2, GAME_HEIGHT/2, (wallArray[3].x - (wallArray[0].x+32))/2 - 16, GAME_HEIGHT/2 - (16+16), types, names, 2);
+	LevelHelper::pushSymmetricPowerups_Corners(GAME_WIDTH/2, GAME_HEIGHT/2, (wallArray[3].first - (wallArray[0].first+32))/2 - 16, GAME_HEIGHT/2 - (16+16), types, names, 2);
 	delete[] types; delete[] names;
 
 	//not here in JS:

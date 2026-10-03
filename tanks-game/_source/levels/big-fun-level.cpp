@@ -59,7 +59,7 @@ void BigFunLevel::initialize() {
 		std::string* randPowers = LevelHelper::getRandomPowers(count, "random-vanilla", possiblePowers, possiblePowersCount);
 		//std::string* randPowers = LevelHelper::getRandomPowersOld(count, true, possiblePowers, possiblePowersCount);
 		pos = LevelHelper::getSymmetricPowerupPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2-(80+32+16), GAME_HEIGHT/2-16);
-		PowerupManager::pushPowerup(new PowerSquare(pos.x, pos.y, "random-vanilla", randPowers, count));
+		PowerupManager::pushPowerup(new PowerSquare(pos.first, pos.second, "random-vanilla", randPowers, count));
 		delete[] randPowers;
 	}
 }

@@ -54,11 +54,11 @@ void UnnamedLevel10::initialize() {
 	//WallManager::pushWall(new Wall(GAME_WIDTH/2 - 20/2, GAME_HEIGHT/2 - centerOffset, 20, 2*centerOffset, color));
 
 	pos = LevelHelper::getSymmetricWallPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, 20/2 + 2*centerOffset, 20, 2*centerOffset);
-	posArr = new double[4]{ pos.x, pos.y, 20, 2*centerOffset };
+	posArr = new double[4]{ pos.first, pos.second, 20, 2*centerOffset };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, 20/2 + 2*centerOffset, 20, 2*centerOffset);
-	posArr = new double[4]{ pos.x, pos.y, 20, 2*centerOffset };
+	posArr = new double[4]{ pos.first, pos.second, 20, 2*centerOffset };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
 
@@ -68,7 +68,7 @@ void UnnamedLevel10::initialize() {
 
 	for (int i = 0; i < 4; i++) {
 		pos = LevelHelper::getSymmetricWallPositions_Corners(i, GAME_WIDTH/2, GAME_HEIGHT/2, 20/2, centerOffset, 2*centerOffset, 20);
-		posArr = new double[4]{ pos.x, pos.y, 2*centerOffset, 20 };
+		posArr = new double[4]{ pos.first, pos.second, 2*centerOffset, 20 };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushRectHazard("vanilla", "horizontal_lightning", constructionData);
 	}
@@ -84,20 +84,20 @@ void UnnamedLevel10::initialize() {
 	LevelHelper::pushSymmetricWalls_Corners(GAME_WIDTH/2, GAME_HEIGHT/2, centerOffset, centerOffset, 20, 20, color);
 
 	pos = LevelHelper::getSymmetricWallPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, centerOffset, 20, 2*centerOffset);
-	posArr = new double[4]{ pos.x, pos.y, 20, 2*centerOffset };
+	posArr = new double[4]{ pos.first, pos.second, 20, 2*centerOffset };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, centerOffset, 20, 2*centerOffset);
-	posArr = new double[4]{ pos.x, pos.y, 20, 2*centerOffset };
+	posArr = new double[4]{ pos.first, pos.second, 20, 2*centerOffset };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "vertical_lightning", constructionData);
 
 	pos = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, centerOffset, 2*centerOffset, 20);
-	posArr = new double[4]{ pos.x, pos.y, 2*centerOffset, 20 };
+	posArr = new double[4]{ pos.first, pos.second, 2*centerOffset, 20 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "horizontal_lightning", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, centerOffset, 2*centerOffset, 20);
-	posArr = new double[4]{ pos.x, pos.y, 2*centerOffset, 20 };
+	posArr = new double[4]{ pos.first, pos.second, 2*centerOffset, 20 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "horizontal_lightning", constructionData);
 	*/

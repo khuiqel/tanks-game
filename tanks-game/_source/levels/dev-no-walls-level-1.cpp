@@ -30,13 +30,13 @@ void DevNoWallsLevel1::initialize() {
 	const PositionHolder* wallArray = LevelHelper::getClassicWallPositions();
 	for (int i = 0; i < 4; i++) {
 		//classic JS walls, except NoBulletZones
-		posArr = new double[4]{ wallArray[i].x, wallArray[i].y, 32, 128 };
+		posArr = new double[4]{ wallArray[i].first, wallArray[i].second, 32, 128 };
 		constructionData = GenericFactoryConstructionData(4, posArr);
 		HazardManager::pushRectHazard("vanilla", "no_bullet_zone", constructionData);
 	}
 
 	const double distFromCorner = 40;
-	LevelHelper::pushSymmetricPowerups_Corners(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - ((wallArray[0].x+32) + distFromCorner), GAME_HEIGHT/2 - distFromCorner, "vanilla-extra", "shield");
+	LevelHelper::pushSymmetricPowerups_Corners(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - ((wallArray[0].first+32) + distFromCorner), GAME_HEIGHT/2 - distFromCorner, "vanilla-extra", "shield");
 
 	PowerupManager::pushPowerup(new PowerSquare(GAME_WIDTH/2, GAME_HEIGHT/2, "dev", "inversion")); //this is evil (allowed because it's a dev level)
 	PowerupManager::pushPowerup(new PowerSquare(GAME_WIDTH/2, GAME_HEIGHT/2, "vanilla", "wallhack")); //heh

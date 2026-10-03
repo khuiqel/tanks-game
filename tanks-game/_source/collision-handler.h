@@ -2,9 +2,12 @@
 #include <utility>
 #include <optional>
 
-#include "position-holder.h"
 #include "circle.h"
 #include "rect.h"
+
+//would've been nice to have a pair and rename its members to x and y, but C++ doesn't allow that
+//the closest way to do that requires anonymous structs which aren't a good idea: union PositionHolder { std::pair<double,double> pos; struct { double x; double y; } }
+using PositionHolder = std::pair<double, double>;
 
 class CollisionHandler {
 protected:

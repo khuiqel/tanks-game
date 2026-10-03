@@ -37,57 +37,57 @@ void UnnamedLevel11::initialize() {
 	PowerupManager::pushPowerup(new PowerSquare(GAME_WIDTH/2, GAME_HEIGHT/2, "vanilla", "godmode"));
 
 	pos = LevelHelper::getSymmetricWallPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, centerOffset, zoneWidth, 2*centerOffset);
-	posArr = new double[4]{ pos.x, pos.y, zoneWidth, 2*centerOffset };
+	posArr = new double[4]{ pos.first, pos.second, zoneWidth, 2*centerOffset };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "no_bullet_zone", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, centerOffset, zoneWidth, 2*centerOffset);
-	posArr = new double[4]{ pos.x, pos.y, zoneWidth, 2*centerOffset };
+	posArr = new double[4]{ pos.first, pos.second, zoneWidth, 2*centerOffset };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "no_bullet_zone", constructionData);
 
 	pos = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, centerOffset, 2*centerOffset, zoneWidth);
-	posArr = new double[4]{ pos.x, pos.y, 2*centerOffset, zoneWidth };
+	posArr = new double[4]{ pos.first, pos.second, 2*centerOffset, zoneWidth };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "no_bullet_zone", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, centerOffset, 2*centerOffset, zoneWidth);
-	posArr = new double[4]{ pos.x, pos.y, 2*centerOffset, zoneWidth };
+	posArr = new double[4]{ pos.first, pos.second, 2*centerOffset, zoneWidth };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "no_bullet_zone", constructionData);
 
 	const double wallGap = 60;
-	LevelHelper::pushSymmetricWalls_LR(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - (wallArray[0].x+32) - (wallGap+20), 20, 200, color);
+	LevelHelper::pushSymmetricWalls_LR(GAME_WIDTH/2, GAME_HEIGHT/2, GAME_WIDTH/2 - (wallArray[0].first+32) - (wallGap+20), 20, 200, color);
 
-	pos = LevelHelper::getSymmetricPowerupPositions_UD(0, (wallArray[0].x+32) + wallGap/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
-	posArr = new double[3]{ pos.x, pos.y, PI/2 };
+	pos = LevelHelper::getSymmetricPowerupPositions_UD(0, (wallArray[0].first+32) + wallGap/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
+	posArr = new double[3]{ pos.first, pos.second, PI/2 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
-	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, (wallArray[0].x+32) + wallGap/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
-	posArr = new double[3]{ pos.x, pos.y, -PI/2 };
+	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, (wallArray[0].first+32) + wallGap/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
+	posArr = new double[3]{ pos.first, pos.second, -PI/2 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
-	pos = LevelHelper::getSymmetricPowerupPositions_UD(0, (wallArray[3].x) - wallGap/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
-	posArr = new double[3]{ pos.x, pos.y, PI/2 };
+	pos = LevelHelper::getSymmetricPowerupPositions_UD(0, (wallArray[3].first) - wallGap/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
+	posArr = new double[3]{ pos.first, pos.second, PI/2 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
-	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, (wallArray[3].x) - wallGap/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
-	posArr = new double[3]{ pos.x, pos.y, -PI/2 };
+	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, (wallArray[3].first) - wallGap/2, GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
+	posArr = new double[3]{ pos.first, pos.second, -PI/2 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
 
-	pos = LevelHelper::getSymmetricPowerupPositions_UD(0, (wallArray[0].x+32) + (wallGap+20+wallGap/2), GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
-	posArr = new double[3]{ pos.x, pos.y, PI/2 };
+	pos = LevelHelper::getSymmetricPowerupPositions_UD(0, (wallArray[0].first+32) + (wallGap+20+wallGap/2), GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
+	posArr = new double[3]{ pos.first, pos.second, PI/2 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
-	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, (wallArray[0].x+32) + (wallGap+20+wallGap/2), GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
-	posArr = new double[3]{ pos.x, pos.y, -PI/2 };
+	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, (wallArray[0].first+32) + (wallGap+20+wallGap/2), GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
+	posArr = new double[3]{ pos.first, pos.second, -PI/2 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
-	pos = LevelHelper::getSymmetricPowerupPositions_UD(0, (wallArray[3].x) - (wallGap+20+wallGap/2), GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
-	posArr = new double[3]{ pos.x, pos.y, PI/2 };
+	pos = LevelHelper::getSymmetricPowerupPositions_UD(0, (wallArray[3].first) - (wallGap+20+wallGap/2), GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
+	posArr = new double[3]{ pos.first, pos.second, PI/2 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
-	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, (wallArray[3].x) - (wallGap+20+wallGap/2), GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
-	posArr = new double[3]{ pos.x, pos.y, -PI/2 };
+	pos = LevelHelper::getSymmetricPowerupPositions_UD(1, (wallArray[3].first) - (wallGap+20+wallGap/2), GAME_HEIGHT/2, GAME_HEIGHT/2 - 10);
+	posArr = new double[3]{ pos.first, pos.second, -PI/2 };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	HazardManager::pushCircleHazard("vanilla", "stationary_turret", constructionData);
 

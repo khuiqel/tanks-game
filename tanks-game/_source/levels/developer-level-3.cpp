@@ -31,9 +31,9 @@ void DeveloperLevel3::initialize() {
 
 	//from dev1
 	pos = LevelHelper::getSymmetricWallPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, 60, 20, 80);
-	WallManager::pushWall(new Wall(pos.x, pos.y, 20, 80, color));
+	WallManager::pushWall(new Wall(pos.first, pos.second, 20, 80, color));
 	pos = LevelHelper::getSymmetricWallPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, 60, 20, 80);
-	WallManager::pushWall(new Wall(pos.x, pos.y, 20, 80, color));
+	WallManager::pushWall(new Wall(pos.first, pos.second, 20, 80, color));
 
 	posArr = new double[4]{ GAME_WIDTH/2 - 80 + 20, GAME_HEIGHT/2 + 10, 60*2, 20*2 - 10 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
@@ -62,11 +62,11 @@ void DeveloperLevel3::initialize() {
 	HazardManager::pushCircleHazard("vanilla", "patrolling_turret", constructionData);
 
 	pos = LevelHelper::getSymmetricWallPositions_LR(0, GAME_WIDTH/2, GAME_HEIGHT/2, 60, 20, 80);
-	posArr = new double[4]{ pos.x - 40, pos.y, 20, 80 };
+	posArr = new double[4]{ pos.first - 40, pos.second, 20, 80 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("dev", "wall", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_LR(1, GAME_WIDTH/2, GAME_HEIGHT/2, 60, 20, 80);
-	posArr = new double[4]{ pos.x + 40, pos.y, 20, 80 };
+	posArr = new double[4]{ pos.first + 40, pos.second, 20, 80 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("dev", "wall", constructionData);
 

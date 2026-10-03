@@ -27,11 +27,11 @@ void ConcealedPowerupsLevel::initialize() {
 	LevelHelper::pushClassicWalls(color);
 
 	pos = LevelHelper::getSymmetricWallPositions_UD(0, GAME_WIDTH/2, GAME_HEIGHT/2, 70, 160, 20);
-	posArr = new double[4]{ pos.x, pos.y, 160, 20 };
+	posArr = new double[4]{ pos.first, pos.second, 160, 20 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "horizontal_lightning", constructionData);
 	pos = LevelHelper::getSymmetricWallPositions_UD(1, GAME_WIDTH/2, GAME_HEIGHT/2, 70, 160, 20);
-	posArr = new double[4]{ pos.x, pos.y, 160, 20 };
+	posArr = new double[4]{ pos.first, pos.second, 160, 20 };
 	constructionData = GenericFactoryConstructionData(4, posArr);
 	HazardManager::pushRectHazard("vanilla", "horizontal_lightning", constructionData);
 

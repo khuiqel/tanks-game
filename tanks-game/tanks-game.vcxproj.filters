@@ -728,9 +728,6 @@
     <ClInclude Include="_source\powers\dev-long-invincible-named-power.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="_source\point.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="_source\game-manager.h">
       <Filter>Header Files</Filter>
     </ClInclude>

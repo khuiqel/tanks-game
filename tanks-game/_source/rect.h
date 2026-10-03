@@ -15,4 +15,7 @@ public:
 	double getY() const noexcept { return y; }
 	double getW() const noexcept { return w; }
 	double getH() const noexcept { return h; }
+
+	Rect() = default;
+	Rect(double x_, double y_, double w_, double h_) { this->x = x_; this->y = y_; this->w = w_; this->h = h_; }
 };

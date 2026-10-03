@@ -11,7 +11,6 @@
 #include "../background-rect.h"
 
 #include "../collision-handler.h"
-#include "../point.h"
 #include "../tank.h"
 #include "../tank-manager.h"
 #include "../bullet-manager.h"

@@ -211,10 +211,7 @@ bool PatrollingTurretHazard::reasonableLocation() const {
 			}
 		}
 
-		Circle testBody;
-		testBody.x = getRoutePosX(i);
-		testBody.y = getRoutePosY(i);
-		testBody.r = this->r;
+		Circle testBody = Circle(getRoutePosX(i), getRoutePosY(i), this->r);
 		for (int j = 0; j < WallManager::getNumWalls(); j++) {
 			if (CollisionHandler::partiallyCollided(&testBody, WallManager::getWall(j))) {
 				return false;
@@ -245,9 +242,6 @@ bool PatrollingTurretHazard::reasonableLocation() const {
 		}
 
 		//other hazards: just test the stopping location, don't bother with the full path
-		testBody.x = getRoutePosX(i);
-		testBody.y = getRoutePosY(i);
-		testBody.r = this->r;
 		for (int j = 0; j < HazardManager::getNumCircleHazards(); j++) {
 			const CircleHazard* ch = HazardManager::getCircleHazard(j);
 			if (ch->getGameID() != this->getGameID()) [[likely]] {
@@ -477,10 +471,7 @@ CircleHazard* PatrollingTurretHazard::randomizingFactory(double x_start, double 
 				stoppingLocations[0] = LevelRNG::randNumInRange(x_start + realRadius, x_start + area_width - realRadius);
 				stoppingLocations[1] = LevelRNG::randNumInRange(y_start + realRadius, y_start + area_height - realRadius);
 
-				Circle testStop;
-				testStop.x = stoppingLocations[0];
-				testStop.y = stoppingLocations[1];
-				testStop.r = 0;
+				Circle testStop = Circle(stoppingLocations[0], stoppingLocations[1], 0);
 				for (int j = 0; j < WallManager::getNumWalls(); j++) {
 					if (CollisionHandler::partiallyCollided(&testStop, WallManager::getWall(j))) {
 						blockedPosition = true;
@@ -512,10 +503,7 @@ CircleHazard* PatrollingTurretHazard::randomizingFactory(double x_start, double 
 					outOfBounds = true;
 					blockedPosition = true; //otherwise it will exit early
 				} else {
-					Circle testStop;
-					testStop.x = stoppingLocations[i*2];
-					testStop.y = stoppingLocations[i*2+1];
-					testStop.r = 0;
+					Circle testStop = Circle(stoppingLocations[i*2], stoppingLocations[i*2+1], 0);
 					for (int j = 0; j < WallManager::getNumWalls(); j++) {
 						if (CollisionHandler::partiallyCollided(&testStop, WallManager::getWall(j))) {
 							blockedPosition = true;

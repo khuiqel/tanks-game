@@ -14,7 +14,6 @@
 
 #include "../collision-handler.h"
 #include "../simple-vector-2d.h"
-#include "../point.h"
 #include "../wall-manager.h"
 #include "../hazard-manager.h"
 
@@ -50,7 +49,7 @@ RectangularLightningHazard::RectangularLightningHazard(double xpos, double ypos,
 }
 
 inline Circle RectangularLightningHazard::getCenterPoint() const {
-	return Point(x + w/2, y + h/2);
+	return Circle(x + w/2, y + h/2, 0);
 }
 
 RectangularLightningHazard::~RectangularLightningHazard() {
@@ -84,7 +83,7 @@ void RectangularLightningHazard::specialEffectCircleCollision(const Circle* c) {
 		boltPoints = 2;
 	} else {
 		//if the circle's center isn't fully in the rectangle area, then the endpoint may not be inside the rectangle
-		const Circle circleCenter = Point(c->x, c->y);
+		const Circle circleCenter = Circle(c->x, c->y, 0);
 		if (CollisionHandler::fullyCollided(&circleCenter, this)) {
 			//circle center inside rectangle area
 			SimpleVector2D distToCircle = SimpleVector2D(c->x - centerPoint.x, c->y - centerPoint.y);

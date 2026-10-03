@@ -13,7 +13,6 @@
 #include "../background-rect.h"
 
 #include "../collision-handler.h"
-#include "../point.h"
 #include "../wall-manager.h"
 #include "../hazard-manager.h"
 
@@ -56,7 +55,7 @@ CircularLightningHazard::CircularLightningHazard(double xpos, double ypos, doubl
 }
 
 inline Circle CircularLightningHazard::getCenterPoint() const {
-	return Point(x, y);
+	return Circle(x, y, 0);
 }
 
 CircularLightningHazard::~CircularLightningHazard() {

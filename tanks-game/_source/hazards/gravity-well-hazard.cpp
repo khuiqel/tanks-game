@@ -147,11 +147,7 @@ inline float GravityWellHazard::getInnerGravityCircleRadius() const {
 }
 
 inline Circle GravityWellHazard::getGravityRangeCircle() const {
-	Circle c;
-	c.x = this->x;
-	c.y = this->y;
-	c.r = this->gravityRange;
-	return c;
+	return Circle(this->x, this->y, this->gravityRange);
 }
 
 void GravityWellHazard::tick() {

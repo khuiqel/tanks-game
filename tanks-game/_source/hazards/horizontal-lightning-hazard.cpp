@@ -13,7 +13,6 @@
 
 #include "../collision-handler.h"
 #include "../simple-vector-2d.h"
-#include "../point.h"
 #include "../wall-manager.h"
 #include "../hazard-manager.h"
 
@@ -37,11 +36,11 @@ HorizontalLightningHazard::HorizontalLightningHazard(double xpos, double ypos, d
 }
 
 inline Circle HorizontalLightningHazard::getLeftPoint() const {
-	return Point(x, y + h/2);
+	return Circle(x, y + h/2, 0);
 }
 
 inline Circle HorizontalLightningHazard::getRightPoint() const {
-	return Point(x + w, y + h/2);
+	return Circle(x + w, y + h/2, 0);
 }
 
 HorizontalLightningHazard::~HorizontalLightningHazard() {
@@ -68,7 +67,7 @@ RectHazard* HorizontalLightningHazard::factory(const GenericFactoryConstructionD
 void HorizontalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 	const Circle leftPoint = getLeftPoint();
 	const Circle rightPoint = getRightPoint();
-	const Circle circleCenter = Point(c->x, c->y);
+	const Circle circleCenter = Circle(c->x, c->y, 0);
 	double intersectionXL, intersectionXR, intersectionYL, intersectionYR;
 	int boltPointsL, boltPointsR;
 

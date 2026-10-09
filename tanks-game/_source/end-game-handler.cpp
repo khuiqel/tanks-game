@@ -15,7 +15,7 @@ std::vector<EndGameHandler::DoubleTeam_ID> EndGameHandler::killEvents;
 
 void EndGameHandler::addTeamToWatch(Team_ID teamID, std::string teamName) {
 	if (teamID == DEFAULT_TEAM) {
-		std::cerr << "WARNING: DEFAULT_TEAM is not allowed to have a score" << std::endl;
+		std::cerr << "WARNING: DEFAULT_TEAM is not allowed to have a score\n";
 	} else {
 		teamsParticipating.push_back({ teamID, teamName });
 		teamWins.insert({ teamID, 0 });
@@ -120,7 +120,7 @@ InteractionBoolHolder EndGameHandler::determineWinner(const Tank* t, const Bulle
 			bulletDies = true;
 			break;
 		default:
-			std::cerr << "WARNING: unknown PriorityResult!" << std::endl;
+			std::cerr << "WARNING: unknown PriorityResult!\n";
 			//neither die
 			break;
 	}
@@ -154,7 +154,7 @@ InteractionUpdateHolder<TankUpdateStruct, TankUpdateStruct> EndGameHandler::dete
 			secondTankDies = true;
 			break;
 		default:
-			std::cerr << "WARNING: unknown PriorityResult!" << std::endl;
+			std::cerr << "WARNING: unknown PriorityResult!\n";
 			//neither die
 			break;
 	}
@@ -185,7 +185,7 @@ InteractionBoolHolder EndGameHandler::determineWinner(const Bullet* b1, const Bu
 			secondBulletDies = true;
 			break;
 		default:
-			std::cerr << "WARNING: unknown PriorityResult!" << std::endl;
+			std::cerr << "WARNING: unknown PriorityResult!\n";
 			//neither die
 			break;
 	}
@@ -231,7 +231,7 @@ InteractionUpdateHolder<TankUpdateStruct, CircleHazardUpdateStruct> EndGameHandl
 			circleHazardDies = true;
 			break;
 		default:
-			std::cerr << "WARNING: unknown PriorityResult!" << std::endl;
+			std::cerr << "WARNING: unknown PriorityResult!\n";
 			//neither die
 			break;
 	}
@@ -278,7 +278,7 @@ InteractionUpdateHolder<TankUpdateStruct, RectHazardUpdateStruct> EndGameHandler
 			rectHazardDies = true;
 			break;
 		default:
-			std::cerr << "WARNING: unknown PriorityResult!" << std::endl;
+			std::cerr << "WARNING: unknown PriorityResult!\n";
 			//neither die
 			break;
 	}
@@ -325,7 +325,7 @@ InteractionUpdateHolder<BulletUpdateStruct, CircleHazardUpdateStruct> EndGameHan
 			circleHazardDies = true;
 			break;
 		default:
-			std::cerr << "WARNING: unknown PriorityResult!" << std::endl;
+			std::cerr << "WARNING: unknown PriorityResult!\n";
 			//neither die
 			break;
 	}
@@ -372,7 +372,7 @@ InteractionUpdateHolder<BulletUpdateStruct, RectHazardUpdateStruct> EndGameHandl
 			rectHazardDies = true;
 			break;
 		default:
-			std::cerr << "WARNING: unknown PriorityResult!" << std::endl;
+			std::cerr << "WARNING: unknown PriorityResult!\n";
 			//neither die
 			break;
 	}

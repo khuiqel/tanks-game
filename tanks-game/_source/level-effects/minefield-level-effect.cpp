@@ -77,7 +77,7 @@ void MinefieldLevelEffect::draw() const {
 void MinefieldLevelEffect::draw(DrawingLayers layer) const {
 	switch (layer) {
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " draw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " draw!\n";
 			[[fallthrough]];
 		case DrawingLayers::under:
 			draw(); //should it be in effects? JS had it there
@@ -109,7 +109,7 @@ void MinefieldLevelEffect::poseDraw() const {
 void MinefieldLevelEffect::poseDraw(DrawingLayers layer) const {
 	switch (layer) {
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " poseDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " poseDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::under:
 			poseDraw();
@@ -141,7 +141,7 @@ void MinefieldLevelEffect::ghostDraw(float alpha) const {
 void MinefieldLevelEffect::ghostDraw(DrawingLayers layer, float alpha) const {
 	switch (layer) {
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " ghostDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " ghostDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::under:
 			ghostDraw(alpha);

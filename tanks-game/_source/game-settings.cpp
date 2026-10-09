@@ -33,7 +33,7 @@ void GameSettings::Initialize(const BasicINIParser::BasicINIData& ini_data) {
 				weight = std::max(0.0f, std::stof(ini_data.get("GAME_OPTIONS", "CustomLevelPlaylist", i*3+2)));
 			}
 			catch (const std::exception&) {
-				std::cerr << "Could not parse CustomLevelPlaylist weight \"" << ini_data.get("GAME_OPTIONS", "CustomLevelPlaylist", i*3+2) << "\", cancelling..." << std::endl << std::endl;
+				std::cerr << "Could not parse CustomLevelPlaylist weight \"" + ini_data.get("GAME_OPTIONS", "CustomLevelPlaylist", i*3+2) + "\", cancelling...\n\n";
 				CustomLevelPlaylist.clear();
 				break;
 			}
@@ -45,7 +45,7 @@ void GameSettings::Initialize(const BasicINIParser::BasicINIData& ini_data) {
 			}
 		}
 		if (!CustomLevelPlaylist.empty() && onlyZeroWeights) {
-			std::cerr << "CustomLevelPlaylist only has zero weights, cancelling..." << std::endl << std::endl;
+			std::cerr << "CustomLevelPlaylist only has zero weights, cancelling...\n\n";
 			CustomLevelPlaylist.clear();
 		}
 	} else {

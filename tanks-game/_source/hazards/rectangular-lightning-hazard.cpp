@@ -122,11 +122,11 @@ void RectangularLightningHazard::specialEffectCircleCollision(const Circle* c) {
 			}
 
 			if (intersectionX < x || intersectionX > x+w) [[unlikely]] {
-				std::cerr << "WARNING: rectangular lightning endpoint X out of range!" << std::endl;
+				std::cerr << "WARNING: rectangular lightning endpoint X out of range!\n";
 				intersectionX = std::clamp<double>(intersectionX, x, x+w);
 			}
 			if (intersectionY < y || intersectionY > y+h) [[unlikely]] {
-				std::cerr << "WARNING: rectangular lightning endpoint Y out of range!" << std::endl;
+				std::cerr << "WARNING: rectangular lightning endpoint Y out of range!\n";
 				intersectionY = std::clamp<double>(intersectionY, y, y+h);
 			}
 			boltPoints = getDefaultNumBoltPoints(std::sqrt((intersectionX - centerPoint.x)*(intersectionX - centerPoint.x) + (intersectionY - centerPoint.y)*(intersectionY - centerPoint.y)));
@@ -276,7 +276,7 @@ void RectangularLightningHazard::draw(DrawingLayers layer) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " draw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " draw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			drawBolts();
@@ -308,7 +308,7 @@ void RectangularLightningHazard::poseDraw(DrawingLayers layer) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " poseDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " poseDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			drawBolts_Pose();
@@ -340,7 +340,7 @@ void RectangularLightningHazard::ghostDraw(DrawingLayers layer, float alpha) con
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " ghostDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " ghostDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			drawBolts_Pose(alpha);

@@ -146,7 +146,7 @@ void RectangularLavaHazard::draw() const {
 void RectangularLavaHazard::draw(DrawingLayers layer) const {
 	switch (layer) {
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " draw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " draw!\n";
 			[[fallthrough]];
 		case DrawingLayers::under:
 			drawBackground(false);
@@ -177,7 +177,7 @@ void RectangularLavaHazard::poseDraw() const {
 void RectangularLavaHazard::poseDraw(DrawingLayers layer) const {
 	switch (layer) {
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " poseDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " poseDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::under:
 			drawBackground(true);
@@ -209,7 +209,7 @@ void RectangularLavaHazard::ghostDraw(float alpha) const {
 void RectangularLavaHazard::ghostDraw(DrawingLayers layer, float alpha) const {
 	switch (layer) {
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " ghostDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " ghostDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::under:
 			drawBackground(false, alpha);

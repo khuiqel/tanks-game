@@ -109,11 +109,11 @@ void HorizontalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 		}
 
 		if (intersectionXL < x || intersectionXL > x+w) [[unlikely]] {
-			std::cerr << "WARNING: horizontal lightning endpoint X (left half) out of range!" << std::endl;
+			std::cerr << "WARNING: horizontal lightning endpoint X (left half) out of range!\n";
 			intersectionXL = std::clamp<double>(intersectionXL, x, x+w);
 		}
 		if (intersectionYL < y || intersectionYL > y+h) [[unlikely]] {
-			std::cerr << "WARNING: horizontal lightning endpoint Y (left half) out of range!" << std::endl;
+			std::cerr << "WARNING: horizontal lightning endpoint Y (left half) out of range!\n";
 			intersectionYL = std::clamp<double>(intersectionYL, y, y+h);
 		}
 		boltPointsL = getDefaultNumBoltPoints(std::sqrt((intersectionXL - leftPoint.x)*(intersectionXL - leftPoint.x) + (intersectionYL - leftPoint.y)*(intersectionYL - leftPoint.y)));
@@ -133,11 +133,11 @@ void HorizontalLightningHazard::specialEffectCircleCollision(const Circle* c) {
 		}
 
 		if (intersectionXR < x || intersectionXR > x+w) [[unlikely]] {
-			std::cerr << "WARNING: horizontal lightning endpoint X (right half) out of range!" << std::endl;
+			std::cerr << "WARNING: horizontal lightning endpoint X (right half) out of range!\n";
 			intersectionXR = std::clamp<double>(intersectionXR, x, x+w);
 		}
 		if (intersectionYR < y || intersectionYR > y+h) [[unlikely]] {
-			std::cerr << "WARNING: horizontal lightning endpoint Y (right half) out of range!" << std::endl;
+			std::cerr << "WARNING: horizontal lightning endpoint Y (right half) out of range!\n";
 			intersectionYR = std::clamp<double>(intersectionYR, y, y+h);
 		}
 		boltPointsR = getDefaultNumBoltPoints(std::sqrt((intersectionXR - rightPoint.x)*(intersectionXR - rightPoint.x) + (intersectionYR - rightPoint.y)*(intersectionYR - rightPoint.y)));

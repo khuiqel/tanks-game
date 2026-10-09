@@ -273,7 +273,7 @@ void TargetingTurretHazard::draw(DrawingLayers layer) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " draw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " draw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			drawBody();
@@ -308,7 +308,7 @@ void TargetingTurretHazard::poseDraw(DrawingLayers layer) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " poseDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " poseDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			drawBody();
@@ -343,7 +343,7 @@ void TargetingTurretHazard::ghostDraw(DrawingLayers layer, float alpha) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " ghostDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " ghostDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			drawBody(alpha);

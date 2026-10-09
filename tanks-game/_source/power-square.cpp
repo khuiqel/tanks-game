@@ -100,7 +100,7 @@ void PowerSquare::draw(DrawingLayers layer) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for PowerSquare::draw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for PowerSquare::draw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			draw();
@@ -132,7 +132,7 @@ void PowerSquare::poseDraw(DrawingLayers layer) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for PowerSquare::poseDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for PowerSquare::poseDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			poseDraw();
@@ -164,7 +164,7 @@ void PowerSquare::ghostDraw(DrawingLayers layer, float alpha) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for PowerSquare::ghostDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for PowerSquare::ghostDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			ghostDraw(alpha);

@@ -84,7 +84,7 @@ void RectangularNoBulletZoneHazard::draw() const {
 void RectangularNoBulletZoneHazard::draw(DrawingLayers layer) const {
 	switch (layer) {
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " draw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " draw!\n";
 			[[fallthrough]];
 		case DrawingLayers::under:
 			draw();
@@ -115,7 +115,7 @@ void RectangularNoBulletZoneHazard::poseDraw() const {
 void RectangularNoBulletZoneHazard::poseDraw(DrawingLayers layer) const {
 	switch (layer) {
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " poseDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " poseDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::under:
 			poseDraw();
@@ -201,7 +201,7 @@ void RectangularNoBulletZoneHazard::ghostDraw(float alpha) const {
 void RectangularNoBulletZoneHazard::ghostDraw(DrawingLayers layer, float alpha) const {
 	switch (layer) {
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " ghostDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for " + getName() + " ghostDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::under:
 			ghostDraw(alpha);

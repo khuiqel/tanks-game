@@ -124,7 +124,7 @@ int OpenGLShader::getUniformLocation(const std::string& name) {
 
 	int location = glGetUniformLocation(rendererID, name.c_str());
 	if (location == -1) {
-		std::cerr << "Uniform '" << name << "' doesn't exist!" << std::endl;
+		std::cerr << "Uniform '" + name + "' doesn't exist!\n";
 	}
 
 	uniformLocationCache.insert({ name, location });

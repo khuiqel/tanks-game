@@ -475,7 +475,7 @@ void Bullet::draw(DrawingLayers layer) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for Bullet::draw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for Bullet::draw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			draw();
@@ -506,7 +506,7 @@ void Bullet::poseDraw(DrawingLayers layer) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for Bullet::poseDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for Bullet::poseDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			poseDraw();
@@ -544,7 +544,7 @@ void Bullet::ghostDraw(DrawingLayers layer, float alpha) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for Bullet::ghostDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for Bullet::ghostDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			ghostDraw(alpha);

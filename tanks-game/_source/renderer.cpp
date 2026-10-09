@@ -45,7 +45,7 @@ void Renderer::SetContext(AvailableRenderingContexts API) {
 
 	switch (API) {
 		default:
-			std::cerr << "Rendering context unknown! Defaulting to OpenGL..." << std::endl;
+			std::cerr << "Rendering context unknown! Defaulting to OpenGL...\n";
 			[[fallthrough]];
 		case AvailableRenderingContexts::OpenGL:
 			renderingBackend = new OpenGLRenderingContext();
@@ -71,7 +71,7 @@ void Renderer::SetContext(const std::string& API) {
 	} else if (API == "null" || API == "NULL") {
 		context = AvailableRenderingContexts::null_rendering;
 	} else {
-		std::cerr << "Rendering context unknown! Defaulting to OpenGL..." << std::endl;
+		std::cerr << "Rendering context unknown! Defaulting to OpenGL...\n";
 		context = AvailableRenderingContexts::OpenGL;
 	}
 
@@ -174,7 +174,7 @@ Shader* Renderer::getShader(const std::string& s) {
 		return get->second;
 	}
 	//else shader wasn't found
-	std::cerr << "Could not find '" << s << "' shader!" << std::endl;
+	std::cerr << "Could not find '" + s + "' shader!\n";
 
 	//return the magenta shader, just so there's something
 	get = shaderStorage.find("default");
@@ -182,7 +182,7 @@ Shader* Renderer::getShader(const std::string& s) {
 		return get->second;
 	}
 	//else big uh-oh
-	std::cerr << "Could not find the default shader!" << std::endl;
+	std::cerr << "Could not find the default shader!\n";
 
 	return nullptr; //default magenta shader is missing
 }
@@ -367,7 +367,7 @@ void Renderer::SubmitBatchedDraw(const float* posAndColor, unsigned int posAndCo
 				sceneDrawGroup.push_back(static_cast<VertexDrawingData*>(currentVertexDataGroup));
 
 				if (posAndColorLength > MainBatched_VertexData::maxVerticesDataLength || indicesLength > MainBatched_VertexData::maxIndicesDataLength) [[unlikely]] {
-					std::cerr << "GPU buffer overrun!" << std::endl;
+					std::cerr << "GPU buffer overrun!\n";
 				}
 			}
 		}

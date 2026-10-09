@@ -597,7 +597,7 @@ void Tank::draw(DrawingLayers layer) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for Tank::draw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for Tank::draw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			if (!this->dead) {
@@ -646,7 +646,7 @@ void Tank::poseDraw(DrawingLayers layer) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for Tank::poseDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for Tank::poseDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			if (this->dead) {
@@ -690,7 +690,7 @@ void Tank::ghostDraw(DrawingLayers layer, float alpha) const {
 			break;
 
 		default:
-			std::cerr << "WARNING: unknown DrawingLayer for Tank::ghostDraw!" << std::endl;
+			std::cerr << "WARNING: unknown DrawingLayer for Tank::ghostDraw!\n";
 			[[fallthrough]];
 		case DrawingLayers::normal:
 			drawBody(alpha);

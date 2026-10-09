@@ -20,7 +20,7 @@ GeneralizedLava::LavaBubble::LavaBubble(float radius, float x0, float y0, float 
 	tickMax = tickStart;
 	state = 0;
 
-	float temp[] = { 1, 1, 1, std::numeric_limits<float>::infinity() }; //maybe use std::numeric_limits<float>::quiet_NaN()
+	constexpr float temp[] = { 1, 1, 1, std::numeric_limits<float>::infinity() }; //maybe use std::numeric_limits<float>::quiet_NaN()
 	std::copy(temp, temp+4, stateMultiplier); //screw you, C++
 }
 

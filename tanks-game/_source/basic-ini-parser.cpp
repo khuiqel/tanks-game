@@ -274,7 +274,6 @@ BasicINIParser::BasicINIData BasicINIParser::ReadFile(std::string path) {
 				}
 			}
 		}
-		ini_file.close();
 	} else {
 		throw std::runtime_error("Could not read file \"" + path + "\"");
 	}

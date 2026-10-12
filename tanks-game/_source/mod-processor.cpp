@@ -36,7 +36,6 @@ std::vector<std::string> ModProcessor::getListOfKnownMods() {
 			line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
 			modOrder_list.push_back(line);
 		}
-		modOrder_file.close();
 	} else {
 		throw std::runtime_error("Could not read file \"" + ModOrderPath + "\"");
 	}
@@ -47,22 +46,11 @@ std::vector<std::string> ModProcessor::getListOfKnownMods() {
 std::vector<std::string> ModProcessor::getListOfUnknownMods() {
 	std::vector<std::string> directory_list;
 
-	for (const auto& dir_entry : std::filesystem::directory_iterator("mods")) {
+	for (const auto& dir_entry : std::filesystem::directory_iterator("mods", std::filesystem::directory_options::skip_permission_denied)) {
 		if (std::filesystem::is_directory(dir_entry)) {
-			directory_list.push_back(dir_entry.path().string());
-			//this still has "mod\" in the filepath
+			directory_list.push_back(dir_entry.path().filename().string());
 		}
 		//can throw std::filesystem::filesystem_error
-	}
-
-	//scrub parent folders from directory
-	for (std::string& s : directory_list) {
-		size_t slashPos = s.find_last_of("/\\");
-		if (slashPos == std::string::npos) {
-			//is this possible?
-		} else {
-			s = s.substr(slashPos+1);
-		}
 	}
 
 	return directory_list;
@@ -82,7 +70,6 @@ std::vector<std::string> ModProcessor::getListOfIgnoredMods() {
 			line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
 			ignoreList_list.push_back(line);
 		}
-		ignoreList_file.close();
 	} else {
 		throw std::runtime_error("Could not read file \"" + IgnoreListPath + "\"");
 	}
@@ -101,7 +88,7 @@ std::optional<std::vector<std::string>> ModProcessor::getListOfMods() noexcept {
 				modOrder_set.insert({ knownList[i], true });
 				modOrder_list.push_back(knownList[i]);
 			} else [[unlikely]] {
-				std::cerr << "Item duplicated in " + ModOrderPath + ":" + std::to_string(i) + ", ignoring (" + knownList[i] + ")" << std::endl;
+				std::cerr << "Item duplicated in " + ModOrderPath + ":" + std::to_string(i) + ", ignoring (" + knownList[i] + ")\n";
 			}
 		}
 	}
@@ -117,7 +104,7 @@ std::optional<std::vector<std::string>> ModProcessor::getListOfMods() noexcept {
 				modOrder_set.insert({ unknownList[i], true });
 				modOrder_list.push_back(unknownList[i]);
 			} else {
-				//std::cerr << "Item already in " + ModOrderPath + ":" + std::to_string(i) + ", ignoring (" + unknownList[i] + ")" << std::endl;
+				//std::cerr << "Item already in " + ModOrderPath + ":" + std::to_string(i) + ", ignoring (" + unknownList[i] + ")\n";
 			}
 		}
 		//originally, this was going to push the "new" mods to the order.txt file, but that doesn't feel right
@@ -134,7 +121,7 @@ std::optional<std::vector<std::string>> ModProcessor::getListOfMods() noexcept {
 				modOrder_set.erase(ignoreList[i]);
 				modOrder_list.erase(std::find(modOrder_list.begin(), modOrder_list.end(), ignoreList[i]));
 			} else {
-				std::cerr << "Item not found in " + IgnoreListPath + ":" + std::to_string(i) + ", skipping (" + ignoreList[i] + ")" << std::endl;
+				std::cerr << "Item not found in " + IgnoreListPath + ":" + std::to_string(i) + ", skipping (" + ignoreList[i] + ")\n";
 			}
 		}
 	}
@@ -150,19 +137,9 @@ std::vector<std::string> ModProcessor::getListOfFiles(std::string modPath) {
 	//basically the same as getListOfUnknownMods()
 	std::vector<std::string> file_list;
 
-	for (const auto& dir_entry : std::filesystem::directory_iterator(modPath)) {
+	for (const auto& dir_entry : std::filesystem::directory_iterator(modPath, std::filesystem::directory_options::skip_permission_denied)) {
 		if (std::filesystem::is_regular_file(dir_entry)) {
-			file_list.push_back(dir_entry.path().string());
-		}
-	}
-
-	//scrub parent folders from directory
-	for (std::string& s : file_list) {
-		size_t slashPos = s.find_last_of("/\\");
-		if (slashPos == std::string::npos) {
-			//is this possible?
-		} else {
-			s = s.substr(slashPos+1);
+			file_list.push_back(dir_entry.path().filename().string());
 		}
 	}
 

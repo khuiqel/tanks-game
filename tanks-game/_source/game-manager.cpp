@@ -130,14 +130,15 @@ double GameManager::getTickCount() {
 }
 
 void GameManager::CreateDefaultINIFileIfNeeded(std::string path) {
-	if (std::filesystem::exists(path)) {
+	std::error_code ec;
+	if (std::filesystem::exists(path, ec) || ec) {
 		return;
 	}
 
 	//note: this uses LF as the line ending while CRLF is the default (to make sure the parsers handle that case)
 	//can't be bothered to change it
 
-	static const std::string ini_string =
+	static constexpr char ini_string[] =
 
 	"[UNIVERSAL]\n"
 	"; options: OpenGL, software (not supported), NULL (not supported)\n"
@@ -213,7 +214,6 @@ void GameManager::CreateDefaultINIFileIfNeeded(std::string path) {
 	ini_file.open(path);
 	if (ini_file.is_open()) {
 		ini_file << ini_string;
-		ini_file.close();
 	} else {
 		throw std::runtime_error("Could not create file \"" + path + "\"");
 	}

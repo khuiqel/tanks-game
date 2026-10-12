@@ -89,12 +89,12 @@ ColorValueHolder GeneralizedLava::getBackgroundColor_Pose() const {
 	return ColorValueHolder(1.0f, 0.25f, 0.0f);
 }
 
-ColorValueHolder GeneralizedLava::getBubbleColor(const LavaBubble* bubble) const {
+ColorValueHolder GeneralizedLava::getBubbleColor(const LavaBubble& bubble) const {
 	//a bubble's natural color is white, but with an alpha of .5, but blending is expensive so it's just mixed with the lava background
-	return ColorMixer::mix(ColorValueHolder(1.0f, 1.0f, 1.0f), getBackgroundColor(), 1.0f - bubble->getAlpha());
+	return ColorMixer::mix(ColorValueHolder(1.0f, 1.0f, 1.0f), getBackgroundColor(), 1.0f - bubble.getAlpha());
 }
 
-ColorValueHolder GeneralizedLava::getBubbleColor_Pose(const LavaBubble* bubble) const {
+ColorValueHolder GeneralizedLava::getBubbleColor_Pose(const LavaBubble& bubble) const {
 	return ColorMixer::mix(ColorValueHolder(1.0f, 1.0f, 1.0f), getBackgroundColor(), .5f); //TODO: allow getting the base alpha from a bubble
 }
 
@@ -103,22 +103,18 @@ void GeneralizedLava::tick() {
 		tickCount = 0;
 	}
 
-	if ((bubbles.size() < maxBubbles) && (VisualRNG::randFuncf() < bubbleChance)) {
-		pushNewBubble(4.0f); //possible radius: sqrt(w * h * 2)/50 or sqrt(r * r * 2)/50
+	if (VisualRNG::randFuncf() < bubbleChance) {
+		tryToPushNewBubble(4.0f); //possible radius: sqrt(w * h * 2)/50 or sqrt(r * r * 2)/50
 	}
 
 	for (int i = bubbles.size()-1; i >= 0; i--) {
-		bubbles[i]->tick();
-		if (bubbles[i]->isDead()) [[unlikely]] {
-			delete bubbles[i];
-			bubbles.erase(bubbles.begin() + i);
-		}
+		bubbles[i].tick();
 	}
+	//sort bubbles by alpha so drawing looks better
+	std::sort(bubbles.begin(), bubbles.end(),
+		[this](const LavaBubble& lhs, const LavaBubble& rhs) { return (lhs.getAlpha() < rhs.getAlpha()); });
 }
 
 GeneralizedLava::~GeneralizedLava() {
-	for (int i = 0; i < bubbles.size(); i++) {
-		delete bubbles[i];
-	}
 	//bubbles.clear(); //not necessary
 }

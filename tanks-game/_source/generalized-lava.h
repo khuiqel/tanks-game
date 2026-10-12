@@ -35,28 +35,26 @@ protected:
 		float getY() const noexcept;
 		float getR() const noexcept;
 
+		LavaBubble() { state = 3; }
 		LavaBubble(float radius, float x0, float y0, float x1, float y1, float tickStart);
 		LavaBubble(float radius, float x0, float y0, float x1, float y1, float tickStart, const float* tickMultiplier); //tickMultiplier length = 3
 		//LavaBubble(const LavaBubble&); //no need
-
-	private:
-		LavaBubble() = delete;
 	};
 
 protected:
 	double tickCount;
 	double tickCycle; //this is used to make the brightness of the lava vary sinusoidally
 
-	unsigned int maxBubbles = 8; //there wasn't a limit in JS Tanks because the bubbles were rare (1/400 per tick, 100Hz), but there should be, whether it's met or not
+	unsigned int maxBubbles = 8; //there wasn't a limit in JS Tanks because the bubbles were rare (1/400 per tick, 100Hz)
 	float bubbleChance; //= 1.0/400 (chance to spawn bubble this tick)
-	std::vector<LavaBubble*> bubbles;
-	virtual void pushNewBubble(float bubbleRadius) = 0;
+	std::vector<LavaBubble> bubbles; //size is fixed once created, dead bubbles remain where they are
+	virtual void tryToPushNewBubble(float bubbleRadius) = 0; //write over the first dead bubble
 
 public:
 	ColorValueHolder getBackgroundColor() const;
 	ColorValueHolder getBackgroundColor_Pose() const;
-	ColorValueHolder getBubbleColor(const LavaBubble* bubble) const;
-	ColorValueHolder getBubbleColor_Pose(const LavaBubble* bubble) const;
+	ColorValueHolder getBubbleColor(const LavaBubble& bubble) const;
+	ColorValueHolder getBubbleColor_Pose(const LavaBubble& bubble) const;
 
 	virtual void tick();
 

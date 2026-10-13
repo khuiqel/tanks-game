@@ -185,7 +185,6 @@ void PowerSquare::ghostDraw(DrawingLayers layer, float alpha) const {
 }
 
 void PowerSquare::drawMain(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder color = getColor();
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 
@@ -228,7 +227,6 @@ void PowerSquare::drawOutlineThing(float alpha) const {
 		return;
 	}
 
-	alpha = alpha * alpha;
 	const float extendingMultiplier = PowerSquare::POWER_LINE_WIDTH * (PowerSquare::POWER_OUTLINE_MULTIPLIER - 1);
 	ColorValueHolder backgroundMix = ColorMixer::mix(getColor(), BackgroundRect::getBackColor());
 	backgroundMix = ColorMixer::mix(BackgroundRect::getBackColor(), backgroundMix, alpha);

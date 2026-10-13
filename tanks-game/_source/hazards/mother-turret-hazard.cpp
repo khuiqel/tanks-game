@@ -457,8 +457,6 @@ void MotherTurretHazard::drawShootingTimer(float alpha) const {
 		return;
 	}
 
-	alpha = alpha * alpha;
-
 	float shootingOutlinePercent;
 	if (tickCycle <= 0) {
 		shootingOutlinePercent = 0;
@@ -496,7 +494,6 @@ void MotherTurretHazard::drawShootingTimer(float alpha) const {
 }
 
 void MotherTurretHazard::drawChildTurretLocations(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder color = ColorValueHolder(0.0f, 0.0f, 0.0f);
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 

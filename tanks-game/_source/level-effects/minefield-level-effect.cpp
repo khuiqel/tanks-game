@@ -70,7 +70,8 @@ void MinefieldLevelEffect::updateMineCount() {
 
 void MinefieldLevelEffect::draw() const {
 	if (aliveMinesPushed.size() < maxNumOfMines) {
-		ghostMine->ghostDraw(tickCount / tickCycle);
+		float alpha = float(tickCount) / float(tickCycle);
+		ghostMine->ghostDraw(alpha * alpha);
 	}
 }
 

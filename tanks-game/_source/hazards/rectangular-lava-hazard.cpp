@@ -245,7 +245,6 @@ void RectangularLavaHazard::ghostDraw(DrawingLayers layer, float alpha) const {
 }
 
 void RectangularLavaHazard::drawBackground(bool pose, float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder color = (pose ? getBackgroundColor_Pose() : getBackgroundColor());
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 
@@ -264,8 +263,6 @@ void RectangularLavaHazard::drawBackground(bool pose, float alpha) const {
 }
 
 void RectangularLavaHazard::drawBubbles(bool pose, float alpha) const {
-	alpha = alpha * alpha;
-
 	//bubbles are already sorted by their alpha
 	for (int j = 0; j < bubbles.size(); j++) {
 		if (bubbles[j].isDead()) {

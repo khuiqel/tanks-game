@@ -276,7 +276,6 @@ void SpiralLavaHazard::poseDraw(DrawingLayers layer) const {
 }
 
 void SpiralLavaHazard::ghostDraw(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder c = getColor();
 	c = ColorMixer::mix(BackgroundRect::getBackColor(), c, alpha);
 

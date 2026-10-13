@@ -285,7 +285,6 @@ void VerticalLightningHazard::refreshBolt(LightningBolt* l) const {
 }
 
 void VerticalLightningHazard::drawBackground(bool pose, float alpha) const {
-	alpha = alpha * alpha;
 	//ColorValueHolder color = (pose ? getBackgroundColor_Pose() : getBackgroundColor());
 	ColorValueHolder color = getBackgroundColor_Pose();
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
@@ -349,8 +348,6 @@ void VerticalLightningHazard::drawBackgroundOutline(float alpha) const {
 }
 
 void VerticalLightningHazard::drawBolts_Pose(float alpha) const {
-	alpha = alpha * alpha;
-
 	//generate bolts
 	std::vector<LightningBolt*> poseBolts;
 	//from pushDefaultBolt(), mostly

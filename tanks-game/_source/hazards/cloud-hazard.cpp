@@ -271,7 +271,6 @@ void CloudHazard::poseDraw(DrawingLayers layer) const {
 void CloudHazard::ghostDraw(float alpha) const {
 	//TODO: multiple circles
 
-	alpha = alpha * alpha;
 	ColorValueHolder cloudColor = color;
 	cloudColor = ColorMixer::mix(BackgroundRect::getBackColor(), cloudColor, alpha);
 

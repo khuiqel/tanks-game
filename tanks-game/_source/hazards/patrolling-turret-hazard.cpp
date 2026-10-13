@@ -372,7 +372,6 @@ void PatrollingTurretHazard::ghostDraw(DrawingLayers layer, float alpha) const {
 }
 
 void PatrollingTurretHazard::drawPath(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder color = ColorValueHolder(0.0f, 0.0f, 0.0f);
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 	const float radius = this->r / 2;

@@ -312,7 +312,6 @@ void GravityWellHazard::ghostDraw(DrawingLayers layer, float alpha) const {
 }
 
 void GravityWellHazard::drawBody(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder bodyColor = color;
 	bodyColor = ColorMixer::mix(BackgroundRect::getBackColor(), bodyColor, alpha);
 
@@ -336,7 +335,6 @@ void GravityWellHazard::drawBody(float alpha) const {
 }
 
 void GravityWellHazard::drawOutline(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder color = ColorValueHolder(0.0f, 0.0f, 0.0f);
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 	const float lineWidth = 0.5f;
@@ -362,7 +360,6 @@ void GravityWellHazard::drawOutline(float alpha) const {
 }
 
 void GravityWellHazard::drawGravityCircle(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder color = ColorMixer::mix(BackgroundRect::getBackColor(), this->color, .25f);
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 	const float lineWidth = this->r / 4;
@@ -388,7 +385,6 @@ void GravityWellHazard::drawGravityCircle(float alpha) const {
 }
 
 void GravityWellHazard::drawGravityArrows(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder color = ColorMixer::mix(BackgroundRect::getBackColor(), ColorValueHolder(0.0f, 0.0f, 0.0f));
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 	const float arrowScale = this->r / 2; //x-coords are in [-1,1]

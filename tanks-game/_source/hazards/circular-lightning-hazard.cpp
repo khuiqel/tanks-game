@@ -348,7 +348,6 @@ void CircularLightningHazard::ghostDraw(DrawingLayers layer, float alpha) const 
 }
 
 void CircularLightningHazard::drawBackground(bool pose, float alpha) const {
-	alpha = alpha * alpha;
 	//ColorValueHolder color = (pose ? getBackgroundColor_Pose() : getBackgroundColor());
 	ColorValueHolder color = getBackgroundColor_Pose();
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
@@ -415,7 +414,6 @@ void CircularLightningHazard::drawBolts(float alpha) const {
 		return;
 	}
 
-	alpha = alpha * alpha;
 	ColorValueHolder color = getBoltColor();
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 	const float lineWidth = 0.75f;
@@ -461,8 +459,6 @@ void CircularLightningHazard::drawBolts(float alpha) const {
 }
 
 void CircularLightningHazard::drawBolts_Pose(float alpha) const {
-	alpha = alpha * alpha;
-
 	//generate bolts
 	std::vector<LightningBolt*> poseBolts;
 	for (int i = 0; i < 4; i++) {

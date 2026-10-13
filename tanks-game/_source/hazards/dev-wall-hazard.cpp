@@ -146,7 +146,6 @@ void DevWallHazard::poseDraw(DrawingLayers layer) const {
 }
 
 void DevWallHazard::ghostDraw(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder c = this->color;
 	c = ColorMixer::mix(BackgroundRect::getBackColor(), c, alpha);
 

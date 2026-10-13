@@ -174,7 +174,6 @@ void ReflecktorHazard::poseDraw(DrawingLayers layer) const {
 }
 
 void ReflecktorHazard::ghostDraw(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder c = this->color;
 	c = ColorMixer::mix(BackgroundRect::getBackColor(), c, alpha);
 

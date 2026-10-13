@@ -140,8 +140,6 @@ void RectangularNoBulletZoneHazard::poseDraw(DrawingLayers layer) const {
 }
 
 void RectangularNoBulletZoneHazard::ghostDraw(float alpha) const {
-	alpha = alpha * alpha;
-
 	//background:
 	ColorValueHolder color_background = GeneralizedNoBulletZone::getColor();
 	color_background = ColorMixer::mix(BackgroundRect::getBackColor(), color_background, alpha);

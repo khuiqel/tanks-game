@@ -370,7 +370,6 @@ void TargetingTurretHazard::drawReticule(float alpha) const {
 		return;
 	}
 
-	alpha = alpha * alpha;
 	ColorValueHolder color_outline = getReticuleColor();
 	color_outline = ColorMixer::mix(BackgroundRect::getBackColor(), color_outline, alpha);
 	const float lineWidth = 1.0f;

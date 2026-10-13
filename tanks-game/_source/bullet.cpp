@@ -528,7 +528,6 @@ void Bullet::poseDraw(DrawingLayers layer) const {
 
 void Bullet::ghostDraw(float alpha) const {
 	//ZoneScoped;
-	alpha = alpha * alpha;
 	ColorValueHolder color = getColor();
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 

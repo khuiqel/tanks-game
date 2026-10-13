@@ -87,7 +87,6 @@ void Wall::poseDraw(DrawingLayers layer) const {
 }
 
 void Wall::ghostDraw(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder c = this->color;
 	c = ColorMixer::mix(BackgroundRect::getBackColor(), c, alpha);
 

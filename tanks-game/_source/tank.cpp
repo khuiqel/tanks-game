@@ -715,8 +715,6 @@ void Tank::ghostDraw(DrawingLayers layer, float alpha) const {
 }
 
 void Tank::drawBody(float alpha) const {
-	alpha = alpha * alpha;
-
 	const int visiblePowerCount = std::count_if(tankPowers.begin(), tankPowers.end(),
 		[](const TankPower* tp) { return (tp->getColorImportance() >= 0); });
 
@@ -811,7 +809,6 @@ void Tank::drawBody(float alpha) const {
 }
 
 void Tank::drawBodyDead(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder deadColor = ColorValueHolder(0.0f, 0.0f, 0.0f);
 	ColorValueHolder outerColor = ColorValueHolder(1.0f, 1.0f, 1.0f);
 	deadColor = ColorMixer::mix(BackgroundRect::getBackColor(), deadColor, alpha);
@@ -837,7 +834,6 @@ void Tank::drawBodyDead(float alpha) const {
 }
 
 void Tank::drawOutline(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder color = ColorValueHolder(0.0f, 0.0f, 0.0f);
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 	const float lineWidth = 0.5f;
@@ -863,8 +859,6 @@ void Tank::drawOutline(float alpha) const {
 }
 
 void Tank::drawShootingCooldown(float alpha) const {
-	alpha = alpha * alpha;
-
 	float shootingOutlinePercent;
 	if (maxShootCount*getFiringRateMultiplier() <= 0 || maxShootCount <= 0) {
 		shootingOutlinePercent = 0;
@@ -901,8 +895,6 @@ void Tank::drawShootingCooldown(float alpha) const {
 }
 
 void Tank::drawPowerCooldown(float alpha) const {
-	alpha = alpha * alpha;
-
 	//first, sort by timeLeft/maxTime
 	std::vector<TankPower*> sortedTankPowers(tankPowers);
 	std::sort(sortedTankPowers.begin(), sortedTankPowers.end(),
@@ -950,7 +942,6 @@ void Tank::drawPowerCooldown(float alpha) const {
 }
 
 void Tank::drawMainBarrel(float alpha) const {
-	alpha = alpha * alpha;
 	ColorValueHolder color = ColorValueHolder(0.0f, 0.0f, 0.0f);
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 	const float lineWidth = 0.75f;
@@ -992,7 +983,6 @@ void Tank::drawExtraBarrels(float alpha) const {
 		return;
 	}
 
-	alpha = alpha * alpha;
 	ColorValueHolder color = ColorValueHolder(0.75f, 0.75f, 0.75f);
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 	const float lineWidth = 0.375f; //TODO: unsure what to put this at; .25 too thin, .5 too thick, .375 looks a bit off from aliasing
@@ -1047,7 +1037,6 @@ void Tank::drawExtraExtraBarrels(float alpha) const {
 		return;
 	}
 
-	alpha = alpha * alpha;
 	ColorValueHolder color = ColorValueHolder(0.25f, 0.25f, 0.25f);
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 	const float lineWidth = 0.375f;

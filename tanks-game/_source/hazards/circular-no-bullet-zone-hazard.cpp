@@ -216,8 +216,6 @@ void CircularNoBulletZoneHazard::poseDraw(DrawingLayers layer) const {
 }
 
 void CircularNoBulletZoneHazard::ghostDraw(float alpha) const {
-	alpha = alpha * alpha;
-
 	//background:
 	ColorValueHolder color_background = GeneralizedNoBulletZone::getColor();
 	color_background = ColorMixer::mix(BackgroundRect::getBackColor(), color_background, alpha);

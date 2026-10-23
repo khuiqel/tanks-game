@@ -20,8 +20,8 @@ const ColorValueHolder Bullet::default_color = ColorValueHolder(0.5f, 0.5f, 0.5f
 const double Bullet::default_radius = 4;
 
 Bullet::Bullet(double x_, double y_, float angle, Team_ID teamID, BulletParentType parentType, Game_ID parentID) : GameThing(teamID, ObjectType::Bullet) { //every bullet constructor does this stuff
-	this->x = x_;
-	this->y = y_;
+	this->cir.x = x_;
+	this->cir.y = y_;
 	this->velocity = SimpleVector2D(angle, 0, true);
 	this->parentType = parentType;
 	this->parentID = parentID;
@@ -46,7 +46,7 @@ Bullet::Bullet(double x_, double y_, float angle, Team_ID teamID, BulletParentTy
 //probably just for banana bullet creation:
 //TODO: make a special constructor for banana (and wallspark/edgespark) that does the duplication in there? reduces code duplication, that's about it
 Bullet::Bullet(double x_, double y_, double r_, float angle, float vel, Team_ID teamID, BulletParentType parentType, Game_ID parentID, const std::vector<BulletPower*>* bp, bool) : Bullet(x_,y_,angle,teamID,parentType,parentID,bp) {
-	this->r = r_;
+	this->cir.r = r_;
 	this->velocity.setMagnitude(vel); // * getBulletSpeedMultiplier(); //not wanted
 	this->initial_velocity = this->velocity.getMagnitude();
 	this->acceleration = getBulletAcceleration();
@@ -54,7 +54,7 @@ Bullet::Bullet(double x_, double y_, double r_, float angle, float vel, Team_ID 
 
 //avoid using:
 Bullet::Bullet(double x_, double y_, double r_, float angle, float vel, float acc, Team_ID teamID, BulletParentType parentType, Game_ID parentID, const std::vector<BulletPower*>* bp, bool) : Bullet(x_,y_,angle,teamID,parentType,parentID,bp) {
-	this->r = r_ * getBulletRadiusMultiplier();
+	this->cir.r = r_ * getBulletRadiusMultiplier();
 	this->velocity.setMagnitude(vel * getBulletSpeedMultiplier());
 	this->initial_velocity = this->velocity.getMagnitude();
 	this->acceleration = acc;
@@ -62,7 +62,7 @@ Bullet::Bullet(double x_, double y_, double r_, float angle, float vel, float ac
 
 //regular 1:
 Bullet::Bullet(double x_, double y_, double r_, float angle, float vel, Team_ID teamID, BulletParentType parentType, Game_ID parentID) : Bullet(x_,y_,angle,teamID,parentType,parentID) {
-	this->r = r_;
+	this->cir.r = r_;
 	this->velocity.setMagnitude(vel);
 	this->initial_velocity = this->velocity.getMagnitude();
 	this->acceleration = 0;
@@ -70,7 +70,7 @@ Bullet::Bullet(double x_, double y_, double r_, float angle, float vel, Team_ID 
 
 //regular 2:
 Bullet::Bullet(double x_, double y_, double r_, float angle, float vel, Team_ID teamID, BulletParentType parentType, Game_ID parentID, const std::vector<BulletPower*>* bp) : Bullet(x_,y_,angle,teamID,parentType,parentID,bp) {
-	this->r = r_ * getBulletRadiusMultiplier();
+	this->cir.r = r_ * getBulletRadiusMultiplier();
 	this->velocity.setMagnitude(vel * getBulletSpeedMultiplier());
 	this->initial_velocity = this->velocity.getMagnitude();
 	this->acceleration = getBulletAcceleration();
@@ -168,8 +168,8 @@ bool Bullet::canCollideWith(const Bullet* b_other) const {
 }
 
 void Bullet::update(const BulletUpdateStruct* up) {
-	this->x += up->x;
-	this->y += up->y;
+	this->cir.x += up->x;
+	this->cir.y += up->y;
 	this->velocity = SimpleVector2D(velocity.getAngle() + up->angle, velocity.getMagnitude() + up->speed, true);
 	this->lifeValue = std::min(this->lifeValue + up->alpha, 100.0f);
 }
@@ -210,8 +210,8 @@ bool Bullet::move() {
 
 inline void Bullet::move_base() {
 	velocity.changeMagnitude(acceleration);
-	x += velocity.getXComp();
-	y += velocity.getYComp();
+	cir.x += velocity.getXComp();
+	cir.y += velocity.getYComp();
 }
 
 inline void Bullet::degradeHandle() {
@@ -234,15 +234,15 @@ inline void Bullet::growHandle() {
 
 	//if multiplierR>1, choose whichever is greater; else apply both (add then mult)
 	if (multiplierR > 1) {
-		if (this->r + additiveR >= this->r * multiplierR) {
+		if (this->cir.r + additiveR >= this->cir.r * multiplierR) {
 			//this means additiveR > the radius increase multiplierR will bring
-			this->r += additiveR;
+			this->cir.r += additiveR;
 		} else {
-			this->r *= multiplierR;
+			this->cir.r *= multiplierR;
 		}
 	} else {
-		this->r += additiveR;
-		this->r *= multiplierR;
+		this->cir.r += additiveR;
+		this->cir.r *= multiplierR;
 	}
 
 	//TODO: negative additive values could work, as long as when b->r <= 0 the bullet dies
@@ -533,7 +533,7 @@ void Bullet::ghostDraw(float alpha) const {
 
 	//note: technically the alpha is separate from the bullet life, especially noticeable on minefield level effects...
 	//oh well, not a big deal; maybe it's a good thing because ghost bullets should probably have their outline fully visible
-	Renderer::SubmitBulletDrawCall(this->x, this->y, this->r, color.getRf(), color.getGf(), color.getBf(), this->lifeValue / 100.0f);
+	Renderer::SubmitBulletDrawCall(this->cir.x, this->cir.y, this->cir.r, color.getRf(), color.getGf(), color.getBf(), this->lifeValue / 100.0f);
 }
 
 void Bullet::ghostDraw(DrawingLayers layer, float alpha) const {

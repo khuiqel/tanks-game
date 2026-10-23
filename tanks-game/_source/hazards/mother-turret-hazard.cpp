@@ -28,13 +28,13 @@ std::unordered_map<std::string, float> MotherTurretHazard::getWeights() const {
 }
 
 MotherTurretHazard::MotherTurretHazard(double xpos, double ypos, double angle, int maxChildren, int startChildren, double childDistMultiplier) : TargetingTurretHazard(xpos, ypos, angle) {
-	r = TANK_RADIUS * 2; // that's a little big
+	cir.r = TANK_RADIUS * 2; // that's a little big
 
 	stateMultiplier[1] *= 4;
 	turningIncrement *= 2;
 
 	maxChildTurrets = (maxChildren/2)*2; //even numbers only
-	childDistFromMother = r * childDistMultiplier;
+	childDistFromMother = cir.r * childDistMultiplier;
 	initialAngle = angle;
 	targetingNum = -1;
 	targetingChild = false;
@@ -174,7 +174,7 @@ void MotherTurretHazard::pushInitialChildren(int childCount) {
 CircleHazard* MotherTurretHazard::makeTurret(int turretNum) const {
 	GenericFactoryConstructionData constructionData;
 	const float angle = getChildTurretAngle(turretNum);
-	double* posArr = new double[3]{ this->x + (this->r+childDistFromMother) * std::cos(angle), this->y + (this->r+childDistFromMother) * std::sin(angle), double(angle) };
+	double* posArr = new double[3]{ this->cir.x + (this->cir.r+childDistFromMother) * std::cos(angle), this->cir.y + (this->cir.r+childDistFromMother) * std::sin(angle), double(angle) };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	CircleHazard* childTurret = HazardDataGovernor::getCircleHazardFactory("vanilla", "targeting_turret")(constructionData);
 	return childTurret;
@@ -301,7 +301,7 @@ int MotherTurretHazard::updateChildCount() {
 
 void MotherTurretHazard::turnTowardsPoint(int turretNum) {
 	//see TargetingTurretHazard::turnTowardsTank
-	SimpleVector2D distToChild = SimpleVector2D(getChildTurretAngle(turretNum), this->r+childDistFromMother, true);
+	SimpleVector2D distToChild = SimpleVector2D(getChildTurretAngle(turretNum), this->cir.r+childDistFromMother, true);
 	float theta = SimpleVector2D::angleBetween(distToChild, velocity);
 	if (std::abs(theta) < float(PI)/turningIncrement) {
 		//too small to adjust angle
@@ -329,7 +329,7 @@ bool MotherTurretHazard::reasonableLocation() const {
 			return false;
 		}
 		for (int j = 0; j < WallManager::getNumWalls(); j++) {
-			if (CollisionHandler::lineRectCollision(this->x, this->y, testChild->getX(), testChild->getY(), WallManager::getWall(j))) {
+			if (CollisionHandler::lineRectCollision(this->cir.x, this->cir.y, testChild->cir.getX(), testChild->cir.getY(), WallManager::getWall(j)->rec)) {
 				delete testChild;
 				return false;
 			}
@@ -471,18 +471,18 @@ void MotherTurretHazard::drawShootingTimer(float alpha) const {
 		const float rotateAngle = velocity.getAngle() + float(2*PI)*(1 - float(shootingOutlineTriangles)/Circle::NumOfSides)/2;
 
 		float coordsAndColor[(Circle::NumOfSides+1)*(2+4)];
-		coordsAndColor[0] = x;
-		coordsAndColor[1] = y;
+		coordsAndColor[0] = cir.x;
+		coordsAndColor[1] = cir.y;
 		coordsAndColor[2] = color.getRf();
 		coordsAndColor[3] = color.getGf();
 		coordsAndColor[4] = color.getBf();
 		coordsAndColor[5] = color.getAf();
 		for (unsigned int i = 0; i <= shootingOutlineTriangles && i < Circle::NumOfSides; i++) {
 			SimpleVector2D vertex = SimpleVector2D(body_vertices[i % Circle::NumOfSides + 1]);
-			vertex.scaleAndRotate(static_cast<float>(r)*(5.0f/4.0f), rotateAngle);
+			vertex.scaleAndRotate(static_cast<float>(cir.r)*(5.0f/4.0f), rotateAngle);
 
-			coordsAndColor[(i+1)*6]   = static_cast<float>(x) + vertex.getXComp();
-			coordsAndColor[(i+1)*6+1] = static_cast<float>(y) + vertex.getYComp();
+			coordsAndColor[(i+1)*6]   = static_cast<float>(cir.x) + vertex.getXComp();
+			coordsAndColor[(i+1)*6+1] = static_cast<float>(cir.y) + vertex.getYComp();
 			coordsAndColor[(i+1)*6+2] = color.getRf();
 			coordsAndColor[(i+1)*6+3] = color.getGf();
 			coordsAndColor[(i+1)*6+4] = color.getBf();
@@ -510,15 +510,15 @@ void MotherTurretHazard::drawChildTurretLocations(float alpha) const {
 		const CircleHazard* testChild = makeTurret(i); //yeah it's super improper but whatever
 		const float radius = (i==chosenChild ? (1.5)*((TANK_RADIUS/2) / 2) : (TANK_RADIUS/2) / 2);
 
-		coordsAndColor[0] = testChild->x;
-		coordsAndColor[1] = testChild->y;
+		coordsAndColor[0] = testChild->cir.x;
+		coordsAndColor[1] = testChild->cir.y;
 		coordsAndColor[2] = color.getRf();
 		coordsAndColor[3] = color.getGf();
 		coordsAndColor[4] = color.getBf();
 		coordsAndColor[5] = color.getAf();
 		for (int j = 1; j < Circle::NumOfSides+1; j++) {
-			coordsAndColor[j*6]   = static_cast<float>(testChild->x) + radius * body_vertices[j].getXComp();
-			coordsAndColor[j*6+1] = static_cast<float>(testChild->y) + radius * body_vertices[j].getYComp();
+			coordsAndColor[j*6]   = static_cast<float>(testChild->cir.x) + radius * body_vertices[j].getXComp();
+			coordsAndColor[j*6+1] = static_cast<float>(testChild->cir.y) + radius * body_vertices[j].getYComp();
 			coordsAndColor[j*6+2] = color.getRf();
 			coordsAndColor[j*6+3] = color.getGf();
 			coordsAndColor[j*6+4] = color.getBf();

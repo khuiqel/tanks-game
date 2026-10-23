@@ -29,7 +29,7 @@ DevPusherPower::DevPusherPower() {
 #include "../collision-handler.h"
 
 InteractionUpdateHolder<TankUpdateStruct, WallUpdateStruct> DevPusherTankPower::modifiedCollisionWithWall(const Tank* t, const Wall* w) {
-	std::pair<std::pair<double, double>, std::pair<double, double>> vecs = CollisionHandler::pushMovableAwayFromMovable_vecOnly(t, w);
+	std::pair<std::pair<double, double>, std::pair<double, double>> vecs = CollisionHandler::pushMovableAwayFromMovable_vecOnly(t->cir, w->rec);
 	return { false, false, new TankUpdateStruct(vecs.first.first, vecs.first.second, 0,0), new WallUpdateStruct(vecs.second.first, vecs.second.second) };
 }
 
@@ -42,12 +42,12 @@ bool DevPusherTankPower::getModifiesCollisionWithRectHazard(const RectHazard* rh
 }
 
 InteractionUpdateHolder<TankUpdateStruct, CircleHazardUpdateStruct> DevPusherTankPower::modifiedCollisionWithCircleHazard(const Tank* t, const CircleHazard* ch) {
-	std::pair<std::pair<double, double>, std::pair<double, double>> vecs = CollisionHandler::pushMovableAwayFromMovable_vecOnly(t, ch);
+	std::pair<std::pair<double, double>, std::pair<double, double>> vecs = CollisionHandler::pushMovableAwayFromMovable_vecOnly(t->cir, ch->cir);
 	return { false, false, new TankUpdateStruct(vecs.first.first, vecs.first.second, 0,0), new CircleHazardUpdateStruct(vecs.second.first, vecs.second.second) };
 }
 
 InteractionUpdateHolder<TankUpdateStruct, RectHazardUpdateStruct> DevPusherTankPower::modifiedCollisionWithRectHazard(const Tank* t, const RectHazard* rh) {
-	std::pair<std::pair<double, double>, std::pair<double, double>> vecs = CollisionHandler::pushMovableAwayFromMovable_vecOnly(t, rh);
+	std::pair<std::pair<double, double>, std::pair<double, double>> vecs = CollisionHandler::pushMovableAwayFromMovable_vecOnly(t->cir, rh->rec);
 	return { false, false, new TankUpdateStruct(vecs.first.first, vecs.first.second, 0,0), new RectHazardUpdateStruct(vecs.second.first, vecs.second.second) };
 }
 

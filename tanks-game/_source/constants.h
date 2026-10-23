@@ -15,6 +15,19 @@ enum class ObjectType : uint8_t {
 	Hazard_R   = 6,
 };
 
+constexpr bool ObjectTypeIsCircle(ObjectType o) {
+	switch (o) {
+		default: [[fallthrough]];
+		case ObjectType::None:     return true; //dunno
+		case ObjectType::Tank:     return true;
+		case ObjectType::Bullet:   return true;
+		case ObjectType::Wall:     return false;
+		case ObjectType::Powerup:  return false;
+		case ObjectType::Hazard_C: return true;
+		case ObjectType::Hazard_R: return false;
+	}
+}
+
 typedef int32_t Color_ID;
 
 constexpr double PI = std::numbers::pi;
@@ -36,9 +49,6 @@ constexpr float HIGH_IMPORTANCE = 999;
 constexpr Team_ID DEFAULT_TEAM = 0; //walls and friends are this team
 constexpr Team_ID HAZARD_TEAM = -1; //default team of hazards
 constexpr Game_ID NO_PARENT = -1;   //bullets that don't have a parent for parentID
-
-//typedef void(*voidFunction)(void); //this isn't used
-//using voidFunction = void(*)(void); //C++11 version
 
 //tank team rules:
 //0  = no team or default team

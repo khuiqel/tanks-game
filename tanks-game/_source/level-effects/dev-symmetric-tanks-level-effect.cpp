@@ -12,8 +12,8 @@ std::unordered_map<std::string, float> DevSymmetricTanksLevelEffect::getWeights(
 }
 
 void DevSymmetricTanksLevelEffect::tick(const Level* parent) {
-	TankManager::getTank(1)->x = GAME_WIDTH - TankManager::getTank(0)->x;
-	TankManager::getTank(1)->y = GAME_HEIGHT - TankManager::getTank(0)->y;
+	TankManager::getTank(1)->cir.x = GAME_WIDTH - TankManager::getTank(0)->cir.x;
+	TankManager::getTank(1)->cir.y = GAME_HEIGHT - TankManager::getTank(0)->cir.y;
 	if (mirrorAngle) {
 		TankManager::getTank(1)->velocity.setAngle(TankManager::getTank(0)->velocity.getAngle() + float(PI));
 	}

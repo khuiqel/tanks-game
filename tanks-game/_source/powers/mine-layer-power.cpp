@@ -43,8 +43,8 @@ MineLayerTankPower::MineLayerTankPower() {
 #include "../bullet-manager.h"
 
 void MineLayerBulletPower::initialize(Bullet* parent) {
-	this->last_xpos = parent->getX();
-	this->last_ypos = parent->getY();
+	this->last_xpos = parent->cir.getX();
+	this->last_ypos = parent->cir.getY();
 }
 
 void MineLayerBulletPower::removeEffects(Bullet* parent) {
@@ -59,7 +59,7 @@ void MineLayerBulletPower::layMine(const Bullet* b) {
 			bp->push_back(b->bulletPowers[i]->makeDuplicate());
 		}
 	}
-	BulletManager::pushBullet(new Bullet(b->x, b->y, b->r, b->velocity.getAngle(), 0, b->getTeamID(), b->getParentIDType(), b->getParentID(), bp, true));
+	BulletManager::pushBullet(new Bullet(b->cir.x, b->cir.y, b->cir.r, b->velocity.getAngle(), 0, b->getTeamID(), b->getParentIDType(), b->getParentID(), bp, true));
 	delete bp;
 	//note: this means the new bullet is on top of the parent; oh well, this is so far literally the only power where that's a problem
 }
@@ -67,7 +67,7 @@ void MineLayerBulletPower::layMine(const Bullet* b) {
 InteractionBoolHolder MineLayerBulletPower::modifiedMovement(Bullet* b) {
 	//bool laidMine = false;
 	if (tickCount >= MineLayerPower::tickCycle) {
-		if ((b->getX() == this->last_xpos) && (b->getY() == this->last_ypos)) {
+		if ((b->cir.getX() == this->last_xpos) && (b->cir.getY() == this->last_ypos)) {
 			return { false };
 			//quit early to avoid tickCount++
 		}

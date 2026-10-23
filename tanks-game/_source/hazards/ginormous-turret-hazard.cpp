@@ -105,10 +105,10 @@ std::unordered_map<std::string, float> GinormousTurretHazard::getWeights() const
 }
 
 GinormousTurretHazard::GinormousTurretHazard(double xpos, double ypos, double angle, int maxChildren, int startChildren, double childDistMultiplier) : MotherTurretHazard(xpos, ypos, angle, maxChildren, startChildren, childDistMultiplier) {
-	r = TANK_RADIUS * 4; // MotherTurretHazard radius * 2 //my vision for this turret was twice as large as this value, but that can barely fit on the screen
+	cir.r = TANK_RADIUS * 4; // MotherTurretHazard radius * 2 //my vision for this turret was twice as large as this value, but that can barely fit on the screen
 	//future note: my idea for the "god turret" is r = TANK_RADIUS * 64 or 32 (32 might be better for gameplay, 64 is more what I wanted), which is nowhere near being able to fit on the screen; since it's so big it doesn't even recognize the little tanks; alternatively, it can immobilize and move tanks around because it's that strong, but maybe this should go to a "demi-god turret" instead
 	//lore idea (this is really stupid): since there are turret sizes smaller and larger than the tanks, but not of the same size, does that imply the tanks are turrets (that gained sentience)? what a plot twist!; doesn't explain why other turrets can handle lightning fine but tanks can't though, but whatever
-	childDistFromMother = r * childDistMultiplier; //reset because the radius was changed
+	childDistFromMother = cir.r * childDistMultiplier; //reset because the radius was changed
 
 	stateMultiplier[1] /= 2;
 	//turningIncrement /= 2;
@@ -168,7 +168,7 @@ void GinormousTurretHazard::turnTowardsTank(const Tank* t) {
 CircleHazard* GinormousTurretHazard::makeTurret(int turretNum) const {
 	GenericFactoryConstructionData constructionData;
 	const double angle = getChildTurretAngle(turretNum);
-	double* posArr = new double[3]{ this->x + (this->r+childDistFromMother) * std::cos(angle), this->y + (this->r+childDistFromMother) * std::sin(angle), angle };
+	double* posArr = new double[3]{ this->cir.x + (this->cir.r+childDistFromMother) * std::cos(angle), this->cir.y + (this->cir.r+childDistFromMother) * std::sin(angle), angle };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	Game_ID* id = new Game_ID[1]{ this->getGameID() };
 	constructionData.pushData(1, id);

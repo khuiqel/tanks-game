@@ -35,14 +35,6 @@ VerticalLightningHazard::VerticalLightningHazard(double xpos, double ypos, doubl
 	//canAcceptPowers = false;
 }
 
-inline Circle VerticalLightningHazard::getTopPoint() const {
-	return Circle(x + w/2, y + h, 0);
-}
-
-inline Circle VerticalLightningHazard::getBottomPoint() const {
-	return Circle(x + w/2, y, 0);
-}
-
 VerticalLightningHazard::~VerticalLightningHazard() {
 	//nothing
 }
@@ -64,88 +56,88 @@ RectHazard* VerticalLightningHazard::factory(const GenericFactoryConstructionDat
 	return new VerticalLightningHazard(0, 0, 0, 0);
 }
 
-void VerticalLightningHazard::specialEffectCircleCollision(const Circle* c) {
+void VerticalLightningHazard::specialEffectCircleCollision(const Circle& other) {
 	const Circle bottomPoint = getBottomPoint();
 	const Circle topPoint = getTopPoint();
-	const Circle circleCenter = Circle(c->x, c->y, 0);
+	const Circle circleCenter = Circle(other.x, other.y, 0);
 	double intersectionXD, intersectionXU, intersectionYD, intersectionYU;
 	int boltPointsD, boltPointsU;
 
 	double xpos, ypos; //circle adjusted x and y
 
-	if (CollisionHandler::fullyCollided(&circleCenter, this)) {
+	if (CollisionHandler::fullyCollided(circleCenter, this->rec)) {
 		//circle center inside rectangle area
-		xpos = c->x;
-		ypos = c->y;
+		xpos = other.x;
+		ypos = other.y;
 	} else {
 		//circle center outside rectangle area
-		if (c->x < x) {
-			xpos = x; //circle too far to the left
-		} else if (c->x > x+w) {
-			xpos = x+w; //circle too far to the right
+		if (other.x < rec.x) {
+			xpos = rec.x; //circle too far to the left
+		} else if (other.x > rec.x+rec.w) {
+			xpos = rec.x+rec.w; //circle too far to the right
 		} else {
-			xpos = c->x; //circle's x-position is fine
+			xpos = other.x; //circle's x-position is fine
 		}
-		if (c->y < y) {
-			ypos = y; //circle too low
-		} else if (c->y > y+h) {
-			ypos = y+h; //circle too high
+		if (other.y < rec.y) {
+			ypos = rec.y; //circle too low
+		} else if (other.y > rec.y+rec.h) {
+			ypos = rec.y+rec.h; //circle too high
 		} else {
-			ypos = c->y; //circle's y-position is fine
+			ypos = other.y; //circle's y-position is fine
 		}
 	}
 
-	if (CollisionHandler::fullyCollided(&bottomPoint, c)) {
-		intersectionXD = c->x;
-		intersectionYD = c->y;
+	if (CollisionHandler::fullyCollided(bottomPoint, other)) {
+		intersectionXD = other.x;
+		intersectionYD = other.y;
 		boltPointsD = 2;
 	} else {
-		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, bottomPoint.x, bottomPoint.y);
-		if (c->x < x + w/2) {
+		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(other, xpos, ypos, bottomPoint.x, bottomPoint.y);
+		if (other.x < rec.x + rec.w/2) {
 			intersectionXD = std::max(intersections.first.first, intersections.second.first);
 		} else {
 			intersectionXD = std::min(intersections.first.first, intersections.second.first);
 		}
 		intersectionYD = std::min(intersections.first.second, intersections.second.second);
 
-		if (intersectionXD < x || intersectionXD > x+w) [[unlikely]] {
+		if (intersectionXD < rec.x || intersectionXD > rec.x+rec.w) [[unlikely]] {
 			std::cerr << "WARNING: vertical lightning endpoint X (bottom half) out of range!\n";
-			intersectionXD = std::clamp<double>(intersectionXD, x, x+w);
+			intersectionXD = std::clamp<double>(intersectionXD, rec.x, rec.x+rec.w);
 		}
-		if (intersectionYD < y || intersectionYD > y+h) [[unlikely]] {
+		if (intersectionYD < rec.y || intersectionYD > rec.y+rec.h) [[unlikely]] {
 			std::cerr << "WARNING: vertical lightning endpoint Y (bottom half) out of range!\n";
-			intersectionYD = std::clamp<double>(intersectionYD, y, y+h);
+			intersectionYD = std::clamp<double>(intersectionYD, rec.y, rec.y+rec.h);
 		}
 		boltPointsD = getDefaultNumBoltPoints(std::sqrt((intersectionXD - bottomPoint.x)*(intersectionXD - bottomPoint.x) + (intersectionYD - bottomPoint.y)*(intersectionYD - bottomPoint.y)));
 	}
 
-	if (CollisionHandler::fullyCollided(&topPoint, c)) {
-		intersectionXU = c->x;
-		intersectionYU = c->y;
+	if (CollisionHandler::fullyCollided(topPoint, other)) {
+		intersectionXU = other.x;
+		intersectionYU = other.y;
 		boltPointsU = 2;
 	} else {
-		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, topPoint.x, topPoint.y);
-		if (c->x < x + w/2) {
+		std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(other, xpos, ypos, topPoint.x, topPoint.y);
+		if (other.x < rec.x + rec.w/2) {
 			intersectionXU = std::max(intersections.first.first, intersections.second.first);
 		} else {
 			intersectionXU = std::min(intersections.first.first, intersections.second.first);
 		}
 		intersectionYU = std::max(intersections.first.second, intersections.second.second);
 
-		if (intersectionXU < x || intersectionXU > x+w) [[unlikely]] {
+		if (intersectionXU < rec.x || intersectionXU > rec.x+rec.w) [[unlikely]] {
 			std::cerr << "WARNING: vertical lightning endpoint X (top half) out of range!\n";
-			intersectionXU = std::clamp<double>(intersectionXU, x, x+w);
+			intersectionXU = std::clamp<double>(intersectionXU, rec.x, rec.x+rec.w);
 		}
-		if (intersectionYU < y || intersectionYU > y+h) [[unlikely]] {
+		if (intersectionYU < rec.y || intersectionYU > rec.y+rec.h) [[unlikely]] {
 			std::cerr << "WARNING: vertical lightning endpoint Y (top half) out of range!\n";
-			intersectionYU = std::clamp<double>(intersectionYU, y, y+h);
+			intersectionYU = std::clamp<double>(intersectionYU, rec.y, rec.y+rec.h);
 		}
 		boltPointsU = getDefaultNumBoltPoints(std::sqrt((intersectionXU - topPoint.x)*(intersectionXU - topPoint.x) + (intersectionYU - topPoint.y)*(intersectionYU - topPoint.y)));
 	}
 
-	pushBolt(new LightningBolt(w/2, 0, intersectionXD-x, intersectionYD-y, boltPointsD), false);
-	pushBolt(new LightningBolt(intersectionXD-x, intersectionYD-y, intersectionXU-x, intersectionYU-y, 2), false);
-	pushBolt(new LightningBolt(intersectionXU-x, intersectionYU-y, w/2, h, boltPointsU), false);
+	pushBolt(new LightningBolt(rec.w/2, 0, intersectionXD-rec.x, intersectionYD- rec.y, boltPointsD), false);
+	pushBolt(new LightningBolt(intersectionXD-rec.x, intersectionYD-rec.y, intersectionXU-rec.x, intersectionYU-rec.y, 2), false);
+	pushBolt(new LightningBolt(intersectionXU-rec.x, intersectionYU-rec.y, rec.w/2, rec.h, boltPointsU), false);
 }
 
 void VerticalLightningHazard::pushBolt(LightningBolt* l, bool simpleRefresh) {
@@ -159,7 +151,7 @@ void VerticalLightningHazard::pushBolt(LightningBolt* l, bool simpleRefresh) {
 
 void VerticalLightningHazard::pushDefaultBolt(int num, bool randomize) {
 	for (int i = 0; i < num; i++) {
-		LightningBolt* l = new LightningBolt(w/2, 0, w/2, h, getDefaultNumBoltPoints(h));
+		LightningBolt* l = new LightningBolt(rec.w/2, 0, rec.w/2, rec.h, getDefaultNumBoltPoints(rec.h));
 		if (randomize) {
 			pushBolt(l, true);
 		} else {
@@ -172,21 +164,21 @@ bool VerticalLightningHazard::validLocation() const {
 	bool wallOnBottom = false, wallOnTop = false;
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
 		const Wall* wa = WallManager::getWall(i);
-		if (CollisionHandler::partiallyCollidedIgnoreEdge(wa, this)) {
+		if (CollisionHandler::partiallyCollidedIgnoreEdge(wa->rec, this->rec)) {
 			return false;
 		}
-		if ((wa->x <= x) && (wa->x + wa->w >= x + w)) {
-			if (y == wa->y + wa->h) {
+		if ((wa->rec.x <= rec.x) && (wa->rec.x + wa->rec.w >= rec.x + rec.w)) {
+			if (rec.y == wa->rec.y + wa->rec.h) {
 				wallOnBottom = true;
-			} else if (y + h == wa->y) {
+			} else if (rec.y + rec.h == wa->rec.y) {
 				wallOnTop = true;
 			}
 		}
 	}
-	if (y == 0) {
+	if (rec.y == 0) {
 		wallOnBottom = true;
 	}
-	if (y + h == GAME_HEIGHT) {
+	if (rec.y + rec.h == GAME_HEIGHT) {
 		wallOnTop = true;
 	}
 	return (wallOnBottom && wallOnTop);
@@ -196,10 +188,10 @@ bool VerticalLightningHazard::reasonableLocation() const {
 	bool wallOnLeft = false, wallOnRight = false;
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
 		const Wall* wa = WallManager::getWall(i);
-		if ((wa->y <= y) && (wa->y + wa->y >= y + h)) {
-			if (x == wa->x + wa->w) {
+		if ((wa->rec.y <= rec.y) && (wa->rec.y + wa->rec.y >= rec.y + rec.h)) {
+			if (rec.x == wa->rec.x + wa->rec.w) {
 				wallOnLeft = true;
-			} else if (x + w == wa->x) {
+			} else if (rec.x + rec.w == wa->rec.x) {
 				wallOnRight = true;
 			}
 		}
@@ -207,10 +199,10 @@ bool VerticalLightningHazard::reasonableLocation() const {
 			break;
 		}
 	}
-	if (x <= 0) { //should this be ==? //also, should this function return false if the lightning is out of bounds?
+	if (rec.x <= 0) { //should this be ==? //also, should this function return false if the lightning is out of bounds?
 		wallOnLeft = true;
 	}
-	if (x + w >= GAME_WIDTH) {
+	if (rec.x + rec.w >= GAME_WIDTH) {
 		wallOnRight = true;
 	}
 
@@ -220,14 +212,14 @@ bool VerticalLightningHazard::reasonableLocation() const {
 
 	//don't check general lightnings
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
-		if (CollisionHandler::partiallyCollided(this, HazardManager::getCircleHazard(i))) {
+		if (CollisionHandler::partiallyCollided(this->rec, HazardManager::getCircleHazard(i)->cir)) {
 			return false;
 		}
 	}
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
 		const RectHazard* rh = HazardManager::getRectHazard(i);
 		if (rh->getName() != this->getName()) {
-			if (CollisionHandler::partiallyCollided(this, rh)) {
+			if (CollisionHandler::partiallyCollided(this->rec, rh->rec)) {
 				return false;
 			}
 		}
@@ -237,7 +229,7 @@ bool VerticalLightningHazard::reasonableLocation() const {
 }
 
 void VerticalLightningHazard::simpleRefreshBolt(LightningBolt* l) const {
-	const float maxVariance = w/4;
+	const float maxVariance = rec.w/4;
 	/* lightning bolts are allowed to be in an area that looks like this:
 	 * (see HorizontalLightningHazard for a better diagram, then just mentally rotate it)
 	 * +-------- /-\ --------+        <- h
@@ -265,14 +257,14 @@ void VerticalLightningHazard::simpleRefreshBolt(LightningBolt* l) const {
 		float xMin, xMax;
 		if (j < l->length/4) { //bottom quarter
 			//instead of y=ax+b, use x=(y-b)/a
-			xMin = ((deltaY * j) - static_cast<float>(h)/4) / (-.5f*static_cast<float>(h/w));
-			xMax = ((deltaY * j) + static_cast<float>(h)/4) / ( .5f*static_cast<float>(h/w));
+			xMin = ((deltaY * j) - static_cast<float>(rec.h)/4) / (-.5f*static_cast<float>(rec.h/rec.w));
+			xMax = ((deltaY * j) + static_cast<float>(rec.h)/4) / ( .5f*static_cast<float>(rec.h/rec.w));
 		} else if (j < 3 * l->length / 4) { //middle half
 			xMin = 0;
-			xMax = w;
+			xMax = rec.w;
 		} else { //top quarter
-			xMin = ((deltaY * j) - (3.0f/4.0f)*static_cast<float>(h)) / ( .5f*static_cast<float>(h/w));
-			xMax = ((deltaY * j) - (5.0f/4.0f)*static_cast<float>(h)) / (-.5f*static_cast<float>(h/w));
+			xMin = ((deltaY * j) - (3.0f/4.0f)*static_cast<float>(rec.h)) / ( .5f*static_cast<float>(rec.h/rec.w));
+			xMax = ((deltaY * j) - (5.0f/4.0f)*static_cast<float>(rec.h)) / (-.5f*static_cast<float>(rec.h/rec.w));
 		}
 		xRangeLower = (xRangeLower < xMin ? xMin : xRangeLower);
 		xRangeUpper = (xRangeUpper > xMax ? xMax : xRangeUpper);
@@ -281,7 +273,7 @@ void VerticalLightningHazard::simpleRefreshBolt(LightningBolt* l) const {
 }
 
 void VerticalLightningHazard::refreshBolt(LightningBolt* l) const {
-	RectangularLightningHazard::refreshBolt(l, this->w, this->h);
+	RectangularLightningHazard::refreshBolt(l, this->rec.w, this->rec.h);
 }
 
 void VerticalLightningHazard::drawBackground(bool pose, float alpha) const {
@@ -298,10 +290,10 @@ void VerticalLightningHazard::drawBackground(bool pose, float alpha) const {
 	//scale = scale * scale;
 
 	float coordsAndColor[] = {
-		x,   y+(h/2) - (h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
-		x+w, y+(h/2) - (h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
-		x+w, y+(h/2) + (h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
-		x,   y+(h/2) + (h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf()
+		rec.x,       rec.y+(rec.h/2) - (rec.h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
+		rec.x+rec.w, rec.y+(rec.h/2) - (rec.h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
+		rec.x+rec.w, rec.y+(rec.h/2) + (rec.h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
+		rec.x,       rec.y+(rec.h/2) + (rec.h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf()
 	};
 	unsigned int indices[] = {
 		0, 1, 2,
@@ -323,16 +315,16 @@ void VerticalLightningHazard::drawBackgroundOutline(float alpha) const {
 
 	float coordsAndColor_outline[] = {
 		//outer
-		(x)   - lineWidth, (y)   - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //0
-		(x+w) + lineWidth, (y)   - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //1
-		(x+w) + lineWidth, (y+h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //2
-		(x)   - lineWidth, (y+h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //3
+		(rec.x)       - lineWidth, (rec.y)       - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //0
+		(rec.x+rec.w) + lineWidth, (rec.y)       - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //1
+		(rec.x+rec.w) + lineWidth, (rec.y+rec.h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //2
+		(rec.x)       - lineWidth, (rec.y+rec.h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //3
 
 		//inner
-		(x)   + lineWidth, (y)   - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //4
-		(x+w) - lineWidth, (y)   - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //5
-		(x+w) - lineWidth, (y+h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //6
-		(x)   + lineWidth, (y+h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf()  //7
+		(rec.x)       + lineWidth, (rec.y)       - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //4
+		(rec.x+rec.w) - lineWidth, (rec.y)       - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //5
+		(rec.x+rec.w) - lineWidth, (rec.y+rec.h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //6
+		(rec.x)       + lineWidth, (rec.y+rec.h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf()  //7
 	};
 	unsigned int indices_outline[] = { //rects
 		//right
@@ -351,7 +343,7 @@ void VerticalLightningHazard::drawBolts_Pose(float alpha) const {
 	//generate bolts
 	std::vector<LightningBolt*> poseBolts;
 	//from pushDefaultBolt(), mostly
-	LightningBolt* l = new LightningBolt(w/2, 0, w/2, h, getDefaultNumBoltPoints(h));
+	LightningBolt* l = new LightningBolt(rec.w/2, 0, rec.w/2, rec.h, getDefaultNumBoltPoints(rec.h));
 	refreshBolt(l);
 	poseBolts.push_back(l);
 
@@ -372,14 +364,14 @@ void VerticalLightningHazard::drawBolts_Pose(float alpha) const {
 			SimpleVector2D dist = SimpleVector2D(poseBolts[i]->positions[(j+1)*2] - poseBolts[i]->positions[j*2], poseBolts[i]->positions[(j+1)*2+1] - poseBolts[i]->positions[j*2+1]);
 			SimpleVector2D distCW = SimpleVector2D(dist.getAngle() - float(PI/2), lineWidth, true);
 
-			coordsAndColor[startVertex + 0*6]   = static_cast<float>(x) + poseBolts[i]->positions[j*2]                     + distCW.getXComp();
-			coordsAndColor[startVertex + 0*6+1] = static_cast<float>(y) + poseBolts[i]->positions[j*2+1]                   + distCW.getYComp();
-			coordsAndColor[startVertex + 1*6]   = static_cast<float>(x) + poseBolts[i]->positions[j*2]   + dist.getXComp() + distCW.getXComp();
-			coordsAndColor[startVertex + 1*6+1] = static_cast<float>(y) + poseBolts[i]->positions[j*2+1] + dist.getYComp() + distCW.getYComp();
-			coordsAndColor[startVertex + 2*6]   = static_cast<float>(x) + poseBolts[i]->positions[j*2]   + dist.getXComp() - distCW.getXComp();
-			coordsAndColor[startVertex + 2*6+1] = static_cast<float>(y) + poseBolts[i]->positions[j*2+1] + dist.getYComp() - distCW.getYComp();
-			coordsAndColor[startVertex + 3*6]   = static_cast<float>(x) + poseBolts[i]->positions[j*2]                     - distCW.getXComp();
-			coordsAndColor[startVertex + 3*6+1] = static_cast<float>(y) + poseBolts[i]->positions[j*2+1]                   - distCW.getYComp();
+			coordsAndColor[startVertex + 0*6]   = static_cast<float>(rec.x) + poseBolts[i]->positions[j*2]                     + distCW.getXComp();
+			coordsAndColor[startVertex + 0*6+1] = static_cast<float>(rec.y) + poseBolts[i]->positions[j*2+1]                   + distCW.getYComp();
+			coordsAndColor[startVertex + 1*6]   = static_cast<float>(rec.x) + poseBolts[i]->positions[j*2]   + dist.getXComp() + distCW.getXComp();
+			coordsAndColor[startVertex + 1*6+1] = static_cast<float>(rec.y) + poseBolts[i]->positions[j*2+1] + dist.getYComp() + distCW.getYComp();
+			coordsAndColor[startVertex + 2*6]   = static_cast<float>(rec.x) + poseBolts[i]->positions[j*2]   + dist.getXComp() - distCW.getXComp();
+			coordsAndColor[startVertex + 2*6+1] = static_cast<float>(rec.y) + poseBolts[i]->positions[j*2+1] + dist.getYComp() - distCW.getYComp();
+			coordsAndColor[startVertex + 3*6]   = static_cast<float>(rec.x) + poseBolts[i]->positions[j*2]                     - distCW.getXComp();
+			coordsAndColor[startVertex + 3*6+1] = static_cast<float>(rec.y) + poseBolts[i]->positions[j*2+1]                   - distCW.getYComp();
 
 			for (int k = 0; k < 4; k++) {
 				coordsAndColor[startVertex + k*6+2] = color.getRf();
@@ -419,8 +411,8 @@ RectHazard* VerticalLightningHazard::randomizingFactory(double x_start, double y
 		width = LevelRNG::randNumInRange(12, 24);
 		int i = LevelRNG::randFunc() * WallManager::getNumWalls();
 		const Wall* wa = WallManager::getWall(i);
-		xpos = wa->x + LevelRNG::randFunc() * std::clamp<double>(wa->w - width, 0, wa->w);
-		ypos = wa->y + wa->h;
+		xpos = wa->rec.x + LevelRNG::randFunc() * std::clamp<double>(wa->rec.w - width, 0, wa->rec.w);
+		ypos = wa->rec.y + wa->rec.h;
 
 		int j, wallAttempts = 0;
 		do {
@@ -429,7 +421,7 @@ RectHazard* VerticalLightningHazard::randomizingFactory(double x_start, double y
 		} while ((wallAttempts < 8) && (j == i));
 		if (j != i) [[likely]] {
 			const Wall* otherWall = WallManager::getWall(j);
-			height = otherWall->y - ypos;
+			height = otherWall->rec.y - ypos;
 		} else {
 			height = 0;
 		}

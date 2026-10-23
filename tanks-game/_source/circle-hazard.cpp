@@ -18,17 +18,17 @@ std::unordered_map<std::string, float> CircleHazard::getWeights() const {
 */
 
 void CircleHazard::update(const CircleHazardUpdateStruct* up) {
-	this->x += up->x;
-	this->y += up->y;
+	this->cir.x += up->x;
+	this->cir.y += up->y;
 }
 
 InteractionUpdateHolder<TankUpdateStruct, CircleHazardUpdateStruct> CircleHazard::modifiedTankCollision(const Tank* t) const {
-	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(t, this);
+	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(t->cir, this->cir);
 	return { false, false, new TankUpdateStruct(vec.first, vec.second, 0,0), nullptr };
 }
 
 InteractionUpdateHolder<BulletUpdateStruct, CircleHazardUpdateStruct> CircleHazard::modifiedBulletCollision(const Bullet* b) const {
-	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(b, this);
+	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(b->cir, this->cir);
 	return { false, false, new BulletUpdateStruct(vec.first, vec.second, 0,0,0), nullptr };
 }
 

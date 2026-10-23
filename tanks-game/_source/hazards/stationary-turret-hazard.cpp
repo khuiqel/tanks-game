@@ -35,9 +35,9 @@ std::unordered_map<std::string, float> StationaryTurretHazard::getWeights() cons
 }
 
 StationaryTurretHazard::StationaryTurretHazard(double xpos, double ypos, double angle) : CircleHazard(HAZARD_TEAM) {
-	x = xpos;
-	y = ypos;
-	r = TANK_RADIUS / 4;
+	cir.x = xpos;
+	cir.y = ypos;
+	cir.r = TANK_RADIUS / 4;
 	velocity = SimpleVector2D(angle, 0, true);
 
 	tickCount = 0;
@@ -118,25 +118,25 @@ void StationaryTurretHazard::tick() {
 		}
 	}
 	if (mustShoot) {
-		BulletManager::pushBullet(new Bullet(x + r*std::cos(velocity.getAngle()), y + r*std::sin(velocity.getAngle()), r*(BULLET_TO_TANK_RADIUS_RATIO*2), velocity.getAngle(), Tank::default_maxSpeed*BULLET_TO_TANK_SPEED_RATIO, this->getTeamID(), BulletParentType::individual, this->getGameID()));
+		BulletManager::pushBullet(new Bullet(cir.x + cir.r*std::cos(velocity.getAngle()), cir.y + cir.r*std::sin(velocity.getAngle()), cir.r*(BULLET_TO_TANK_RADIUS_RATIO*2), velocity.getAngle(), Tank::default_maxSpeed*BULLET_TO_TANK_SPEED_RATIO, this->getTeamID(), BulletParentType::individual, this->getGameID()));
 	}
 }
 
 bool StationaryTurretHazard::canSeeTank(const Tank* t) const {
-	const SimpleVector2D distToTank = SimpleVector2D(t->getX() - x, t->getY() - y);
+	const SimpleVector2D distToTank = SimpleVector2D(t->cir.getX() - cir.x, t->cir.getY() - cir.y);
 
 	//line of sight
 	float angleDiff = SimpleVector2D::angleBetween(distToTank, this->velocity);
 	float projMag = distToTank.getMagnitude() * std::cos(angleDiff);
 	float distToLineOfSightSquared = distToTank.getMagnitude()*distToTank.getMagnitude() - projMag*projMag;
-	if (distToLineOfSightSquared > t->r * t->r) {
+	if (distToLineOfSightSquared > t->cir.r * t->cir.r) {
 		return false;
 	}
 
 	//check walls
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
 		const Wall* wa = WallManager::getWall(i);
-		if (CollisionHandler::lineRectCollision(x, y, x + distToTank.getMagnitude()*std::cos(this->velocity.getAngle()), y + distToTank.getMagnitude()*std::sin(this->velocity.getAngle()), wa)) {
+		if (CollisionHandler::lineRectCollision(cir.x, cir.y, cir.x + distToTank.getMagnitude()*std::cos(this->velocity.getAngle()), cir.y + distToTank.getMagnitude()*std::sin(this->velocity.getAngle()), wa->rec)) {
 			return false;
 		}
 	}
@@ -152,7 +152,7 @@ bool StationaryTurretHazard::reasonableLocation() const {
 	}
 
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
-		if (CollisionHandler::partiallyCollided(this, WallManager::getWall(i))) {
+		if (CollisionHandler::partiallyCollided(this->cir, WallManager::getWall(i)->rec)) {
 			return false;
 		}
 	}
@@ -160,13 +160,13 @@ bool StationaryTurretHazard::reasonableLocation() const {
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
 		const CircleHazard* ch = HazardManager::getCircleHazard(i);
 		if (ch->getGameID() != this->getGameID()) [[likely]] {
-			if (CollisionHandler::partiallyCollided(this, ch)) {
+			if (CollisionHandler::partiallyCollided(this->cir, ch->cir)) {
 				return false;
 			}
 		}
 	}
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
-		if (CollisionHandler::partiallyCollided(this, HazardManager::getRectHazard(i))) {
+		if (CollisionHandler::partiallyCollided(this->cir, HazardManager::getRectHazard(i)->rec)) {
 			return false;
 		}
 	}
@@ -286,15 +286,15 @@ void StationaryTurretHazard::drawBody(float alpha) const {
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 
 	float coordsAndColor[(Circle::NumOfSides+1)*(2+4)];
-	coordsAndColor[0] = x;
-	coordsAndColor[1] = y;
+	coordsAndColor[0] = cir.x;
+	coordsAndColor[1] = cir.y;
 	coordsAndColor[2] = color.getRf();
 	coordsAndColor[3] = color.getGf();
 	coordsAndColor[4] = color.getBf();
 	coordsAndColor[5] = color.getAf();
 	for (int i = 1; i < Circle::NumOfSides+1; i++) {
-		coordsAndColor[i*6]   = static_cast<float>(x) + static_cast<float>(r) * body_vertices[i].getXComp();
-		coordsAndColor[i*6+1] = static_cast<float>(y) + static_cast<float>(r) * body_vertices[i].getYComp();
+		coordsAndColor[i*6]   = static_cast<float>(cir.x) + static_cast<float>(cir.r) * body_vertices[i].getXComp();
+		coordsAndColor[i*6+1] = static_cast<float>(cir.y) + static_cast<float>(cir.r) * body_vertices[i].getYComp();
 		coordsAndColor[i*6+2] = color.getRf();
 		coordsAndColor[i*6+3] = color.getGf();
 		coordsAndColor[i*6+4] = color.getBf();
@@ -313,10 +313,10 @@ void StationaryTurretHazard::drawOutline(float alpha, float lineWidth) const {
 
 	float coordsAndColor[(Circle::NumOfSides*2)*(2+4)];
 	for (int i = 0; i < Circle::NumOfSides; i++) {
-		coordsAndColor[(i*2)  *6]   = static_cast<float>(x) + (static_cast<float>(r)-lineWidth) * body_vertices[i+1].getXComp();
-		coordsAndColor[(i*2)  *6+1] = static_cast<float>(y) + (static_cast<float>(r)-lineWidth) * body_vertices[i+1].getYComp();
-		coordsAndColor[(i*2+1)*6]   = static_cast<float>(x) + (static_cast<float>(r)+lineWidth) * body_vertices[i+1].getXComp();
-		coordsAndColor[(i*2+1)*6+1] = static_cast<float>(y) + (static_cast<float>(r)+lineWidth) * body_vertices[i+1].getYComp();
+		coordsAndColor[(i*2)  *6]   = static_cast<float>(cir.x) + (static_cast<float>(cir.r)-lineWidth) * body_vertices[i+1].getXComp();
+		coordsAndColor[(i*2)  *6+1] = static_cast<float>(cir.y) + (static_cast<float>(cir.r)-lineWidth) * body_vertices[i+1].getYComp();
+		coordsAndColor[(i*2+1)*6]   = static_cast<float>(cir.x) + (static_cast<float>(cir.r)+lineWidth) * body_vertices[i+1].getXComp();
+		coordsAndColor[(i*2+1)*6+1] = static_cast<float>(cir.y) + (static_cast<float>(cir.r)+lineWidth) * body_vertices[i+1].getYComp();
 
 		coordsAndColor[(i*2)  *6+2] = color.getRf();
 		coordsAndColor[(i*2)  *6+3] = color.getGf();
@@ -341,17 +341,17 @@ void StationaryTurretHazard::drawBarrel(float alpha, float lineWidth) const {
 	float coordsAndColor[4*(2+4)];
 	unsigned int indices[6];
 
-	SimpleVector2D dist = SimpleVector2D(velocity.getAngle(), r, true);
+	SimpleVector2D dist = SimpleVector2D(velocity.getAngle(), cir.r, true);
 	SimpleVector2D distCW = SimpleVector2D(velocity.getAngle() - float(PI/2), lineWidth, true);
 
-	coordsAndColor[0*6]   = static_cast<float>(x)                   + distCW.getXComp();
-	coordsAndColor[0*6+1] = static_cast<float>(y)                   + distCW.getYComp();
-	coordsAndColor[1*6]   = static_cast<float>(x) + dist.getXComp() + distCW.getXComp();
-	coordsAndColor[1*6+1] = static_cast<float>(y) + dist.getYComp() + distCW.getYComp();
-	coordsAndColor[2*6]   = static_cast<float>(x) + dist.getXComp() - distCW.getXComp();
-	coordsAndColor[2*6+1] = static_cast<float>(y) + dist.getYComp() - distCW.getYComp();
-	coordsAndColor[3*6]   = static_cast<float>(x)                   - distCW.getXComp();
-	coordsAndColor[3*6+1] = static_cast<float>(y)                   - distCW.getYComp();
+	coordsAndColor[0*6]   = static_cast<float>(cir.x)                   + distCW.getXComp();
+	coordsAndColor[0*6+1] = static_cast<float>(cir.y)                   + distCW.getYComp();
+	coordsAndColor[1*6]   = static_cast<float>(cir.x) + dist.getXComp() + distCW.getXComp();
+	coordsAndColor[1*6+1] = static_cast<float>(cir.y) + dist.getYComp() + distCW.getYComp();
+	coordsAndColor[2*6]   = static_cast<float>(cir.x) + dist.getXComp() - distCW.getXComp();
+	coordsAndColor[2*6+1] = static_cast<float>(cir.y) + dist.getYComp() - distCW.getYComp();
+	coordsAndColor[3*6]   = static_cast<float>(cir.x)                   - distCW.getXComp();
+	coordsAndColor[3*6+1] = static_cast<float>(cir.y)                   - distCW.getYComp();
 
 	for (int i = 0; i < 4; i++) {
 		coordsAndColor[i*6+2] = color.getRf();

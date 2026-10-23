@@ -4,12 +4,11 @@ class PowerSquare;
 #include <string>
 
 #include "game-thing.h"
-#include "rect.h"
 #include "power.h"
 
 #include "color-value-holder.h"
 
-class PowerSquare : public GameThing, public Rect {
+class PowerSquare : public GameThing {
 protected:
 	Power** heldPowers; //array of pointers (can do a vector for simplicity but I don't foresee a powersquare getting more powers)
 	int numOfPowers;

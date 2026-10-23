@@ -195,10 +195,10 @@ void ResetThings::tankPositionReset(double x, double y) {
 	x = std::clamp<double>(x, 0, GAME_WIDTH); //no trolls here
 	y = std::clamp<double>(y, 0, GAME_HEIGHT); //trolls begone
 
-	first->x = x;
-	first->y = y;
-	second->x = GAME_WIDTH - x;
-	second->y = GAME_HEIGHT - y;
+	first->cir.x = x;
+	first->cir.y = y;
+	second->cir.x = GAME_WIDTH - x;
+	second->cir.y = GAME_HEIGHT - y;
 }
 
 void ResetThings::tankPositionReset(double x, double yRange, int yCount) {
@@ -217,8 +217,8 @@ void ResetThings::tankPositionReset(double x, double yRange, int yCount) {
 		yVal = randNum * (yRange/(yCount-1)) + ((GAME_HEIGHT - yRange)/2);
 	}
 
-	first->x = x;
-	first->y = yVal;
-	second->x = GAME_WIDTH - x;
-	second->y = GAME_HEIGHT - yVal;
+	first->cir.x = x;
+	first->cir.y = yVal;
+	second->cir.x = GAME_WIDTH - x;
+	second->cir.y = GAME_HEIGHT - yVal;
 }

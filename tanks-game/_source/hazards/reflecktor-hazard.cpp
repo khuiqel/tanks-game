@@ -24,10 +24,10 @@ std::unordered_map<std::string, float> ReflecktorHazard::getWeights() const {
 }
 
 ReflecktorHazard::ReflecktorHazard(double xpos, double ypos, double width, double height) : RectHazard(HAZARD_TEAM) {
-	x = xpos;
-	y = ypos;
-	w = width;
-	h = height;
+	rec.x = xpos;
+	rec.y = ypos;
+	rec.w = width;
+	rec.h = height;
 
 	color = ColorValueHolder(.95f, .95f, .95f);
 
@@ -61,23 +61,23 @@ InteractionUpdateHolder<TankUpdateStruct, RectHazardUpdateStruct> ReflecktorHaza
 	double t_xDelta, t_yDelta;
 	float  t_angleDelta;
 
-	if (t->y - this->y <= (this->h / this->w) * (t->x - this->x)) {
-		if (t->y - (this->y + this->h) <= (-this->h / this->w) * (t->x - this->x)) { //bottom
-			t_yDelta = -1 * ((t->y + t->r - this->y) * 2);
+	if (t->cir.y - this->rec.y <= (this->rec.h / this->rec.w) * (t->cir.x - this->rec.x)) {
+		if (t->cir.y - (this->rec.y + this->rec.h) <= (-this->rec.h / this->rec.w) * (t->cir.x - this->rec.x)) { //bottom
+			t_yDelta = -1 * ((t->cir.y + t->cir.r - this->rec.y) * 2);
 			t_angleDelta = -2 * t->velocity.getAngle();
 			t_xDelta = 0;
 		} else { //right
-			t_xDelta = (this->x + this->w - (t->x - t->r)) * 2;
+			t_xDelta = (this->rec.x + this->rec.w - (t->cir.x - t->cir.r)) * 2;
 			t_angleDelta = float(PI) - 2*t->velocity.getAngle();
 			t_yDelta = 0;
 		}
 	} else {
-		if (t->y - (this->y + this->h) <= (-this->h / this->w) * (t->x - this->x)) { //left
-			t_xDelta = -1 * ((t->x + t->r - this->x) * 2);
+		if (t->cir.y - (this->rec.y + this->rec.h) <= (-this->rec.h / this->rec.w) * (t->cir.x - this->rec.x)) { //left
+			t_xDelta = -1 * ((t->cir.x + t->cir.r - this->rec.x) * 2);
 			t_angleDelta = float(PI) - 2*t->velocity.getAngle();
 			t_yDelta = 0;
 		} else { //top
-			t_yDelta = (this->y + this->h - (t->y - t->r)) * 2;
+			t_yDelta = (this->rec.y + this->rec.h - (t->cir.y - t->cir.r)) * 2;
 			t_angleDelta = -2 * t->velocity.getAngle();
 			t_xDelta = 0;
 		}
@@ -88,21 +88,21 @@ InteractionUpdateHolder<TankUpdateStruct, RectHazardUpdateStruct> ReflecktorHaza
 
 bool ReflecktorHazard::reasonableLocation() const {
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
-		if (CollisionHandler::partiallyCollided(this, WallManager::getWall(i))) {
+		if (CollisionHandler::partiallyCollided(this->rec, WallManager::getWall(i)->rec)) {
 			return false;
 		}
 	}
 
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
 		const CircleHazard* ch = HazardManager::getCircleHazard(i);
-		if (CollisionHandler::partiallyCollided(this, ch)) {
+		if (CollisionHandler::partiallyCollided(this->rec, ch->cir)) {
 			return false;
 		}
 	}
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
 		const RectHazard* rh = HazardManager::getRectHazard(i);
 		if (rh->getGameID() != this->getGameID()) [[unlikely]] {
-			if (CollisionHandler::partiallyCollided(this, rh)) {
+			if (CollisionHandler::partiallyCollided(this->rec, rh->rec)) {
 				return false;
 			}
 		}
@@ -178,10 +178,10 @@ void ReflecktorHazard::ghostDraw(float alpha) const {
 	c = ColorMixer::mix(BackgroundRect::getBackColor(), c, alpha);
 
 	float coordsAndColor[] = {
-		x,   y,     c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x+w, y,     c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x+w, y+h,   c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x,   y+h,   c.getRf(), c.getGf(), c.getBf(), c.getAf()
+		rec.x,       rec.y,         c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x+rec.w, rec.y,         c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x+rec.w, rec.y+rec.h,   c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x,       rec.y+rec.h,   c.getRf(), c.getGf(), c.getBf(), c.getAf()
 	};
 	unsigned int indices[] = {
 		0, 1, 2,

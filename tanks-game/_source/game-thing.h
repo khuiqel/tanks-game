@@ -1,5 +1,7 @@
 #pragma once
 #include "constants.h"
+#include "circle.h"
+#include "rect.h"
 
 enum class DrawingLayers {
 	under,
@@ -22,6 +24,11 @@ private:
 	double xEnd;
 
 public:
+	union {
+		Circle cir;
+		Rect rec;
+	};
+
 	Game_ID getGameID() const noexcept { return this->gameID; }
 	Team_ID getTeamID() const noexcept { return this->teamID; }
 	ObjectType getObjectType() const noexcept { return this->objectType; }
@@ -30,7 +37,15 @@ public:
 	double get_xEnd() const noexcept { return this->xEnd; }
 
 protected:
-	void updateAABB() noexcept;
+	void updateAABB() noexcept {
+		if (ObjectTypeIsCircle(objectType)) {
+			xStart = cir.getX() - cir.getR();
+			xEnd   = cir.getX() + cir.getR();
+		} else {
+			xStart = rec.getX();
+			xEnd   = rec.getX() + rec.getW();
+		}
+	}
 	void changeTeamID(Team_ID t_id) { this->teamID = t_id; }
 	GameThing(Team_ID t_id, ObjectType type);
 

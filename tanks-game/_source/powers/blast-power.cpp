@@ -68,7 +68,7 @@ BlastTankPower::BlastTankPower() {
 #include "../collision-handler.h"
 
 InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct> BlastBulletPower::modifiedCollisionWithWall(const Bullet* b, const Wall* w) {
-	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(b, w);
+	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(b->cir, w->rec);
 	return { false, false, new BulletUpdateStruct(vec.first, vec.second, -1024*b->velocity.getMagnitude(), 0,0), nullptr };
 }
 
@@ -81,12 +81,12 @@ bool BlastBulletPower::getModifiesCollisionWithRectHazard(const RectHazard* rh) 
 }
 
 InteractionUpdateHolder<BulletUpdateStruct, CircleHazardUpdateStruct> BlastBulletPower::modifiedCollisionWithCircleHazard(const Bullet* b, const CircleHazard* ch) {
-	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(b, ch);
+	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(b->cir, ch->cir);
 	return { false, false, new BulletUpdateStruct(vec.first, vec.second, -1024*b->velocity.getMagnitude(), 0,0), nullptr };
 }
 
 InteractionUpdateHolder<BulletUpdateStruct, RectHazardUpdateStruct> BlastBulletPower::modifiedCollisionWithRectHazard(const Bullet* b, const RectHazard* rh) {
-	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(b, rh);
+	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(b->cir, rh->rec);
 	return { false, false, new BulletUpdateStruct(vec.first, vec.second, -1024*b->velocity.getMagnitude(), 0,0), nullptr };
 }
 

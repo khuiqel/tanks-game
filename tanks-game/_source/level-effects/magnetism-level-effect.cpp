@@ -87,12 +87,12 @@ void MagnetismLevelEffect::doEffects(Level* parent) const {
 	for (int i = 0; i < watching.size(); i++) {
 		PowerSquare* p = PowerupManager::getPowerupByID(watching[i]);
 		if (p != nullptr) [[likely]] {
-			const double p_x = p->x + p->w/2;
-			const double p_y = p->y + p->h/2;
+			const double p_x = p->rec.x + p->rec.w/2;
+			const double p_y = p->rec.y + p->rec.h/2;
 			double moveDelta[2] = { 0, 0 };
 			for (int j = 0; j < TankManager::getNumTanks(); j++) {
 				const Tank* t = TankManager::getTank(j);
-				const SimpleVector2D distToTank = SimpleVector2D(t->x - p_x, t->y - p_y);
+				const SimpleVector2D distToTank = SimpleVector2D(t->cir.x - p_x, t->cir.y - p_y);
 				const double& distToStartMoving = watchingData[i].first;
 				const double& maxMoveAmount = watchingData[i].second;
 				if (distToTank.getMagnitude() < distToStartMoving) {
@@ -101,8 +101,8 @@ void MagnetismLevelEffect::doEffects(Level* parent) const {
 					moveDelta[1] += (maxMoveAmount * maxMovePercentage) * std::sin(distToTank.getAngle());
 				}
 			}
-			p->x += moveDelta[0];
-			p->y += moveDelta[1];
+			p->rec.x += moveDelta[0];
+			p->rec.y += moveDelta[1];
 		} else {
 			//very unlikely to get here; can only happen if a later level effect's tick() altered powerups after this's tick()
 		}

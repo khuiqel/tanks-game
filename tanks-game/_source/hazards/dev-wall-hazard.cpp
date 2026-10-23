@@ -19,10 +19,10 @@ std::unordered_map<std::string, float> DevWallHazard::getWeights() const {
 }
 
 DevWallHazard::DevWallHazard(double xpos, double ypos, double width, double height) : RectHazard(DEFAULT_TEAM) {
-	x = xpos;
-	y = ypos;
-	w = width;
-	h = height;
+	rec.x = xpos;
+	rec.y = ypos;
+	rec.w = width;
+	rec.h = height;
 	if (LevelManager::getNumLevels() > 0) [[likely]] {
 		color = LevelManager::getLevel(0)->getDefaultColor();
 	} else {
@@ -56,7 +56,7 @@ RectHazard* DevWallHazard::factory(const GenericFactoryConstructionData& args) {
 bool DevWallHazard::reasonableLocation() const {
 	/*
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
-		if (CollisionHandler::partiallyCollided(this, WallManager::getWall(i))) {
+		if (CollisionHandler::partiallyCollided(this->rec, WallManager::getWall(i)->rec)) {
 			return false;
 		}
 	}
@@ -66,7 +66,7 @@ bool DevWallHazard::reasonableLocation() const {
 		const CircleHazard* ch = HazardManager::getCircleHazard(i);
 		//note: circle wall hazards don't exist, so this check is unnecessary
 		if (ch->getName() != this->getName()) {
-			if (CollisionHandler::partiallyCollided(this, ch)) {
+			if (CollisionHandler::partiallyCollided(this->rec, ch->cir)) {
 				return false;
 			}
 		}
@@ -74,7 +74,7 @@ bool DevWallHazard::reasonableLocation() const {
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
 		const RectHazard* rh = HazardManager::getRectHazard(i);
 		if (rh->getName() != this->getName()) {
-			if (CollisionHandler::partiallyCollided(this, rh)) {
+			if (CollisionHandler::partiallyCollided(this->rec, rh->rec)) {
 				return false;
 			}
 		}
@@ -150,10 +150,10 @@ void DevWallHazard::ghostDraw(float alpha) const {
 	c = ColorMixer::mix(BackgroundRect::getBackColor(), c, alpha);
 
 	float coordsAndColor[] = {
-		x,   y,     c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x+w, y,     c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x+w, y+h,   c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x,   y+h,   c.getRf(), c.getGf(), c.getBf(), c.getAf()
+		rec.x,       rec.y,         c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x+rec.w, rec.y,         c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x+rec.w, rec.y+rec.h,   c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x,       rec.y+rec.h,   c.getRf(), c.getGf(), c.getBf(), c.getAf()
 	};
 	unsigned int indices[] = {
 		0, 1, 2,

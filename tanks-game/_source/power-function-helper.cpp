@@ -12,26 +12,26 @@ std::pair<bool, InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct>> P
 	float  b_angleDelta;
 	double w_xDelta, w_yDelta;
 
-	if (b->y - w->y <= (w->h / w->w) * (b->x - w->x)) { //I think this is bottom right
-		if (b->y - (w->y + w->h) <= (-w->h / w->w) * (b->x - w->x)) { //bottom
-			b_yDelta = -1 * ((b->y + b->r - w->y) * 2); //b->y = w->y - b->r
+	if (b->cir.y - w->rec.y <= (w->rec.h / w->rec.w) * (b->cir.x - w->rec.x)) { //I think this is bottom right
+		if (b->cir.y - (w->rec.y + w->rec.h) <= (-w->rec.h / w->rec.w) * (b->cir.x - w->rec.x)) { //bottom
+			b_yDelta = -1 * ((b->cir.y + b->cir.r - w->rec.y) * 2); //b->y = w->y - b->r
 			b_angleDelta = -2 * b->velocity.getAngle(); //b->velocity.setAngle(b->velocity.getAngle() * -1);
 			w_yDelta = strength;
 			b_xDelta = 0, w_xDelta = 0;
 		} else { //right
-			b_xDelta = (w->x + w->w - (b->x - b->r)) * 2; //b->x = w->x + w->w + b->r
+			b_xDelta = (w->rec.x + w->rec.w - (b->cir.x - b->cir.r)) * 2; //b->x = w->x + w->w + b->r
 			b_angleDelta = float(PI) - 2*b->velocity.getAngle(); //b->velocity.setAngle(PI - b->velocity.getAngle());
 			w_xDelta = -1 * strength;
 			b_yDelta = 0, w_yDelta = 0;
 		}
 	} else { //top left?
-		if (b->y - (w->y + w->h) <= (-w->h / w->w) * (b->x - w->x)) { //left
-			b_xDelta = -1 * ((b->x + b->r - w->x) * 2); //b->x = w->x - b->r
+		if (b->cir.y - (w->rec.y + w->rec.h) <= (-w->rec.h / w->rec.w) * (b->cir.x - w->rec.x)) { //left
+			b_xDelta = -1 * ((b->cir.x + b->cir.r - w->rec.x) * 2); //b->x = w->x - b->r
 			b_angleDelta = float(PI) - 2*b->velocity.getAngle(); //b->velocity.setAngle(PI - b->velocity.getAngle());
 			w_xDelta = strength;
 			b_yDelta = 0, w_yDelta = 0;
 		} else { //top
-			b_yDelta = (w->y + w->h - (b->y - b->r)) * 2; //b->y = w->y + w->h + b->r
+			b_yDelta = (w->rec.y + w->rec.h - (b->cir.y - b->cir.r)) * 2; //b->y = w->y + w->h + b->r
 			b_angleDelta = -2 * b->velocity.getAngle(); //b->velocity.setAngle(b->velocity.getAngle() * -1);
 			w_yDelta = -1 * strength;
 			b_xDelta = 0, w_xDelta = 0;
@@ -42,18 +42,18 @@ std::pair<bool, InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct>> P
 }
 
 std::pair<bool, InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct>> PowerFunctionHelper::superbounceGenericWithCorners(const Bullet* b, const Wall* w, double strength) { //not the default because bullets move too quickly on average
-	if ((b->x < w->x) && (b->y < w->y)) { //circle in bottom left
-		return PowerFunctionHelper::superbounceGenericCornerHandler(b, w, w->x, w->y, strength);
+	if ((b->cir.x < w->rec.x) && (b->cir.y < w->rec.y)) { //circle in bottom left
+		return PowerFunctionHelper::superbounceGenericCornerHandler(b, w, w->rec.x, w->rec.y, strength);
 	}
 	//can't do elses because more than one corner could be in the circle (TODO: really?)
-	if ((b->x > (w->x + w->w)) && (b->y < w->y)) { //circle in bottom right
-		return PowerFunctionHelper::superbounceGenericCornerHandler(b, w, (w->x + w->w), w->y, strength);
+	if ((b->cir.x > (w->rec.x + w->rec.w)) && (b->cir.y < w->rec.y)) { //circle in bottom right
+		return PowerFunctionHelper::superbounceGenericCornerHandler(b, w, (w->rec.x + w->rec.w), w->rec.y, strength);
 	}
-	if ((b->x < w->x) && (b->y > (w->y + w->h))) { //circle in top left
-		return PowerFunctionHelper::superbounceGenericCornerHandler(b, w, w->x, (w->y + w->h), strength);
+	if ((b->cir.x < w->rec.x) && (b->cir.y > (w->rec.y + w->rec.h))) { //circle in top left
+		return PowerFunctionHelper::superbounceGenericCornerHandler(b, w, w->rec.x, (w->rec.y + w->rec.h), strength);
 	}
-	if ((b->x > (w->x + w->w)) && (b->y > (w->y + w->h))) { //circle in top right
-		return PowerFunctionHelper::superbounceGenericCornerHandler(b, w, (w->x + w->w), (w->y + w->h), strength);
+	if ((b->cir.x > (w->rec.x + w->rec.w)) && (b->cir.y > (w->rec.y + w->rec.h))) { //circle in top right
+		return PowerFunctionHelper::superbounceGenericCornerHandler(b, w, (w->rec.x + w->rec.w), (w->rec.y + w->rec.h), strength);
 	}
 
 	return PowerFunctionHelper::superbounceGeneric(b, w, strength);
@@ -67,10 +67,10 @@ std::pair<bool, InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct>> P
 	float  b_angleDelta;
 	double w_xDelta, w_yDelta;
 
-	double d = std::sqrt((x - b->x)*(x - b->x) + (y - b->y)*(y - b->y));
-	float angle = std::atan2((y - b->y), (x - b->x));
-	b_yDelta -= std::sin(angle) * (b->r - d);
-	b_xDelta -= std::cos(angle) * (b->r - d);
+	double d = std::sqrt((x - b->cir.x)*(x - b->cir.x) + (y - b->cir.y)*(y - b->cir.y));
+	float angle = std::atan2(float(y - b->cir.y), float(x - b->cir.x));
+	b_yDelta -= std::sin(angle) * (b->cir.r - d);
+	b_xDelta -= std::cos(angle) * (b->cir.r - d);
 
 	//so a rectangle has an area of influence against a circle: outer edges + radius, and corners are radius (picture a rounded rectangle)
 	//when a bullet's center enters the area, it is inside the rectangle, and therefore needs to reflect
@@ -78,8 +78,8 @@ std::pair<bool, InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct>> P
 	//the bullet's angle needs to reflect off of the perpendicular to the tangent, and the tangent goes through the intersection between the bullet's path and the area of influence
 
 	float newAngle = 2*angle - (b->velocity.getAngle() - float(PI));
-	b_yDelta += std::sin(newAngle) * (b->r - d);
-	b_xDelta += std::cos(newAngle) * (b->r - d);
+	b_yDelta += std::sin(newAngle) * (b->cir.r - d);
+	b_xDelta += std::cos(newAngle) * (b->cir.r - d);
 	b_angleDelta = (newAngle - b->velocity.getAngle()); //b->velocity.setAngle(newAngle);
 
 	w_yDelta = std::sin(angle) * strength;
@@ -93,12 +93,12 @@ std::pair<bool, BulletUpdateStruct> PowerFunctionHelper::bounceEdgeGenericX(cons
 	float  b_angleDelta;
 	bool bounced = false;
 
-	if (b->x + b->r > GAME_WIDTH) { //right edge
-		b_xDelta = -1 * (((b->x + b->r) - GAME_WIDTH) * 2);
+	if (b->cir.x + b->cir.r > GAME_WIDTH) { //right edge
+		b_xDelta = -1 * (((b->cir.x + b->cir.r) - GAME_WIDTH) * 2);
 		b_angleDelta = float(PI) - 2*b->velocity.getAngle(); //b->velocity.setAngle(PI - b->velocity.getAngle());
 		bounced = true;
-	} else if (b->x - b->r < 0) { //left edge
-		b_xDelta = -(b->x - b->r) * 2;
+	} else if (b->cir.x - b->cir.r < 0) { //left edge
+		b_xDelta = -(b->cir.x - b->cir.r) * 2;
 		b_angleDelta = float(PI) - 2*b->velocity.getAngle(); //b->velocity.setAngle(PI - b->velocity.getAngle());
 		bounced = true;
 	} else {
@@ -114,12 +114,12 @@ std::pair<bool, BulletUpdateStruct> PowerFunctionHelper::bounceEdgeGenericY(cons
 	float  b_angleDelta;
 	bool bounced = false;
 
-	if (b->y + b->r > GAME_HEIGHT) { //top edge
-		b_yDelta = -1 * (((b->y + b->r) - GAME_HEIGHT) * 2);
+	if (b->cir.y + b->cir.r > GAME_HEIGHT) { //top edge
+		b_yDelta = -1 * (((b->cir.y + b->cir.r) - GAME_HEIGHT) * 2);
 		b_angleDelta = -2 * b->velocity.getAngle(); //b->velocity.setAngle(b->velocity.getAngle() * -1);
 		bounced = true;
-	} else if (b->y - b->r < 0) { //bottom edge
-		b_yDelta = -(b->y - b->r) * 2;
+	} else if (b->cir.y - b->cir.r < 0) { //bottom edge
+		b_yDelta = -(b->cir.y - b->cir.r) * 2;
 		b_angleDelta = -2 * b->velocity.getAngle(); //b->velocity.setAngle(b->velocity.getAngle() * -1);
 		bounced = true;
 	} else {
@@ -149,7 +149,7 @@ Game_ID PowerFunctionHelper::homingGenericTarget(const Bullet* b, bool targetUsi
 		for (int i = 0; i < TankManager::getNumTanks(); i++) {
 			const Tank* t = TankManager::getTank(i);
 			if (t->getTeamID() != b->getTeamID()) [[likely]] {
-				float a = std::abs(std::atan2(static_cast<float>(b->y - t->y), static_cast<float>(b->x - t->x)));
+				float a = std::abs(std::atan2(static_cast<float>(b->cir.y - t->cir.y), static_cast<float>(b->cir.x - t->cir.x)));
 				if (a < minAngleDiff) {
 					minAngleDiff = a;
 					targetTankIndex = i;
@@ -161,7 +161,7 @@ Game_ID PowerFunctionHelper::homingGenericTarget(const Bullet* b, bool targetUsi
 		for (int i = 0; i < TankManager::getNumTanks(); i++) {
 			const Tank* t = TankManager::getTank(i);
 			if (t->getTeamID() != b->getTeamID()) [[likely]] {
-				double d = std::sqrt((b->x - t->x)*(b->x - t->x) + (b->y - t->y)*(b->y - t->y));
+				double d = std::sqrt((b->cir.x - t->cir.x)*(b->cir.x - t->cir.x) + (b->cir.y - t->cir.y)*(b->cir.y - t->cir.y));
 				if (d < minDistDiff) {
 					minDistDiff = d;
 					targetTankIndex = i;
@@ -179,7 +179,7 @@ Game_ID PowerFunctionHelper::homingGenericTarget(const Bullet* b, bool targetUsi
 void PowerFunctionHelper::homingGenericMove(Bullet* b, Game_ID targetID, float maxAngleChange) {
 	const Tank* t = TankManager::getTankByID(targetID);
 
-	const SimpleVector2D distToTank = SimpleVector2D(t->getX() - b->x, t->getY() - b->y);
+	const SimpleVector2D distToTank = SimpleVector2D(t->cir.getX() - b->cir.x, t->cir.getY() - b->cir.y);
 	float theta = SimpleVector2D::angleBetween(distToTank, b->velocity);
 	if (std::abs(theta) <= maxAngleChange) {
 		//small angle adjustment needed

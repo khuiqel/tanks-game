@@ -24,9 +24,9 @@ const float Tank::default_acceleration = 1.0/16;
 const float Tank::default_turningIncrement = 64;
 
 Tank::Tank(double x_, double y_, float angle, Team_ID teamID, std::string name_, double shootCooldown) : GameThing(teamID, ObjectType::Tank) {
-	x = x_;
-	y = y_;
-	r = TANK_RADIUS;
+	cir.x = x_;
+	cir.y = y_;
+	cir.r = TANK_RADIUS;
 	velocity = SimpleVector2D(angle, 0, true);
 	//name = name_;
 	this->dead = false;
@@ -90,8 +90,8 @@ bool Tank::initializeVertices() {
 }
 
 void Tank::update(const TankUpdateStruct* up) {
-	this->x += up->x;
-	this->y += up->y;
+	this->cir.x += up->x;
+	this->cir.y += up->y;
 	this->velocity = SimpleVector2D(velocity.getAngle() + up->angle, velocity.getMagnitude() + up->speed, true);
 }
 
@@ -162,8 +162,8 @@ inline void Tank::move_base(bool forward, bool turnL, bool turnR) {
 		terminalVelocity(forward);
 	}
 
-	x += velocity.getXComp();
-	y += velocity.getYComp();
+	cir.x += velocity.getXComp();
+	cir.y += velocity.getYComp();
 }
 
 inline void Tank::terminalVelocity(bool forward) {
@@ -252,15 +252,15 @@ void Tank::makeBullet(double x, double y, double radius, float angle, float spee
 }
 
 void Tank::defaultMakeBullet(float angle) {
-	makeBulletCommon(x + r*std::cos(angle), y + r*std::sin(angle), r*BULLET_TO_TANK_RADIUS_RATIO, angle, maxSpeed*BULLET_TO_TANK_SPEED_RATIO);
+	makeBulletCommon(cir.x + cir.r*std::cos(angle), cir.y + cir.r*std::sin(angle), cir.r*BULLET_TO_TANK_RADIUS_RATIO, angle, maxSpeed*BULLET_TO_TANK_SPEED_RATIO);
 }
 
 void Tank::defaultMakeBullet(float angle, float edgeAngleOffset) {
-	makeBulletCommon(x + r*std::cos(angle), y + r*std::sin(angle), r*BULLET_TO_TANK_RADIUS_RATIO, angle + edgeAngleOffset, maxSpeed*BULLET_TO_TANK_SPEED_RATIO);
+	makeBulletCommon(cir.x + cir.r*std::cos(angle), cir.y + cir.r*std::sin(angle), cir.r*BULLET_TO_TANK_RADIUS_RATIO, angle + edgeAngleOffset, maxSpeed*BULLET_TO_TANK_SPEED_RATIO);
 }
 
 void Tank::preciseMakeBullet(double x, double y, float angle) {
-	makeBulletCommon(this->x + x, this->y + y, r*BULLET_TO_TANK_RADIUS_RATIO, angle, maxSpeed*BULLET_TO_TANK_SPEED_RATIO);
+	makeBulletCommon(this->cir.x + x, this->cir.y + y, cir.r*BULLET_TO_TANK_RADIUS_RATIO, angle, maxSpeed*BULLET_TO_TANK_SPEED_RATIO);
 }
 
 void Tank::determineShootingAngles() {
@@ -467,7 +467,7 @@ void Tank::updateRadius() {
 		}
 	}
 
-	r = highest * lowest * value * level_amount * TANK_RADIUS;
+	cir.r = highest * lowest * value * level_amount * TANK_RADIUS;
 }
 
 void Tank::updateTurningIncrement() {
@@ -723,15 +723,15 @@ void Tank::drawBody(float alpha) const {
 		color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 
 		float coordsAndColor[(Circle::NumOfSides+1)*(2+4)];
-		coordsAndColor[0] = x;
-		coordsAndColor[1] = y;
+		coordsAndColor[0] = cir.x;
+		coordsAndColor[1] = cir.y;
 		coordsAndColor[2] = color.getRf();
 		coordsAndColor[3] = color.getGf();
 		coordsAndColor[4] = color.getBf();
 		coordsAndColor[5] = color.getAf();
 		for (int i = 1; i < Circle::NumOfSides+1; i++) {
-			coordsAndColor[i*6]   = static_cast<float>(x) + static_cast<float>(r) * body_vertices[i].getXComp();
-			coordsAndColor[i*6+1] = static_cast<float>(y) + static_cast<float>(r) * body_vertices[i].getYComp();
+			coordsAndColor[i*6]   = static_cast<float>(cir.x) + static_cast<float>(cir.r) * body_vertices[i].getXComp();
+			coordsAndColor[i*6+1] = static_cast<float>(cir.y) + static_cast<float>(cir.r) * body_vertices[i].getYComp();
 			coordsAndColor[i*6+2] = color.getRf();
 			coordsAndColor[i*6+3] = color.getGf();
 			coordsAndColor[i*6+4] = color.getBf();
@@ -763,18 +763,18 @@ void Tank::drawBody(float alpha) const {
 				continue;
 			}
 
-			coordsAndColor[0] = x;
-			coordsAndColor[1] = y;
+			coordsAndColor[0] = cir.x;
+			coordsAndColor[1] = cir.y;
 			coordsAndColor[2] = color.getRf();
 			coordsAndColor[3] = color.getGf();
 			coordsAndColor[4] = color.getBf();
 			coordsAndColor[5] = color.getAf();
 			for (unsigned int j = rotateVertexStart; j <= rotateVertexEnd; j++) {
 				SimpleVector2D vertex = SimpleVector2D(body_vertices[j % Circle::NumOfSides + 1]);
-				vertex.scaleAndRotate(r, velocity.getAngle());
+				vertex.scaleAndRotate(cir.r, velocity.getAngle());
 
-				coordsAndColor[(j - rotateVertexStart + 1)*6]     = static_cast<float>(x) + vertex.getXComp();
-				coordsAndColor[(j - rotateVertexStart + 1)*6 + 1] = static_cast<float>(y) + vertex.getYComp();
+				coordsAndColor[(j - rotateVertexStart + 1)*6]     = static_cast<float>(cir.x) + vertex.getXComp();
+				coordsAndColor[(j - rotateVertexStart + 1)*6 + 1] = static_cast<float>(cir.y) + vertex.getYComp();
 				coordsAndColor[(j - rotateVertexStart + 1)*6 + 2] = color.getRf();
 				coordsAndColor[(j - rotateVertexStart + 1)*6 + 3] = color.getGf();
 				coordsAndColor[(j - rotateVertexStart + 1)*6 + 4] = color.getBf();
@@ -789,15 +789,15 @@ void Tank::drawBody(float alpha) const {
 		color = getBodyColor();
 		color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 
-		coordsAndColor[0] = x;
-		coordsAndColor[1] = y;
+		coordsAndColor[0] = cir.x;
+		coordsAndColor[1] = cir.y;
 		coordsAndColor[2] = color.getRf();
 		coordsAndColor[3] = color.getGf();
 		coordsAndColor[4] = color.getBf();
 		coordsAndColor[5] = color.getAf();
 		for (int i = 1; i < Circle::NumOfSides+1; i++) {
-			coordsAndColor[i*6]   = static_cast<float>(x) + (static_cast<float>(r)*.75f) * body_vertices[i].getXComp();
-			coordsAndColor[i*6+1] = static_cast<float>(y) + (static_cast<float>(r)*.75f) * body_vertices[i].getYComp();
+			coordsAndColor[i*6]   = static_cast<float>(cir.x) + (static_cast<float>(cir.r)*.75f) * body_vertices[i].getXComp();
+			coordsAndColor[i*6+1] = static_cast<float>(cir.y) + (static_cast<float>(cir.r)*.75f) * body_vertices[i].getYComp();
 			coordsAndColor[i*6+2] = color.getRf();
 			coordsAndColor[i*6+3] = color.getGf();
 			coordsAndColor[i*6+4] = color.getBf();
@@ -815,15 +815,15 @@ void Tank::drawBodyDead(float alpha) const {
 	outerColor = ColorMixer::mix(BackgroundRect::getBackColor(), outerColor, alpha);
 
 	float coordsAndColor[(Circle::NumOfSides+1)*(2+4)];
-	coordsAndColor[0] = x;
-	coordsAndColor[1] = y;
+	coordsAndColor[0] = cir.x;
+	coordsAndColor[1] = cir.y;
 	coordsAndColor[2] = deadColor.getRf();
 	coordsAndColor[3] = deadColor.getGf();
 	coordsAndColor[4] = deadColor.getBf();
 	coordsAndColor[5] = deadColor.getAf();
 	for (int i = 1; i < Circle::NumOfSides+1; i++) {
-		coordsAndColor[i*6]   = static_cast<float>(x) + static_cast<float>(r) * body_vertices[i].getXComp();
-		coordsAndColor[i*6+1] = static_cast<float>(y) + static_cast<float>(r) * body_vertices[i].getYComp();
+		coordsAndColor[i*6]   = static_cast<float>(cir.x) + static_cast<float>(cir.r) * body_vertices[i].getXComp();
+		coordsAndColor[i*6+1] = static_cast<float>(cir.y) + static_cast<float>(cir.r) * body_vertices[i].getYComp();
 		coordsAndColor[i*6+2] = outerColor.getRf();
 		coordsAndColor[i*6+3] = outerColor.getGf();
 		coordsAndColor[i*6+4] = outerColor.getBf();
@@ -840,10 +840,10 @@ void Tank::drawOutline(float alpha) const {
 
 	float coordsAndColor[(Circle::NumOfSides*2)*(2+4)];
 	for (int i = 0; i < Circle::NumOfSides; i++) {
-		coordsAndColor[(i*2)  *6]   = static_cast<float>(x) + (static_cast<float>(r)-lineWidth) * body_vertices[i+1].getXComp();
-		coordsAndColor[(i*2)  *6+1] = static_cast<float>(y) + (static_cast<float>(r)-lineWidth) * body_vertices[i+1].getYComp();
-		coordsAndColor[(i*2+1)*6]   = static_cast<float>(x) + (static_cast<float>(r)+lineWidth) * body_vertices[i+1].getXComp();
-		coordsAndColor[(i*2+1)*6+1] = static_cast<float>(y) + (static_cast<float>(r)+lineWidth) * body_vertices[i+1].getYComp();
+		coordsAndColor[(i*2)  *6]   = static_cast<float>(cir.x) + (static_cast<float>(cir.r)-lineWidth) * body_vertices[i+1].getXComp();
+		coordsAndColor[(i*2)  *6+1] = static_cast<float>(cir.y) + (static_cast<float>(cir.r)-lineWidth) * body_vertices[i+1].getYComp();
+		coordsAndColor[(i*2+1)*6]   = static_cast<float>(cir.x) + (static_cast<float>(cir.r)+lineWidth) * body_vertices[i+1].getXComp();
+		coordsAndColor[(i*2+1)*6+1] = static_cast<float>(cir.y) + (static_cast<float>(cir.r)+lineWidth) * body_vertices[i+1].getYComp();
 
 		coordsAndColor[(i*2)  *6+2] = color.getRf();
 		coordsAndColor[(i*2)  *6+3] = color.getGf();
@@ -872,18 +872,18 @@ void Tank::drawShootingCooldown(float alpha) const {
 		color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 
 		float coordsAndColor[(Circle::NumOfSides+1)*(2+4)];
-		coordsAndColor[0] = x;
-		coordsAndColor[1] = y;
+		coordsAndColor[0] = cir.x;
+		coordsAndColor[1] = cir.y;
 		coordsAndColor[2] = color.getRf();
 		coordsAndColor[3] = color.getGf();
 		coordsAndColor[4] = color.getBf();
 		coordsAndColor[5] = color.getAf();
 		for (unsigned int i = 0; i <= shootingOutlineTriangles && i < Circle::NumOfSides; i++) {
 			SimpleVector2D vertex = SimpleVector2D(body_vertices[i % Circle::NumOfSides + 1]);
-			vertex.scaleAndRotate(static_cast<float>(r)*(5.0f/4.0f), velocity.getAngle());
+			vertex.scaleAndRotate(static_cast<float>(cir.r)*(5.0f/4.0f), velocity.getAngle());
 
-			coordsAndColor[(i+1)*6]   = static_cast<float>(x) + vertex.getXComp();
-			coordsAndColor[(i+1)*6+1] = static_cast<float>(y) + vertex.getYComp();
+			coordsAndColor[(i+1)*6]   = static_cast<float>(cir.x) + vertex.getXComp();
+			coordsAndColor[(i+1)*6+1] = static_cast<float>(cir.y) + vertex.getYComp();
 			coordsAndColor[(i+1)*6+2] = color.getRf();
 			coordsAndColor[(i+1)*6+3] = color.getGf();
 			coordsAndColor[(i+1)*6+4] = color.getBf();
@@ -915,18 +915,18 @@ void Tank::drawPowerCooldown(float alpha) const {
 			color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 
 			float coordsAndColor[(Circle::NumOfSides+1)*(2+4)];
-			coordsAndColor[0] = x;
-			coordsAndColor[1] = y;
+			coordsAndColor[0] = cir.x;
+			coordsAndColor[1] = cir.y;
 			coordsAndColor[2] = color.getRf();
 			coordsAndColor[3] = color.getGf();
 			coordsAndColor[4] = color.getBf();
 			coordsAndColor[5] = color.getAf();
 			for (unsigned int j = 0; j <= powerOutlineTriangles && j < Circle::NumOfSides; j++) {
 				SimpleVector2D vertex = SimpleVector2D(body_vertices[j % Circle::NumOfSides + 1]);
-				vertex.scaleAndRotate(static_cast<float>(r)*(9.0f/8.0f), velocity.getAngle()); //most of this function's time is spent here
+				vertex.scaleAndRotate(static_cast<float>(cir.r)*(9.0f/8.0f), velocity.getAngle()); //most of this function's time is spent here
 
-				coordsAndColor[(j+1)*6]   = static_cast<float>(x) + vertex.getXComp();
-				coordsAndColor[(j+1)*6+1] = static_cast<float>(y) + vertex.getYComp();
+				coordsAndColor[(j+1)*6]   = static_cast<float>(cir.x) + vertex.getXComp();
+				coordsAndColor[(j+1)*6+1] = static_cast<float>(cir.y) + vertex.getYComp();
 				coordsAndColor[(j+1)*6+2] = color.getRf();
 				coordsAndColor[(j+1)*6+3] = color.getGf();
 				coordsAndColor[(j+1)*6+4] = color.getBf();
@@ -949,17 +949,17 @@ void Tank::drawMainBarrel(float alpha) const {
 	float coordsAndColor[4*(2+4)];
 	unsigned int indices[6];
 
-	SimpleVector2D dist = SimpleVector2D(velocity.getAngle(), r, true);
+	SimpleVector2D dist = SimpleVector2D(velocity.getAngle(), cir.r, true);
 	SimpleVector2D distCW = SimpleVector2D(velocity.getAngle() - float(PI/2), lineWidth, true);
 
-	coordsAndColor[0*6]   = static_cast<float>(x)                   + distCW.getXComp();
-	coordsAndColor[0*6+1] = static_cast<float>(y)                   + distCW.getYComp();
-	coordsAndColor[1*6]   = static_cast<float>(x) + dist.getXComp() + distCW.getXComp();
-	coordsAndColor[1*6+1] = static_cast<float>(y) + dist.getYComp() + distCW.getYComp();
-	coordsAndColor[2*6]   = static_cast<float>(x) + dist.getXComp() - distCW.getXComp();
-	coordsAndColor[2*6+1] = static_cast<float>(y) + dist.getYComp() - distCW.getYComp();
-	coordsAndColor[3*6]   = static_cast<float>(x)                   - distCW.getXComp();
-	coordsAndColor[3*6+1] = static_cast<float>(y)                   - distCW.getYComp();
+	coordsAndColor[0*6]   = static_cast<float>(cir.x)                   + distCW.getXComp();
+	coordsAndColor[0*6+1] = static_cast<float>(cir.y)                   + distCW.getYComp();
+	coordsAndColor[1*6]   = static_cast<float>(cir.x) + dist.getXComp() + distCW.getXComp();
+	coordsAndColor[1*6+1] = static_cast<float>(cir.y) + dist.getYComp() + distCW.getYComp();
+	coordsAndColor[2*6]   = static_cast<float>(cir.x) + dist.getXComp() - distCW.getXComp();
+	coordsAndColor[2*6+1] = static_cast<float>(cir.y) + dist.getYComp() - distCW.getYComp();
+	coordsAndColor[3*6]   = static_cast<float>(cir.x)                   - distCW.getXComp();
+	coordsAndColor[3*6+1] = static_cast<float>(cir.y)                   - distCW.getYComp();
 
 	for (int i = 0; i < 4; i++) {
 		coordsAndColor[i*6+2] = color.getRf();
@@ -995,17 +995,17 @@ void Tank::drawExtraBarrels(float alpha) const {
 		const int startVertex = (((i-1) % batchSize)*4) * (2+4);
 		const int startIndex = ((i-1) % batchSize)*6;
 
-		SimpleVector2D dist = SimpleVector2D(getEvaluatedCannonAngle(i), r, true);
+		SimpleVector2D dist = SimpleVector2D(getEvaluatedCannonAngle(i), cir.r, true);
 		SimpleVector2D distCW = SimpleVector2D(getEvaluatedCannonAngle(i) - float(PI/2), lineWidth, true);
 
-		coordsAndColor[startVertex + 0*6]   = static_cast<float>(x)                   + distCW.getXComp();
-		coordsAndColor[startVertex + 0*6+1] = static_cast<float>(y)                   + distCW.getYComp();
-		coordsAndColor[startVertex + 1*6]   = static_cast<float>(x) + dist.getXComp() + distCW.getXComp();
-		coordsAndColor[startVertex + 1*6+1] = static_cast<float>(y) + dist.getYComp() + distCW.getYComp();
-		coordsAndColor[startVertex + 2*6]   = static_cast<float>(x) + dist.getXComp() - distCW.getXComp();
-		coordsAndColor[startVertex + 2*6+1] = static_cast<float>(y) + dist.getYComp() - distCW.getYComp();
-		coordsAndColor[startVertex + 3*6]   = static_cast<float>(x)                   - distCW.getXComp();
-		coordsAndColor[startVertex + 3*6+1] = static_cast<float>(y)                   - distCW.getYComp();
+		coordsAndColor[startVertex + 0*6]   = static_cast<float>(cir.x)                   + distCW.getXComp();
+		coordsAndColor[startVertex + 0*6+1] = static_cast<float>(cir.y)                   + distCW.getYComp();
+		coordsAndColor[startVertex + 1*6]   = static_cast<float>(cir.x) + dist.getXComp() + distCW.getXComp();
+		coordsAndColor[startVertex + 1*6+1] = static_cast<float>(cir.y) + dist.getYComp() + distCW.getYComp();
+		coordsAndColor[startVertex + 2*6]   = static_cast<float>(cir.x) + dist.getXComp() - distCW.getXComp();
+		coordsAndColor[startVertex + 2*6+1] = static_cast<float>(cir.y) + dist.getYComp() - distCW.getYComp();
+		coordsAndColor[startVertex + 3*6]   = static_cast<float>(cir.x)                   - distCW.getXComp();
+		coordsAndColor[startVertex + 3*6+1] = static_cast<float>(cir.y)                   - distCW.getYComp();
 
 		for (int j = 0; j < 4; j++) {
 			coordsAndColor[startVertex + j*6+2] = color.getRf();
@@ -1049,20 +1049,20 @@ void Tank::drawExtraExtraBarrels(float alpha) const {
 		const int startVertex = (((i-1) % batchSize)*4) * (2+4);
 		const int startIndex = ((i-1) % batchSize)*6;
 
-		SimpleVector2D distFromCenter = SimpleVector2D(getEvaluatedCannonAngle(0, i), r, true);
+		SimpleVector2D distFromCenter = SimpleVector2D(getEvaluatedCannonAngle(0, i), cir.r, true);
 		const float computedAngle = shootingPoints[0].angleFromCenter + extraShootingPoints[i].angleFromCenter;
-		const float extraCannonLength = static_cast<float>(r) * (std::sin(computedAngle)*std::sin(computedAngle) * .25f + .25f); //.25 at main cannon, .5 at 90deg //x^2 instead of abs because 45deg cannon was too long
+		const float extraCannonLength = static_cast<float>(cir.r) * (std::sin(computedAngle)*std::sin(computedAngle) * .25f + .25f); //.25 at main cannon, .5 at 90deg //x^2 instead of abs because 45deg cannon was too long
 		SimpleVector2D dist = SimpleVector2D(getEvaluatedCannonAngleWithEdge(0, i), extraCannonLength, true);
 		SimpleVector2D distCW = SimpleVector2D(getEvaluatedCannonAngleWithEdge(0, i) - float(PI/2), lineWidth, true);
 
-		coordsAndColor[startVertex + 0*6]   = static_cast<float>(x) + distFromCenter.getXComp()                   + distCW.getXComp();
-		coordsAndColor[startVertex + 0*6+1] = static_cast<float>(y) + distFromCenter.getYComp()                   + distCW.getYComp();
-		coordsAndColor[startVertex + 1*6]   = static_cast<float>(x) + distFromCenter.getXComp() + dist.getXComp() + distCW.getXComp();
-		coordsAndColor[startVertex + 1*6+1] = static_cast<float>(y) + distFromCenter.getYComp() + dist.getYComp() + distCW.getYComp();
-		coordsAndColor[startVertex + 2*6]   = static_cast<float>(x) + distFromCenter.getXComp() + dist.getXComp() - distCW.getXComp();
-		coordsAndColor[startVertex + 2*6+1] = static_cast<float>(y) + distFromCenter.getYComp() + dist.getYComp() - distCW.getYComp();
-		coordsAndColor[startVertex + 3*6]   = static_cast<float>(x) + distFromCenter.getXComp()                   - distCW.getXComp();
-		coordsAndColor[startVertex + 3*6+1] = static_cast<float>(y) + distFromCenter.getYComp()                   - distCW.getYComp();
+		coordsAndColor[startVertex + 0*6]   = static_cast<float>(cir.x) + distFromCenter.getXComp()                   + distCW.getXComp();
+		coordsAndColor[startVertex + 0*6+1] = static_cast<float>(cir.y) + distFromCenter.getYComp()                   + distCW.getYComp();
+		coordsAndColor[startVertex + 1*6]   = static_cast<float>(cir.x) + distFromCenter.getXComp() + dist.getXComp() + distCW.getXComp();
+		coordsAndColor[startVertex + 1*6+1] = static_cast<float>(cir.y) + distFromCenter.getYComp() + dist.getYComp() + distCW.getYComp();
+		coordsAndColor[startVertex + 2*6]   = static_cast<float>(cir.x) + distFromCenter.getXComp() + dist.getXComp() - distCW.getXComp();
+		coordsAndColor[startVertex + 2*6+1] = static_cast<float>(cir.y) + distFromCenter.getYComp() + dist.getYComp() - distCW.getYComp();
+		coordsAndColor[startVertex + 3*6]   = static_cast<float>(cir.x) + distFromCenter.getXComp()                   - distCW.getXComp();
+		coordsAndColor[startVertex + 3*6+1] = static_cast<float>(cir.y) + distFromCenter.getYComp()                   - distCW.getYComp();
 
 		for (int j = 0; j < 4; j++) {
 			coordsAndColor[startVertex + j*6+2] = color.getRf();

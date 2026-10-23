@@ -16,15 +16,6 @@ int DeveloperManager::mousePosX = 0;
 int DeveloperManager::mousePosY = 0;
 int DeveloperManager::insertIndex = 0;
 
-void DeveloperManager::setX(Circle* c, double x) { c->x = x; }
-void DeveloperManager::setY(Circle* c, double y) { c->y = y; }
-void DeveloperManager::setR(Circle* c, double r) { c->r = r; }
-
-void DeveloperManager::setX(Rect* r, double x) { r->x = x; }
-void DeveloperManager::setY(Rect* r, double y) { r->y = y; }
-void DeveloperManager::setW(Rect* r, double w) { r->w = w; }
-void DeveloperManager::setH(Rect* r, double h) { r->h = h; }
-
 void DeveloperManager::mouseButtonCallbackFunc(GLFWwindow*, int button, int action, int mods) {
 	switch (button) {
 		case GLFW_MOUSE_BUTTON_1:
@@ -92,11 +83,11 @@ void DeveloperManager::mouseCursorPosCallbackFunc(GLFWwindow*, double xPos, doub
 
 	if (leftMouse) {
 		if (!rightMouse) {
-			TankManager::getTank(0)->x = mousePosX;
-			TankManager::getTank(0)->y = mousePosY;
+			TankManager::getTank(0)->cir.x = mousePosX;
+			TankManager::getTank(0)->cir.y = mousePosY;
 		} else {
-			TankManager::getTank(1)->x = mousePosX;
-			TankManager::getTank(1)->y = mousePosY;
+			TankManager::getTank(1)->cir.x = mousePosX;
+			TankManager::getTank(1)->cir.y = mousePosY;
 		}
 	}
 }

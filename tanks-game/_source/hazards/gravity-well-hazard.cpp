@@ -35,9 +35,9 @@ std::unordered_map<std::string, float> GravityWellHazard::getWeights() const {
 }
 
 GravityWellHazard::GravityWellHazard(double xpos, double ypos, double radius, double range, double minGravity, double maxGravity) : CircleHazard(HAZARD_TEAM) {
-	x = xpos;
-	y = ypos;
-	r = radius;
+	cir.x = xpos;
+	cir.y = ypos;
+	cir.r = radius;
 
 	gravityRange = range;
 	minGravityStrength = minGravity;
@@ -135,43 +135,39 @@ CircleHazard* GravityWellHazard::factory(const GenericFactoryConstructionData& a
 }
 
 inline float GravityWellHazard::getGravityStrength(double dist) const {
-	return (1 - dist/(this->gravityRange - this->r)) * (maxGravityStrength - minGravityStrength) + minGravityStrength;
+	return (1 - dist/(this->gravityRange - this->cir.r)) * (maxGravityStrength - minGravityStrength) + minGravityStrength;
 }
 
 inline float GravityWellHazard::getInnerGravityCircleRadius() const {
 	if (isGravityReversed()) {
-		return     ((tickCount/tickCycle)) * (gravityRange - r) + r;
+		return     ((tickCount/tickCycle)) * (gravityRange - cir.r) + cir.r;
 	} else {
-		return (1 - (tickCount/tickCycle)) * (gravityRange - r) + r;
+		return (1 - (tickCount/tickCycle)) * (gravityRange - cir.r) + cir.r;
 	}
-}
-
-inline Circle GravityWellHazard::getGravityRangeCircle() const {
-	return Circle(this->x, this->y, this->gravityRange);
 }
 
 void GravityWellHazard::tick() {
 	const Circle gravityBounds = getGravityRangeCircle();
 	for (int i = 0; i < TankManager::getNumTanks(); i++) {
 		Tank* t = TankManager::getTank(i);
-		if (CollisionHandler::partiallyCollidedIgnoreEdge(t, &gravityBounds)) {
-			const SimpleVector2D distToTank = SimpleVector2D(t->x - this->x, t->y - this->y);
-			const double distFromSurfaceToClosestPoint = distToTank.getMagnitude() - (t->r + this->r);
+		if (CollisionHandler::partiallyCollidedIgnoreEdge(t->cir, gravityBounds)) {
+			const SimpleVector2D distToTank = SimpleVector2D(t->cir.x - this->cir.x, t->cir.y - this->cir.y);
+			const double distFromSurfaceToClosestPoint = distToTank.getMagnitude() - (t->cir.r + this->cir.r);
 			SimpleVector2D tankMovement = SimpleVector2D(distToTank.getAngle(), getGravityStrength(distFromSurfaceToClosestPoint), true);
 
-			t->x -= tankMovement.getXComp();
-			t->y -= tankMovement.getYComp();
+			t->cir.x -= tankMovement.getXComp();
+			t->cir.y -= tankMovement.getYComp();
 		}
 	}
 	for (int i = 0; i < BulletManager::getNumBullets(); i++) {
 		Bullet* b = BulletManager::getBullet(i);
-		if (CollisionHandler::partiallyCollidedIgnoreEdge(b, &gravityBounds)) {
-			const SimpleVector2D distToBullet = SimpleVector2D(b->x - this->x, b->y - this->y);
-			const double distFromSurfaceToClosestPoint = distToBullet.getMagnitude() - (b->r + this->r);
+		if (CollisionHandler::partiallyCollidedIgnoreEdge(b->cir, gravityBounds)) {
+			const SimpleVector2D distToBullet = SimpleVector2D(b->cir.x - this->cir.x, b->cir.y - this->cir.y);
+			const double distFromSurfaceToClosestPoint = distToBullet.getMagnitude() - (b->cir.r + this->cir.r);
 			SimpleVector2D bulletMovement = SimpleVector2D(distToBullet.getAngle(), getGravityStrength(distFromSurfaceToClosestPoint), true);
 
-			b->x -= bulletMovement.getXComp();
-			b->y -= bulletMovement.getYComp();
+			b->cir.x -= bulletMovement.getXComp();
+			b->cir.y -= bulletMovement.getYComp();
 		}
 	}
 	//doesn't change angles because that's complex
@@ -188,7 +184,7 @@ void GravityWellHazard::tick() {
 
 bool GravityWellHazard::reasonableLocation() const {
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
-		if (CollisionHandler::partiallyCollided(this, WallManager::getWall(i))) {
+		if (CollisionHandler::partiallyCollided(this->cir, WallManager::getWall(i)->rec)) {
 			return false;
 		}
 	}
@@ -196,14 +192,14 @@ bool GravityWellHazard::reasonableLocation() const {
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
 		const CircleHazard* ch = HazardManager::getCircleHazard(i);
 		if (ch->getGameID() != this->getGameID()) [[unlikely]] {
-			if (CollisionHandler::partiallyCollided(this, ch)) {
+			if (CollisionHandler::partiallyCollided(this->cir, ch->cir)) {
 				return false;
 			}
 		}
 	}
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
 		const RectHazard* rh = HazardManager::getRectHazard(i);
-		if (CollisionHandler::partiallyCollided(this, rh)) {
+		if (CollisionHandler::partiallyCollided(this->cir, rh->rec)) {
 			return false;
 		}
 	}
@@ -316,15 +312,15 @@ void GravityWellHazard::drawBody(float alpha) const {
 	bodyColor = ColorMixer::mix(BackgroundRect::getBackColor(), bodyColor, alpha);
 
 	float coordsAndColor[(Circle::NumOfSides+1)*(2+4)];
-	coordsAndColor[0] = x;
-	coordsAndColor[1] = y;
+	coordsAndColor[0] = cir.x;
+	coordsAndColor[1] = cir.y;
 	coordsAndColor[2] = bodyColor.getRf();
 	coordsAndColor[3] = bodyColor.getGf();
 	coordsAndColor[4] = bodyColor.getBf();
 	coordsAndColor[5] = bodyColor.getAf();
 	for (int i = 1; i < Circle::NumOfSides+1; i++) {
-		coordsAndColor[i*6]   = static_cast<float>(x) + static_cast<float>(r) * body_vertices[i].getXComp();
-		coordsAndColor[i*6+1] = static_cast<float>(y) + static_cast<float>(r) * body_vertices[i].getYComp();
+		coordsAndColor[i*6]   = static_cast<float>(cir.x) + static_cast<float>(cir.r) * body_vertices[i].getXComp();
+		coordsAndColor[i*6+1] = static_cast<float>(cir.y) + static_cast<float>(cir.r) * body_vertices[i].getYComp();
 		coordsAndColor[i*6+2] = bodyColor.getRf();
 		coordsAndColor[i*6+3] = bodyColor.getGf();
 		coordsAndColor[i*6+4] = bodyColor.getBf();
@@ -341,10 +337,10 @@ void GravityWellHazard::drawOutline(float alpha) const {
 
 	float coordsAndColor[(Circle::NumOfSides*2)*(2+4)];
 	for (int i = 0; i < Circle::NumOfSides; i++) {
-		coordsAndColor[(i*2)  *6]   = static_cast<float>(x) + (static_cast<float>(gravityRange)-lineWidth) * body_vertices[i+1].getXComp();
-		coordsAndColor[(i*2)  *6+1] = static_cast<float>(y) + (static_cast<float>(gravityRange)-lineWidth) * body_vertices[i+1].getYComp();
-		coordsAndColor[(i*2+1)*6]   = static_cast<float>(x) + (static_cast<float>(gravityRange)+lineWidth) * body_vertices[i+1].getXComp();
-		coordsAndColor[(i*2+1)*6+1] = static_cast<float>(y) + (static_cast<float>(gravityRange)+lineWidth) * body_vertices[i+1].getYComp();
+		coordsAndColor[(i*2)  *6]   = static_cast<float>(cir.x) + (static_cast<float>(gravityRange)-lineWidth) * body_vertices[i+1].getXComp();
+		coordsAndColor[(i*2)  *6+1] = static_cast<float>(cir.y) + (static_cast<float>(gravityRange)-lineWidth) * body_vertices[i+1].getYComp();
+		coordsAndColor[(i*2+1)*6]   = static_cast<float>(cir.x) + (static_cast<float>(gravityRange)+lineWidth) * body_vertices[i+1].getXComp();
+		coordsAndColor[(i*2+1)*6+1] = static_cast<float>(cir.y) + (static_cast<float>(gravityRange)+lineWidth) * body_vertices[i+1].getYComp();
 
 		coordsAndColor[(i*2)  *6+2] = color.getRf();
 		coordsAndColor[(i*2)  *6+3] = color.getGf();
@@ -362,14 +358,14 @@ void GravityWellHazard::drawOutline(float alpha) const {
 void GravityWellHazard::drawGravityCircle(float alpha) const {
 	ColorValueHolder color = ColorMixer::mix(BackgroundRect::getBackColor(), this->color, .25f);
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
-	const float lineWidth = this->r / 4;
+	const float lineWidth = this->cir.r / 4;
 
 	float coordsAndColor[(Circle::NumOfSides*2)*(2+4)];
 	for (int i = 0; i < Circle::NumOfSides; i++) {
-		coordsAndColor[(i*2)  *6]   = static_cast<float>(x) + (getInnerGravityCircleRadius()-lineWidth) * body_vertices[i+1].getXComp();
-		coordsAndColor[(i*2)  *6+1] = static_cast<float>(y) + (getInnerGravityCircleRadius()-lineWidth) * body_vertices[i+1].getYComp();
-		coordsAndColor[(i*2+1)*6]   = static_cast<float>(x) + (getInnerGravityCircleRadius())           * body_vertices[i+1].getXComp();
-		coordsAndColor[(i*2+1)*6+1] = static_cast<float>(y) + (getInnerGravityCircleRadius())           * body_vertices[i+1].getYComp();
+		coordsAndColor[(i*2)  *6]   = static_cast<float>(cir.x) + (getInnerGravityCircleRadius()-lineWidth) * body_vertices[i+1].getXComp();
+		coordsAndColor[(i*2)  *6+1] = static_cast<float>(cir.y) + (getInnerGravityCircleRadius()-lineWidth) * body_vertices[i+1].getYComp();
+		coordsAndColor[(i*2+1)*6]   = static_cast<float>(cir.x) + (getInnerGravityCircleRadius())           * body_vertices[i+1].getXComp();
+		coordsAndColor[(i*2+1)*6+1] = static_cast<float>(cir.y) + (getInnerGravityCircleRadius())           * body_vertices[i+1].getYComp();
 
 		coordsAndColor[(i*2)  *6+2] = color.getRf();
 		coordsAndColor[(i*2)  *6+3] = color.getGf();
@@ -387,7 +383,7 @@ void GravityWellHazard::drawGravityCircle(float alpha) const {
 void GravityWellHazard::drawGravityArrows(float alpha) const {
 	ColorValueHolder color = ColorMixer::mix(BackgroundRect::getBackColor(), ColorValueHolder(0.0f, 0.0f, 0.0f));
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
-	const float arrowScale = this->r / 2; //x-coords are in [-1,1]
+	const float arrowScale = this->cir.r / 2; //x-coords are in [-1,1]
 
 	float coordsAndColor_arrow[7*(2+4)];
 	for (int i = 0; i < 4; i++) {
@@ -401,8 +397,8 @@ void GravityWellHazard::drawGravityArrows(float alpha) const {
 				vertex.scaleAndRotate(arrowScale, rotateAngle + float(PI)); //flip arrow direction
 			}
 
-			coordsAndColor_arrow[j*6]   = static_cast<float>(this->x) + translateAmount.getXComp() + vertex.getXComp();
-			coordsAndColor_arrow[j*6+1] = static_cast<float>(this->y) + translateAmount.getYComp() + vertex.getYComp();
+			coordsAndColor_arrow[j*6]   = static_cast<float>(this->cir.x) + translateAmount.getXComp() + vertex.getXComp();
+			coordsAndColor_arrow[j*6+1] = static_cast<float>(this->cir.y) + translateAmount.getYComp() + vertex.getYComp();
 			coordsAndColor_arrow[j*6+2] = color.getRf();
 			coordsAndColor_arrow[j*6+3] = color.getGf();
 			coordsAndColor_arrow[j*6+4] = color.getBf();

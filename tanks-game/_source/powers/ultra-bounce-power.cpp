@@ -58,14 +58,14 @@ InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct> UltraBounceBulletP
 	std::shared_ptr<WallUpdateStruct> w_update;
 
 	if (true) { //it's a dev power, so may as well
-		auto result = PowerFunctionHelper::superbounceGenericWithCorners(b, w, b->r/2);
+		auto result = PowerFunctionHelper::superbounceGenericWithCorners(b, w, b->cir.r/2);
 		b_update = result.second.firstUpdate;
 		w_update = result.second.secondUpdate;
 		if (result.first) {
 			bouncesLeft--;
 		}
 	} else {
-		auto result = PowerFunctionHelper::superbounceGeneric(b, w, b->r/2);
+		auto result = PowerFunctionHelper::superbounceGeneric(b, w, b->cir.r/2);
 		b_update = result.second.firstUpdate;
 		w_update = result.second.secondUpdate;
 		if (result.first) {

@@ -285,7 +285,7 @@ void GameMainLoop::everythingToEverything_tank_tank(int i, int j, std::unordered
 	bool t_secondShouldDie = false;
 	bool overridedTankCollision = false;
 
-	if (CollisionHandler::partiallyCollided(t_first, t_second)) {
+	if (CollisionHandler::partiallyCollided(t_first->cir, t_second->cir)) {
 		for (int k = 0; k < t_first->tankPowers.size(); k++) {
 			if (t_first->tankPowers[k]->modifiesCollisionWithTank) {
 				if (t_first->tankPowers[k]->overridesCollisionWithTank) {
@@ -397,7 +397,7 @@ void GameMainLoop::everythingToEverything_tank_wall(int i, int j, std::unordered
 	bool killWall = false;
 	bool overridedWallCollision = false;
 
-	if (CollisionHandler::partiallyCollided(t, w)) {
+	if (CollisionHandler::partiallyCollided(t->cir, w->rec)) {
 		for (int k = 0; k < t->tankPowers.size(); k++) {
 			if (t->tankPowers[k]->modifiesCollisionWithWall) {
 				if (t->tankPowers[k]->overridesCollisionWithWall) {
@@ -474,7 +474,7 @@ void GameMainLoop::everythingToEverything_tank_circlehazard(int i, int j, std::u
 	bool killCircleHazard = false;
 	bool overridedCircleHazardCollision = false;
 
-	if (CollisionHandler::partiallyCollided(t, ch)) {
+	if (CollisionHandler::partiallyCollided(t->cir, ch->cir)) {
 		for (int k = 0; k < t->tankPowers.size(); k++) {
 			if (t->tankPowers[k]->getModifiesCollisionWithCircleHazard(ch)) {
 				if (t->tankPowers[k]->overridesCollisionWithCircleHazard) {
@@ -553,7 +553,7 @@ void GameMainLoop::everythingToEverything_tank_recthazard(int i, int j, std::uno
 	bool killRectHazard = false;
 	bool overridedRectHazardCollision = false;
 
-	if (CollisionHandler::partiallyCollided(t, rh)) {
+	if (CollisionHandler::partiallyCollided(t->cir, rh->rec)) {
 		for (int k = 0; k < t->tankPowers.size(); k++) {
 			if (t->tankPowers[k]->getModifiesCollisionWithRectHazard(rh)) {
 				if (t->tankPowers[k]->overridesCollisionWithRectHazard) {
@@ -636,7 +636,7 @@ void GameMainLoop::everythingToEverything_bullet_tank(int i, int j, std::vector<
 	if (!b->canCollideWith(t)) {
 		return;
 	}
-	if (CollisionHandler::partiallyCollided(b, t)) {
+	if (CollisionHandler::partiallyCollided(b->cir, t->cir)) {
 		for (int k = 0; k < b->bulletPowers.size(); k++) {
 			if (b->bulletPowers[k]->modifiesCollisionWithTank) {
 				if (b->bulletPowers[k]->overridesCollisionWithTank) {
@@ -703,7 +703,7 @@ void GameMainLoop::everythingToEverything_bullet_bullet(int i, int j, std::vecto
 		//TODO: doing this check in the narrow phase actually kinda improves performance, but memory bandwidth is still the limiting factor; keep the check here for simplicity
 		return;
 	}
-	if (CollisionHandler::partiallyCollided(b_first, b_second)) {
+	if (CollisionHandler::partiallyCollided(b_first->cir, b_second->cir)) {
 		InteractionBoolHolder result = EndGameHandler::determineWinner(b_first, b_second, b_firstShouldDie, b_secondShouldDie);
 		b_firstShouldDie = result.firstShouldDie;
 		b_secondShouldDie = result.secondShouldDie;
@@ -726,7 +726,7 @@ void GameMainLoop::everythingToEverything_bullet_wall(int i, int j, std::vector<
 
 	//TODO: ignore edge? bounce is basically the only thing that might care, for blast it's just unnecessary computation
 	//idea: bulletpower can set wall collision mode (and hazard)
-	if (CollisionHandler::partiallyCollided(b, w)) {
+	if (CollisionHandler::partiallyCollided(b->cir, w->rec)) {
 		for (int k = 0; k < b->bulletPowers.size(); k++) {
 			if (b->bulletPowers[k]->modifiesCollisionWithWall) {
 				if (b->bulletPowers[k]->overridesCollisionWithWall) {
@@ -763,7 +763,7 @@ void GameMainLoop::everythingToEverything_bullet_wall(int i, int j, std::vector<
 		}
 
 		if (!overridedWallCollision) {
-			if (CollisionHandler::partiallyCollided(b, w)) {
+			if (CollisionHandler::partiallyCollided(b->cir, w->rec)) {
 				killBullet = true;
 			}
 		}
@@ -787,7 +787,7 @@ void GameMainLoop::everythingToEverything_bullet_circlehazard(int i, int j, std:
 	if (!b->canCollideWith(ch)) {
 		return;
 	}
-	if (CollisionHandler::partiallyCollided(b, ch)) {
+	if (CollisionHandler::partiallyCollided(b->cir, ch->cir)) {
 		for (int k = 0; k < b->bulletPowers.size(); k++) {
 			if (b->bulletPowers[k]->getModifiesCollisionWithCircleHazard(ch)) {
 				if (b->bulletPowers[k]->overridesCollisionWithCircleHazard) {
@@ -869,7 +869,7 @@ void GameMainLoop::everythingToEverything_bullet_recthazard(int i, int j, std::v
 	if (!b->canCollideWith(rh)) {
 		return;
 	}
-	if (CollisionHandler::partiallyCollided(b, rh)) {
+	if (CollisionHandler::partiallyCollided(b->cir, rh->rec)) {
 		for (int k = 0; k < b->bulletPowers.size(); k++) {
 			if (b->bulletPowers[k]->getModifiesCollisionWithRectHazard(rh)) {
 				if (b->bulletPowers[k]->overridesCollisionWithRectHazard) {
@@ -984,7 +984,7 @@ void GameMainLoop::tankToPowerup() {
 		Tank* t = TankManager::getTank(i);
 		for (int j = 0; j < PowerupManager::getNumPowerups(); j++) {
 			PowerSquare* p = PowerupManager::getPowerup(j);
-			if (CollisionHandler::partiallyCollided(p, t)) {
+			if (CollisionHandler::partiallyCollided(p->rec, t->cir)) {
 				p->givePower(t);
 				powerupDeletionList.push_back(j);
 			}
@@ -1061,7 +1061,7 @@ void GameMainLoop::tankToEdge() {
 		bool shouldBeKilled = false;
 		bool overridedEdgeCollision = false;
 
-		if (CollisionHandler::partiallyOutOfBounds(t)) {
+		if (CollisionHandler::partiallyOutOfBounds(t->cir)) {
 			for (int k = 0; k < t->tankPowers.size(); k++) {
 				if (t->tankPowers[k]->modifiesEdgeCollision) {
 					if (t->tankPowers[k]->overridesEdgeCollision) {
@@ -1080,7 +1080,7 @@ void GameMainLoop::tankToEdge() {
 			}
 
 			if (!overridedEdgeCollision) {
-				CollisionHandler::edgeConstrain(t);
+				CollisionHandler::edgeConstrain(t->cir);
 			}
 
 			if (shouldBeKilled) {
@@ -1097,7 +1097,7 @@ void GameMainLoop::bulletToEdge() {
 		bool shouldBeKilled = false;
 		bool overridedEdgeCollision = false;
 
-		if (CollisionHandler::partiallyOutOfBounds(b)) {
+		if (CollisionHandler::partiallyOutOfBounds(b->cir)) {
 			for (int k = 0; k < b->bulletPowers.size(); k++) {
 				if (b->bulletPowers[k]->modifiesEdgeCollision) {
 					if (b->bulletPowers[k]->overridesEdgeCollision) {
@@ -1116,7 +1116,7 @@ void GameMainLoop::bulletToEdge() {
 			}
 
 			if (!overridedEdgeCollision) {
-				if (CollisionHandler::fullyOutOfBounds(b)) {
+				if (CollisionHandler::fullyOutOfBounds(b->cir)) {
 					shouldBeKilled = true;
 				}
 			}

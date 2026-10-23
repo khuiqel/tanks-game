@@ -32,9 +32,9 @@ std::unordered_map<std::string, float> CloudHazard::getWeights() const {
 //not the main one
 //TODO: this can work (and put this hazard in vanilla!) if hazards could check the type of the level, then pull powers from that type
 CloudHazard::CloudHazard(double xpos, double ypos, double radius, double speed, double acc) : CircleHazard(HAZARD_TEAM) {
-	x = xpos;
-	y = ypos;
-	r = radius;
+	cir.x = xpos;
+	cir.y = ypos;
+	cir.r = radius;
 
 	powerChoices = { {"vanilla", "speed"} }; //TODO: pull from the level?
 	initialSpeed = speed;
@@ -54,9 +54,9 @@ CloudHazard::CloudHazard(double xpos, double ypos, double radius) : CloudHazard(
 
 //the main one
 CloudHazard::CloudHazard(double xpos, double ypos, double radius, double speed, double acc, const std::vector<std::vector<std::string>>& powerList) : CircleHazard(HAZARD_TEAM) {
-	x = xpos;
-	y = ypos;
-	r = radius;
+	cir.x = xpos;
+	cir.y = ypos;
+	cir.r = radius;
 
 	powerChoices = std::vector<std::vector<std::string>>(powerList);
 	initialSpeed = speed;
@@ -136,7 +136,7 @@ PowerSquare* CloudHazard::makePowerup(int powerupIndex) const {
 		names[i] = powerChoices[powerupIndex][i*2+1];
 	}
 
-	PowerSquare* powerup = new PowerSquare(this->x, this->y, types, names, typeCount);
+	PowerSquare* powerup = new PowerSquare(this->cir.x, this->cir.y, types, names, typeCount);
 	delete[] types; delete[] names;
 	return powerup;
 }
@@ -163,8 +163,8 @@ void CloudHazard::tick() {
 		vel.changeMagnitude(this->acceleration);
 
 		if (vel.getMagnitude() > 0) {
-			p->x += vel.getXComp();
-			p->y += vel.getYComp();
+			p->rec.x += vel.getXComp();
+			p->rec.y += vel.getYComp();
 		} else [[unlikely]] {
 			powerupsToMove.erase(powerupsToMove.begin() + i);
 			powerupsVelocity.erase(powerupsVelocity.begin() + i);
@@ -183,7 +183,7 @@ void CloudHazard::tick() {
 
 bool CloudHazard::reasonableLocation() const {
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
-		if (CollisionHandler::partiallyCollided(this, WallManager::getWall(i))) {
+		if (CollisionHandler::partiallyCollided(this->cir, WallManager::getWall(i)->rec)) {
 			return false;
 		}
 	}
@@ -191,14 +191,14 @@ bool CloudHazard::reasonableLocation() const {
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
 		const CircleHazard* ch = HazardManager::getCircleHazard(i);
 		if (ch->getGameID() != this->getGameID()) [[unlikely]] {
-			if ((ch->getCollisionType() == CircleHazardCollisionType::solid) && (CollisionHandler::partiallyCollided(this, ch))) {
+			if ((ch->getCollisionType() == CircleHazardCollisionType::solid) && (CollisionHandler::partiallyCollided(this->cir, ch->cir))) {
 				return false;
 			}
 		}
 	}
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
 		const RectHazard* rh = HazardManager::getRectHazard(i);
-		if ((rh->getCollisionType() == RectHazardCollisionType::solid) && CollisionHandler::partiallyCollided(this, rh)) {
+		if ((rh->getCollisionType() == RectHazardCollisionType::solid) && CollisionHandler::partiallyCollided(this->cir, rh->rec)) {
 			return false;
 		}
 	}
@@ -275,15 +275,15 @@ void CloudHazard::ghostDraw(float alpha) const {
 	cloudColor = ColorMixer::mix(BackgroundRect::getBackColor(), cloudColor, alpha);
 
 	float coordsAndColor[(Circle::NumOfSides+1)*(2+4)];
-	coordsAndColor[0] = x;
-	coordsAndColor[1] = y;
+	coordsAndColor[0] = cir.x;
+	coordsAndColor[1] = cir.y;
 	coordsAndColor[2] = cloudColor.getRf();
 	coordsAndColor[3] = cloudColor.getGf();
 	coordsAndColor[4] = cloudColor.getBf();
 	coordsAndColor[5] = cloudColor.getAf();
 	for (int i = 1; i < Circle::NumOfSides+1; i++) {
-		coordsAndColor[i*6]   = static_cast<float>(x) + static_cast<float>(r) * body_vertices[i].getXComp();
-		coordsAndColor[i*6+1] = static_cast<float>(y) + static_cast<float>(r) * body_vertices[i].getYComp();
+		coordsAndColor[i*6]   = static_cast<float>(cir.x) + static_cast<float>(cir.r) * body_vertices[i].getXComp();
+		coordsAndColor[i*6+1] = static_cast<float>(cir.y) + static_cast<float>(cir.r) * body_vertices[i].getYComp();
 		coordsAndColor[i*6+2] = cloudColor.getRf();
 		coordsAndColor[i*6+3] = cloudColor.getGf();
 		coordsAndColor[i*6+4] = cloudColor.getBf();

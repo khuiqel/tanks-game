@@ -70,8 +70,8 @@ InteractionBoolHolder HomingBulletPower::modifiedMovement(Bullet* b) {
 }
 
 InteractionBoolHolder HomingBulletPower::modifiedEdgeCollision(Bullet* b) {
-	return { ((b->x + b->r <= 0) || (b->x - b->r >= GAME_WIDTH) ||
-	         ((b->velocity.getMagnitude() == 0) && ((b->y - b->r >= GAME_HEIGHT*2) || (b->y + b->r <= -GAME_HEIGHT)))) };
+	return { ((b->cir.x + b->cir.r <= 0) || (b->cir.x - b->cir.r >= GAME_WIDTH) ||
+	         ((b->velocity.getMagnitude() == 0) && ((b->cir.y - b->cir.r >= GAME_HEIGHT*2) || (b->cir.y + b->cir.r <= -GAME_HEIGHT)))) };
 	//TODO: wanted?
 }
 

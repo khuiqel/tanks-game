@@ -127,8 +127,8 @@ void PatrollingTurretHazard::tick_patrol() {
 }
 
 void PatrollingTurretHazard::tick_moveForward() {
-	this->x += velocity.getXComp();
-	this->y += velocity.getYComp();
+	this->cir.x += velocity.getXComp();
+	this->cir.y += velocity.getYComp();
 }
 
 void PatrollingTurretHazard::tick_patrolWait() {
@@ -143,8 +143,8 @@ void PatrollingTurretHazard::tick_patrolWait() {
 bool PatrollingTurretHazard::isCloseAsPossibleToCurrentPoint() const {
 	//find distance from current position to target point
 	//if distance is less than current velocity, not close enough
-	double xDist = this->x - getRoutePosX(currentPatrolTarget);
-	double yDist = this->y - getRoutePosY(currentPatrolTarget);
+	double xDist = this->cir.x - getRoutePosX(currentPatrolTarget);
+	double yDist = this->cir.y - getRoutePosY(currentPatrolTarget);
 	float distSquared = xDist*xDist + yDist*yDist;
 	return (distSquared < velocity.getMagnitude() * velocity.getMagnitude());
 }
@@ -155,7 +155,7 @@ bool PatrollingTurretHazard::isWaitingAtPoint() const {
 
 void PatrollingTurretHazard::turnTowardsPoint() {
 	//see TargetingTurretHazard::turnTowardsTank
-	SimpleVector2D distToPoint = SimpleVector2D(getRoutePosX(currentPatrolTarget) - this->x, getRoutePosY(currentPatrolTarget) - this->y);
+	SimpleVector2D distToPoint = SimpleVector2D(getRoutePosX(currentPatrolTarget) - this->cir.x, getRoutePosY(currentPatrolTarget) - this->cir.y);
 	float theta = SimpleVector2D::angleBetween(distToPoint, velocity);
 	if (std::abs(theta) < float(PI)/turningIncrement) {
 		//too small to adjust angle
@@ -170,7 +170,7 @@ void PatrollingTurretHazard::turnTowardsPoint() {
 }
 
 bool PatrollingTurretHazard::isPointedAtPoint() const {
-	SimpleVector2D distToPoint = SimpleVector2D(getRoutePosX(currentPatrolTarget) - this->x, getRoutePosY(currentPatrolTarget) - this->y);
+	SimpleVector2D distToPoint = SimpleVector2D(getRoutePosX(currentPatrolTarget) - this->cir.x, getRoutePosY(currentPatrolTarget) - this->cir.y);
 	float theta = SimpleVector2D::angleBetween(distToPoint, velocity);
 	return (std::abs(theta) < float(PI)/turningIncrement);
 }
@@ -190,30 +190,30 @@ bool PatrollingTurretHazard::reasonableLocation() const {
 
 		const SimpleVector2D path = SimpleVector2D(getRoutePosX(end_pos) - getRoutePosX(start_pos), getRoutePosY(end_pos), getRoutePosY(start_pos));
 		double outerPath[4] = {
-			getRoutePosX(start_pos) + getR() * std::cos(path.getAngle() - float(PI/2)), getRoutePosY(start_pos) + getR() * std::sin(path.getAngle() - float(PI/2)),
-			getRoutePosX(end_pos)   + getR() * std::cos(path.getAngle() - float(PI/2)), getRoutePosY(end_pos)   + getR() * std::sin(path.getAngle() - float(PI/2)) };
+			getRoutePosX(start_pos) + cir.getR() * std::cos(path.getAngle() - float(PI/2)), getRoutePosY(start_pos) + cir.getR() * std::sin(path.getAngle() - float(PI/2)),
+			getRoutePosX(end_pos)   + cir.getR() * std::cos(path.getAngle() - float(PI/2)), getRoutePosY(end_pos)   + cir.getR() * std::sin(path.getAngle() - float(PI/2)) };
 		double mainPath[4] = {
 			getRoutePosX(start_pos), getRoutePosY(start_pos),
 			getRoutePosX(end_pos), getRoutePosY(end_pos) };
 		double innerPath[4] = {
-			getRoutePosX(start_pos) + getR() * std::cos(path.getAngle() + float(PI/2)), getRoutePosY(start_pos) + getR() * std::sin(path.getAngle() + float(PI/2)),
-			getRoutePosX(end_pos)   + getR() * std::cos(path.getAngle() + float(PI/2)), getRoutePosY(end_pos)   + getR() * std::sin(path.getAngle() + float(PI/2)) };
+			getRoutePosX(start_pos) + cir.getR() * std::cos(path.getAngle() + float(PI/2)), getRoutePosY(start_pos) + cir.getR() * std::sin(path.getAngle() + float(PI/2)),
+			getRoutePosX(end_pos)   + cir.getR() * std::cos(path.getAngle() + float(PI/2)), getRoutePosY(end_pos)   + cir.getR() * std::sin(path.getAngle() + float(PI/2)) };
 
 		for (int j = 0; j < WallManager::getNumWalls(); j++) {
-			if (CollisionHandler::lineRectCollision(outerPath[0], outerPath[1], outerPath[2], outerPath[3], WallManager::getWall(j))) {
+			if (CollisionHandler::lineRectCollision(outerPath[0], outerPath[1], outerPath[2], outerPath[3], WallManager::getWall(j)->rec)) {
 				return false;
 			}
-			if (CollisionHandler::lineRectCollision(mainPath[0], mainPath[1], mainPath[2], mainPath[3], WallManager::getWall(j))) {
+			if (CollisionHandler::lineRectCollision(mainPath[0], mainPath[1], mainPath[2], mainPath[3], WallManager::getWall(j)->rec)) {
 				return false;
 			}
-			if (CollisionHandler::lineRectCollision(innerPath[0], innerPath[1], innerPath[2], innerPath[3], WallManager::getWall(j))) {
+			if (CollisionHandler::lineRectCollision(innerPath[0], innerPath[1], innerPath[2], innerPath[3], WallManager::getWall(j)->rec)) {
 				return false;
 			}
 		}
 
-		Circle testBody = Circle(getRoutePosX(i), getRoutePosY(i), this->r);
+		Circle testBody = Circle(getRoutePosX(i), getRoutePosY(i), this->cir.r);
 		for (int j = 0; j < WallManager::getNumWalls(); j++) {
-			if (CollisionHandler::partiallyCollided(&testBody, WallManager::getWall(j))) {
+			if (CollisionHandler::partiallyCollided(testBody, WallManager::getWall(j)->rec)) {
 				return false;
 			}
 		}
@@ -227,7 +227,7 @@ bool PatrollingTurretHazard::reasonableLocation() const {
 			do {
 				bool wallBlocksSight = false;
 				for (int j = 0; j < WallManager::getNumWalls(); j++) {
-					if (CollisionHandler::lineRectCollision(t->x, t->y, testX, testY, WallManager::getWall(j))) {
+					if (CollisionHandler::lineRectCollision(t->cir.x, t->cir.y, testX, testY, WallManager::getWall(j)->rec)) {
 						wallBlocksSight = true;
 						break;
 					}
@@ -245,14 +245,14 @@ bool PatrollingTurretHazard::reasonableLocation() const {
 		for (int j = 0; j < HazardManager::getNumCircleHazards(); j++) {
 			const CircleHazard* ch = HazardManager::getCircleHazard(j);
 			if (ch->getGameID() != this->getGameID()) [[likely]] {
-				if ((ch->getCollisionType() != CircleHazardCollisionType::under) && CollisionHandler::partiallyCollided(&testBody, ch)) {
+				if ((ch->getCollisionType() != CircleHazardCollisionType::under) && CollisionHandler::partiallyCollided(testBody, ch->cir)) {
 					return false;
 				}
 			}
 		}
 		for (int j = 0; j < HazardManager::getNumRectHazards(); j++) {
 			const RectHazard* rh = HazardManager::getRectHazard(j);
-			if ((rh->getCollisionType() != RectHazardCollisionType::under) && CollisionHandler::partiallyCollided(&testBody, rh)) {
+			if ((rh->getCollisionType() != RectHazardCollisionType::under) && CollisionHandler::partiallyCollided(testBody, rh->rec)) {
 				return false;
 			}
 		}
@@ -374,7 +374,7 @@ void PatrollingTurretHazard::ghostDraw(DrawingLayers layer, float alpha) const {
 void PatrollingTurretHazard::drawPath(float alpha) const {
 	ColorValueHolder color = ColorValueHolder(0.0f, 0.0f, 0.0f);
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
-	const float radius = this->r / 2;
+	const float radius = this->cir.r / 2;
 	const float lineWidth = 1.0f;
 
 	for (int i = 0; i < routePosPairNum; i++) {
@@ -472,7 +472,7 @@ CircleHazard* PatrollingTurretHazard::randomizingFactory(double x_start, double 
 
 				Circle testStop = Circle(stoppingLocations[0], stoppingLocations[1], 0);
 				for (int j = 0; j < WallManager::getNumWalls(); j++) {
-					if (CollisionHandler::partiallyCollided(&testStop, WallManager::getWall(j))) {
+					if (CollisionHandler::partiallyCollided(testStop, WallManager::getWall(j)->rec)) {
 						blockedPosition = true;
 						break;
 					}
@@ -504,7 +504,7 @@ CircleHazard* PatrollingTurretHazard::randomizingFactory(double x_start, double 
 				} else {
 					Circle testStop = Circle(stoppingLocations[i*2], stoppingLocations[i*2+1], 0);
 					for (int j = 0; j < WallManager::getNumWalls(); j++) {
-						if (CollisionHandler::partiallyCollided(&testStop, WallManager::getWall(j))) {
+						if (CollisionHandler::partiallyCollided(testStop, WallManager::getWall(j)->rec)) {
 							blockedPosition = true;
 							break;
 						}

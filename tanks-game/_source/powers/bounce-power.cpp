@@ -62,7 +62,7 @@ InteractionBoolHolder BounceBulletPower::modifiedEdgeCollision(Bullet* b) {
 	//bool bouncedX = false;
 	BulletUpdateStruct b_update;
 
-	if (CollisionHandler::partiallyOutOfBounds(b)) {
+	if (CollisionHandler::partiallyOutOfBounds(b->cir)) {
 		auto result = PowerFunctionHelper::bounceEdgeGenericY(b);
 		if (result.first) {
 			bouncesLeft--;
@@ -73,11 +73,11 @@ InteractionBoolHolder BounceBulletPower::modifiedEdgeCollision(Bullet* b) {
 		if (bouncesLeft <= 0) {
 			modifiesCollisionWithWall = false;
 			modifiesEdgeCollision = false;
-			return { CollisionHandler::fullyOutOfBounds(b) };
+			return { CollisionHandler::fullyOutOfBounds(b->cir) };
 		}
 	}
 
-	if (CollisionHandler::partiallyOutOfBounds(b)) {
+	if (CollisionHandler::partiallyOutOfBounds(b->cir)) {
 		auto result = PowerFunctionHelper::bounceEdgeGenericX(b);
 		if (result.first) {
 			bouncesLeft--;
@@ -88,11 +88,11 @@ InteractionBoolHolder BounceBulletPower::modifiedEdgeCollision(Bullet* b) {
 		if (bouncesLeft <= 0) {
 			modifiesCollisionWithWall = false;
 			modifiesEdgeCollision = false;
-			return { CollisionHandler::fullyOutOfBounds(b) };
+			return { CollisionHandler::fullyOutOfBounds(b->cir) };
 		}
 	}
 
-	if (!bouncedY && CollisionHandler::partiallyOutOfBounds(b)) {
+	if (!bouncedY && CollisionHandler::partiallyOutOfBounds(b->cir)) {
 		auto result = PowerFunctionHelper::bounceEdgeGenericY(b);
 		if (result.first) {
 			bouncesLeft--;
@@ -103,11 +103,11 @@ InteractionBoolHolder BounceBulletPower::modifiedEdgeCollision(Bullet* b) {
 		if (bouncesLeft <= 0) {
 			modifiesCollisionWithWall = false;
 			modifiesEdgeCollision = false;
-			//return { CollisionHandler::fullyOutOfBounds(b) };
+			//return { CollisionHandler::fullyOutOfBounds(b->cir) };
 		}
 	}
 
-	return { CollisionHandler::fullyOutOfBounds(b) };
+	return { CollisionHandler::fullyOutOfBounds(b->cir) };
 }
 
 InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct> BounceBulletPower::modifiedCollisionWithWall(const Bullet* b, const Wall* w) {
@@ -116,7 +116,7 @@ InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct> BounceBulletPower:
 	std::shared_ptr<BulletUpdateStruct> b_update;
 	std::shared_ptr<WallUpdateStruct> w_update;
 
-	if (b->velocity.getMagnitude() * float(Bullet::default_radius/b->r) <= .5f) {
+	if (b->velocity.getMagnitude() * float(Bullet::default_radius/b->cir.r) <= .5f) {
 		auto result = PowerFunctionHelper::bounceGenericWithCorners(b, w);
 		b_update = result.second.firstUpdate;
 		w_update = result.second.secondUpdate;

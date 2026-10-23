@@ -30,10 +30,10 @@ std::unordered_map<std::string, float> RectangularLavaHazard::getWeights() const
 }
 
 RectangularLavaHazard::RectangularLavaHazard(double xpos, double ypos, double width, double height) : RectHazard(HAZARD_TEAM) {
-	x = xpos;
-	y = ypos;
-	w = width;
-	h = height;
+	rec.x = xpos;
+	rec.y = ypos;
+	rec.w = width;
+	rec.h = height;
 
 	tickCount = 0;
 	tickCycle = 2400;
@@ -110,37 +110,37 @@ void RectangularLavaHazard::tryToPushNewBubble(float bubbleRadius) {
 	float x0, y0, x1, y1;
 	int attempts = 0;
 
-	x0 = VisualRNG::randFloatInRange(bubbleRadius, float(w) - bubbleRadius);
-	y0 = VisualRNG::randFloatInRange(bubbleRadius, float(h) - bubbleRadius);
+	x0 = VisualRNG::randFloatInRange(bubbleRadius, float(rec.w) - bubbleRadius);
+	y0 = VisualRNG::randFloatInRange(bubbleRadius, float(rec.h) - bubbleRadius);
 	do {
-		x1 = VisualRNG::randFloatInRange(bubbleRadius, float(w) - bubbleRadius);
-		y1 = VisualRNG::randFloatInRange(bubbleRadius, float(h) - bubbleRadius);
+		x1 = VisualRNG::randFloatInRange(bubbleRadius, float(rec.w) - bubbleRadius);
+		y1 = VisualRNG::randFloatInRange(bubbleRadius, float(rec.h) - bubbleRadius);
 		attempts++;
-	} while ((attempts < 8) && (std::abs(x0-x1) < float(w)/16 || std::abs(y0-y1) < float(h)/16)); //JS Tanks used w/8 and h/8
+	} while ((attempts < 8) && (std::abs(x0-x1) < float(rec.w)/16 || std::abs(y0-y1) < float(rec.h)/16)); //JS Tanks used w/8 and h/8
 
 	if (attempts < 8) {
 		float maxTick = std::floor(VisualRNG::randFloatInRange(200, 300+1));
-		bubbles[availableIndex] = LavaBubble(bubbleRadius, x0/float(w), y0/float(h), x1/float(w), y1/float(h), maxTick);
+		bubbles[availableIndex] = LavaBubble(bubbleRadius, x0/float(rec.w), y0/float(rec.h), x1/float(rec.w), y1/float(rec.h), maxTick);
 	}
 }
 
 bool RectangularLavaHazard::reasonableLocation() const {
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
-		if (CollisionHandler::partiallyCollided(this, WallManager::getWall(i))) {
+		if (CollisionHandler::partiallyCollided(this->rec, WallManager::getWall(i)->rec)) {
 			return false;
 		}
 	}
 
 	//don't allow the other version, it looks weird
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
-		if (CollisionHandler::partiallyCollided(this, HazardManager::getCircleHazard(i))) {
+		if (CollisionHandler::partiallyCollided(this->rec, HazardManager::getCircleHazard(i)->cir)) {
 			return false;
 		}
 	}
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
 		const RectHazard* rh = HazardManager::getRectHazard(i);
 		if (rh->getName() != this->getName()) {
-			if (CollisionHandler::partiallyCollided(this, rh)) {
+			if (CollisionHandler::partiallyCollided(this->rec, rh->rec)) {
 				return false;
 			}
 		}
@@ -249,10 +249,10 @@ void RectangularLavaHazard::drawBackground(bool pose, float alpha) const {
 	color = ColorMixer::mix(BackgroundRect::getBackColor(), color, alpha);
 
 	float coordsAndColor[] = {
-		x,   y,     color.getRf(), color.getGf(), color.getBf(), color.getAf(),
-		x+w, y,     color.getRf(), color.getGf(), color.getBf(), color.getAf(),
-		x+w, y+h,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
-		x,   y+h,   color.getRf(), color.getGf(), color.getBf(), color.getAf()
+		rec.x,       rec.y,         color.getRf(), color.getGf(), color.getBf(), color.getAf(),
+		rec.x+rec.w, rec.y,         color.getRf(), color.getGf(), color.getBf(), color.getAf(),
+		rec.x+rec.w, rec.y+rec.h,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
+		rec.x,       rec.y+rec.h,   color.getRf(), color.getGf(), color.getBf(), color.getAf()
 	};
 	unsigned int indices[] = {
 		0, 1, 2,
@@ -275,10 +275,10 @@ void RectangularLavaHazard::drawBubbles(bool pose, float alpha) const {
 
 		float coordsAndColor[(RectangularLavaHazard::BubbleSideCount*2)*(2+4)];
 		for (int i = 0; i < RectangularLavaHazard::BubbleSideCount; i++) {
-			coordsAndColor[(i*2)  *6]   = (bubbles[j].getX()*static_cast<float>(this->w) + static_cast<float>(this->x)) + (bubbles[j].getR() - lineWidth) * bubble_vertices[i+1].getXComp();
-			coordsAndColor[(i*2)  *6+1] = (bubbles[j].getY()*static_cast<float>(this->h) + static_cast<float>(this->y)) + (bubbles[j].getR() - lineWidth) * bubble_vertices[i+1].getYComp();
-			coordsAndColor[(i*2+1)*6]   = (bubbles[j].getX()*static_cast<float>(this->w) + static_cast<float>(this->x)) + (bubbles[j].getR() + lineWidth) * bubble_vertices[i+1].getXComp();
-			coordsAndColor[(i*2+1)*6+1] = (bubbles[j].getY()*static_cast<float>(this->h) + static_cast<float>(this->y)) + (bubbles[j].getR() + lineWidth) * bubble_vertices[i+1].getYComp();
+			coordsAndColor[(i*2)  *6]   = (bubbles[j].getX()*static_cast<float>(this->rec.w) + static_cast<float>(this->rec.x)) + (bubbles[j].getR() - lineWidth) * bubble_vertices[i+1].getXComp();
+			coordsAndColor[(i*2)  *6+1] = (bubbles[j].getY()*static_cast<float>(this->rec.h) + static_cast<float>(this->rec.y)) + (bubbles[j].getR() - lineWidth) * bubble_vertices[i+1].getYComp();
+			coordsAndColor[(i*2+1)*6]   = (bubbles[j].getX()*static_cast<float>(this->rec.w) + static_cast<float>(this->rec.x)) + (bubbles[j].getR() + lineWidth) * bubble_vertices[i+1].getXComp();
+			coordsAndColor[(i*2+1)*6+1] = (bubbles[j].getY()*static_cast<float>(this->rec.h) + static_cast<float>(this->rec.y)) + (bubbles[j].getR() + lineWidth) * bubble_vertices[i+1].getYComp();
 
 			coordsAndColor[(i*2)  *6+2] = color.getRf();
 			coordsAndColor[(i*2)  *6+3] = color.getGf();

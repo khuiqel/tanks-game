@@ -53,8 +53,8 @@ InteractionBoolHolder TricksterCircleBulletPower::modifiedMovement(Bullet* b) {
 	const float moveYDiff = (TricksterCirclePower::movementRadius * (2*PI)) *  std::cos((2*PI) * (-tickCount / TricksterCirclePower::timePeriod));
 	const SimpleVector2D vectorMoveDiff = SimpleVector2D(b->velocity.getXComp() + moveXDiff, b->velocity.getYComp() + moveYDiff);
 
-	b->x += vectorMoveDiff.getXComp();
-	b->y += vectorMoveDiff.getYComp();
+	b->cir.x += vectorMoveDiff.getXComp();
+	b->cir.y += vectorMoveDiff.getYComp();
 
 	tickCount++; //not sure whether this should go at the start or end
 	return { false };

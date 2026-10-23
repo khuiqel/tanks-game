@@ -30,7 +30,7 @@ std::unordered_map<std::string, float> TargetingTurretHazard::getWeights() const
 }
 
 TargetingTurretHazard::TargetingTurretHazard(double xpos, double ypos, double angle) : StationaryTurretHazard(xpos, ypos, angle) {
-	r = TANK_RADIUS / 2;
+	cir.r = TANK_RADIUS / 2;
 
 	targeting = false;
 	targetingX = xpos;
@@ -63,12 +63,12 @@ CircleHazard* TargetingTurretHazard::factory(const GenericFactoryConstructionDat
 
 inline void TargetingTurretHazard::updateTrackingPos(const Tank* t, bool pointedAt) {
 	if (pointedAt) {
-		targetingX = t->x;
-		targetingY = t->y;
+		targetingX = t->cir.x;
+		targetingY = t->cir.y;
 	} else {
-		float dist = std::sqrt((t->x - x)*(t->x - x) + (t->y - y)*(t->y - y));
-		targetingX = static_cast<float>(x) + dist * std::cos(velocity.getAngle());
-		targetingY = static_cast<float>(y) + dist * std::sin(velocity.getAngle());
+		float dist = std::sqrt((t->cir.x - cir.x)*(t->cir.x - cir.x) + (t->cir.y - cir.y)*(t->cir.y - cir.y));
+		targetingX = static_cast<float>(cir.x) + dist * std::cos(velocity.getAngle());
+		targetingY = static_cast<float>(cir.y) + dist * std::sin(velocity.getAngle());
 	}
 }
 
@@ -134,7 +134,7 @@ void TargetingTurretHazard::tick_lookForNewTarget() {
 		const Tank* t = TankManager::getTank(i);
 		tankVisibility.push_back((char)canSeeTank(t));
 		if (tankVisibility[i]) {
-			distancesSquaredToTank.push_back((t->x - x)*(t->x - x) + (t->y - y)*(t->y - y));
+			distancesSquaredToTank.push_back((t->cir.x - cir.x)*(t->cir.x - cir.x) + (t->cir.y - cir.y)*(t->cir.y - cir.y));
 		} else {
 			distancesSquaredToTank.push_back(GAME_WIDTH*GAME_WIDTH*4 + GAME_HEIGHT*GAME_HEIGHT*4);
 		}
@@ -170,7 +170,7 @@ void TargetingTurretHazard::tick_lookForNewTarget() {
 void TargetingTurretHazard::tick_chargeUp() {
 	targetingCount++;
 	if (targetingCount >= stateMultiplier[1] * tickCycle) {
-		BulletManager::pushBullet(new Bullet(x + r*std::cos(velocity.getAngle()), y + r*std::sin(velocity.getAngle()), r*BULLET_TO_TANK_RADIUS_RATIO, velocity.getAngle(), Tank::default_maxSpeed*BULLET_TO_TANK_SPEED_RATIO, this->getTeamID(), BulletParentType::individual, this->getGameID()));
+		BulletManager::pushBullet(new Bullet(cir.x + cir.r*std::cos(velocity.getAngle()), cir.y + cir.r*std::sin(velocity.getAngle()), cir.r*BULLET_TO_TANK_RADIUS_RATIO, velocity.getAngle(), Tank::default_maxSpeed*BULLET_TO_TANK_SPEED_RATIO, this->getTeamID(), BulletParentType::individual, this->getGameID()));
 		currentState = 2;
 		targetingCount = 0;
 		targeting = false; //allows target to change (also controls whether the reticule is drawn)
@@ -188,7 +188,7 @@ void TargetingTurretHazard::tick_cooldown() {
 bool TargetingTurretHazard::canSeeTank(const Tank* t) const {
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
 		const Wall* wa = WallManager::getWall(i);
-		if (CollisionHandler::lineRectCollision(x, y, t->x, t->y, wa)) {
+		if (CollisionHandler::lineRectCollision(cir.x, cir.y, t->cir.x, t->cir.y, wa->rec)) {
 			return false;
 		}
 	}
@@ -197,7 +197,7 @@ bool TargetingTurretHazard::canSeeTank(const Tank* t) const {
 
 void TargetingTurretHazard::turnTowardsTank(const Tank* t) {
 	//see PowerFunctionHelper::homingGeneric
-	SimpleVector2D distToTank = SimpleVector2D(t->getX() - this->x, t->getY() - this->y);
+	SimpleVector2D distToTank = SimpleVector2D(t->cir.getX() - this->cir.x, t->cir.getY() - this->cir.y);
 	float theta = SimpleVector2D::angleBetween(distToTank, velocity);
 	if (std::abs(theta) < float(PI)/turningIncrement) {
 		//too small to adjust angle
@@ -212,7 +212,7 @@ void TargetingTurretHazard::turnTowardsTank(const Tank* t) {
 }
 
 bool TargetingTurretHazard::isPointedAt(const Tank* t) const {
-	return (std::abs(SimpleVector2D::angleBetween(velocity, SimpleVector2D(t->x - x, t->y - y))) < float(PI)/turningIncrement);
+	return (std::abs(SimpleVector2D::angleBetween(velocity, SimpleVector2D(t->cir.x - cir.x, t->cir.y - cir.y))) < float(PI)/turningIncrement);
 }
 
 bool TargetingTurretHazard::reasonableLocation() const {
@@ -223,7 +223,7 @@ bool TargetingTurretHazard::reasonableLocation() const {
 	}
 
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
-		if (CollisionHandler::partiallyCollided(this, WallManager::getWall(i))) {
+		if (CollisionHandler::partiallyCollided(this->cir, WallManager::getWall(i)->rec)) {
 			return false;
 		}
 	}
@@ -231,13 +231,13 @@ bool TargetingTurretHazard::reasonableLocation() const {
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
 		const CircleHazard* ch = HazardManager::getCircleHazard(i);
 		if (ch->getGameID() != this->getGameID()) [[likely]] {
-			if (CollisionHandler::partiallyCollided(this, ch)) {
+			if (CollisionHandler::partiallyCollided(this->cir, ch->cir)) {
 				return false;
 			}
 		}
 	}
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
-		if (CollisionHandler::partiallyCollided(this, HazardManager::getRectHazard(i))) {
+		if (CollisionHandler::partiallyCollided(this->cir, HazardManager::getRectHazard(i)->rec)) {
 			return false;
 		}
 	}

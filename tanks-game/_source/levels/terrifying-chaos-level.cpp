@@ -28,10 +28,10 @@ std::unordered_map<std::string, float> TerrifyingChaosLevel::getWeights() const 
 }
 
 void TerrifyingChaosLevel::initialize() {
-	TankManager::getTank(0)->x = GAME_WIDTH/2 - 240/4;
-	TankManager::getTank(1)->x = GAME_WIDTH/2 + 240/4;
-	TankManager::getTank(0)->y = GAME_HEIGHT - 20;
-	TankManager::getTank(1)->y = 20;
+	TankManager::getTank(0)->cir.x = GAME_WIDTH/2 - 240/4;
+	TankManager::getTank(1)->cir.x = GAME_WIDTH/2 + 240/4;
+	TankManager::getTank(0)->cir.y = GAME_HEIGHT - 20;
+	TankManager::getTank(1)->cir.y = 20;
 	TankManager::getTank(0)->velocity.setAngle(-PI/2);
 	TankManager::getTank(1)->velocity.setAngle(PI/2);
 

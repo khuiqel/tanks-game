@@ -61,13 +61,13 @@ InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct> MegaDeathBulletPow
 }
 
 float MegaDeathBulletPower::getOffenseTier(const Bullet* b) const {
-	float value = static_cast<float>(b->r / (Bullet::default_radius*4)) * MegaDeathPower::destroyWallTier;
+	float value = static_cast<float>(b->cir.r / (Bullet::default_radius*4)) * MegaDeathPower::destroyWallTier;
 	//return (value >= MegaDeathPower::destroyWallTier ? std::floor(value) : 0); //this is what I originally wanted in JS Tanks, I think, but in practice isn't preferable
 	return value;
 }
 
 float MegaDeathBulletPower::getDefenseTier(const Bullet* b) const {
-	float value = static_cast<float>(b->r / (Bullet::default_radius*4)) * MegaDeathPower::destroyWallTier;
+	float value = static_cast<float>(b->cir.r / (Bullet::default_radius*4)) * MegaDeathPower::destroyWallTier;
 	//return (value >= MegaDeathPower::destroyWallTier ? std::floor(value) : 0);
 	return value;
 }

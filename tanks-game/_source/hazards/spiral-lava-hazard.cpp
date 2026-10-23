@@ -30,9 +30,9 @@ std::unordered_map<std::string, float> SpiralLavaHazard::getWeights() const {
 }
 
 SpiralLavaHazard::SpiralLavaHazard(double xpos, double ypos, double width, int count, double dist, double rotateAngle) : RectHazard(HAZARD_TEAM) {
-	x = xpos;
-	y = ypos;
-	w = h = width;
+	rec.x = xpos;
+	rec.y = ypos;
+	rec.w = rec.h = width;
 
 	maxLavaBlobs = count;
 	lavaBlobIDs = std::vector<Game_ID>(maxLavaBlobs, -1);
@@ -113,7 +113,7 @@ ColorValueHolder SpiralLavaHazard::getColor() const {
 
 CircleHazard* SpiralLavaHazard::makeLavaBlob(int blobNum) const {
 	GenericFactoryConstructionData constructionData;
-	double* posArr = new double[3]{ this->x + this->w/2, this->y + this->h/2, getLavaBlobRadius() };
+	double* posArr = new double[3]{ this->rec.x + this->rec.w/2, this->rec.y + this->rec.h/2, getLavaBlobRadius() };
 	constructionData = GenericFactoryConstructionData(3, posArr);
 	CircleHazard* lavaBlob = HazardDataGovernor::getCircleHazardFactory("vanilla", "lava")(constructionData);
 	return lavaBlob;
@@ -134,15 +134,15 @@ double SpiralLavaHazard::getLavaBlobDist(double tickValue) const {
 }
 
 inline double SpiralLavaHazard::getLavaBlobRadius() const {
-	return std::min(this->w, this->h) / 2; //in case it's not a square
+	return std::min(this->rec.w, this->rec.h) / 2; //in case it's not a square
 }
 
 bool SpiralLavaHazard::canReachTanks() const {
 	const double reachDist = maxLavaDist + getLavaBlobRadius();
-	Circle testCircle = Circle(this->x + this->w/2, this->y + this->h/2, reachDist);
+	Circle testCircle = Circle(this->rec.x + this->rec.w/2, this->rec.y + this->rec.h/2, reachDist);
 	for (int i = 0; i < TankManager::getNumTanks(); i++) {
 		const Tank* t = TankManager::getTank(i);
-		if (CollisionHandler::partiallyCollided(&testCircle, t)) {
+		if (CollisionHandler::partiallyCollided(testCircle, t->cir)) {
 			return true;
 		}
 	}
@@ -172,35 +172,35 @@ void SpiralLavaHazard::tick() {
 		CircularLavaHazard* blob = static_cast<CircularLavaHazard*>(ch);
 		const double lavaDist = getLavaBlobDist(tickValue);
 		const float lavaAngle = getLavaBlobAngle(i, tickValue);
-		blob->x = (this->x + this->w/2) + lavaDist * std::cos(lavaAngle);
-		blob->y = (this->y + this->h/2) + lavaDist * std::sin(lavaAngle);
+		blob->cir.x = (this->rec.x + this->rec.w/2) + lavaDist * std::cos(lavaAngle);
+		blob->cir.y = (this->rec.y + this->rec.h/2) + lavaDist * std::sin(lavaAngle);
 		//I would prefer to use deltas instead of absolutes, but this is way easier
 		if (tickValue == 0) {
 			//hack to allow touching the hazard without dying
-			blob->r = getLavaBlobRadius() / 2;
+			blob->cir.r = getLavaBlobRadius() / 2;
 		} else {
-			blob->r = getLavaBlobRadius();
+			blob->cir.r = getLavaBlobRadius();
 		}
 	}
 }
 
 bool SpiralLavaHazard::reasonableLocation() const {
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
-		if (CollisionHandler::partiallyCollided(this, WallManager::getWall(i))) {
+		if (CollisionHandler::partiallyCollided(this->rec, WallManager::getWall(i)->rec)) {
 			return false;
 		}
 	}
 
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
 		const CircleHazard* ch = HazardManager::getCircleHazard(i);
-		if (CollisionHandler::partiallyCollided(this, ch)) {
+		if (CollisionHandler::partiallyCollided(this->rec, ch->cir)) {
 			return false;
 		}
 	}
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
 		const RectHazard* rh = HazardManager::getRectHazard(i);
 		if (rh->getGameID() != this->getGameID()) [[unlikely]] {
-			if (CollisionHandler::partiallyCollided(this, rh)) {
+			if (CollisionHandler::partiallyCollided(this->rec, rh->rec)) {
 				return false;
 			}
 		}
@@ -280,10 +280,10 @@ void SpiralLavaHazard::ghostDraw(float alpha) const {
 	c = ColorMixer::mix(BackgroundRect::getBackColor(), c, alpha);
 
 	float coordsAndColor[] = {
-		x,   y,     c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x+w, y,     c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x+w, y+h,   c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x,   y+h,   c.getRf(), c.getGf(), c.getBf(), c.getAf()
+		rec.x,       rec.y,         c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x+rec.w, rec.y,         c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x+rec.w, rec.y+rec.h,   c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x,       rec.y+rec.h,   c.getRf(), c.getGf(), c.getBf(), c.getAf()
 	};
 	unsigned int indices[] = {
 		0, 1, 2,

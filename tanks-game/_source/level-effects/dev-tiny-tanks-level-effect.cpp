@@ -12,7 +12,7 @@ std::unordered_map<std::string, float> DevTinyTanksLevelEffect::getWeights() con
 void DevTinyTanksLevelEffect::apply() {
 	//TODO: this should not be necessary
 	for (int i = 0; i < TankManager::getNumTanks(); i++) {
-		TankManager::getTank(i)->r *= .25;
+		TankManager::getTank(i)->cir.r *= .25;
 	}
 }
 

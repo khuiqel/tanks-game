@@ -15,10 +15,10 @@ const double PowerSquare::POWER_LINE_WIDTH = 1.0/3.0;
 const double PowerSquare::POWER_OUTLINE_MULTIPLIER = 1.5;
 
 PowerSquare::PowerSquare(double x_, double y_) : GameThing(DEFAULT_TEAM, ObjectType::Powerup) {
-	x = x_ - PowerSquare::POWER_WIDTH/2;
-	y = y_ - PowerSquare::POWER_HEIGHT/2;
-	w = PowerSquare::POWER_WIDTH;
-	h = PowerSquare::POWER_HEIGHT;
+	rec.x = x_ - PowerSquare::POWER_WIDTH/2;
+	rec.y = y_ - PowerSquare::POWER_HEIGHT/2;
+	rec.w = PowerSquare::POWER_WIDTH;
+	rec.h = PowerSquare::POWER_HEIGHT;
 }
 
 PowerSquare::PowerSquare(double x_, double y_, std::string type, std::string name) : PowerSquare(x_, y_) {
@@ -43,7 +43,7 @@ PowerSquare::PowerSquare(double x_, double y_, const std::string* types, const s
 	}
 }
 
-PowerSquare::PowerSquare(const PowerSquare& other) : PowerSquare(other.x+PowerSquare::POWER_WIDTH/2, other.y+PowerSquare::POWER_HEIGHT/2) {
+PowerSquare::PowerSquare(const PowerSquare& other) : PowerSquare(other.rec.x+PowerSquare::POWER_WIDTH/2, other.rec.y+PowerSquare::POWER_HEIGHT/2) {
 	this->numOfPowers = other.numOfPowers;
 	this->heldPowers = new Power*[numOfPowers];
 	for (int i = 0; i < numOfPowers; i++) {
@@ -190,16 +190,16 @@ void PowerSquare::drawMain(float alpha) const {
 
 	float coordsAndColor_main[] = {
 		//main ring
-		x,   y,     color.getRf(), color.getGf(), color.getBf(), color.getAf(), //0
-		x+w, y,     color.getRf(), color.getGf(), color.getBf(), color.getAf(), //1
-		x+w, y+h,   color.getRf(), color.getGf(), color.getBf(), color.getAf(), //2
-		x,   y+h,   color.getRf(), color.getGf(), color.getBf(), color.getAf(), //3
+		rec.x,       rec.y,         color.getRf(), color.getGf(), color.getBf(), color.getAf(), //0
+		rec.x+rec.w, rec.y,         color.getRf(), color.getGf(), color.getBf(), color.getAf(), //1
+		rec.x+rec.w, rec.y+rec.h,   color.getRf(), color.getGf(), color.getBf(), color.getAf(), //2
+		rec.x,       rec.y+rec.h,   color.getRf(), color.getGf(), color.getBf(), color.getAf(), //3
 
 		//inner ring
-		(x)   + (w * PowerSquare::POWER_LINE_WIDTH), (y)   + (h * PowerSquare::POWER_LINE_WIDTH),   color.getRf(), color.getGf(), color.getBf(), color.getAf(), //4
-		(x+w) - (w * PowerSquare::POWER_LINE_WIDTH), (y)   + (h * PowerSquare::POWER_LINE_WIDTH),   color.getRf(), color.getGf(), color.getBf(), color.getAf(), //5
-		(x+w) - (w * PowerSquare::POWER_LINE_WIDTH), (y+h) - (h * PowerSquare::POWER_LINE_WIDTH),   color.getRf(), color.getGf(), color.getBf(), color.getAf(), //6
-		(x)   + (w * PowerSquare::POWER_LINE_WIDTH), (y+h) - (h * PowerSquare::POWER_LINE_WIDTH),   color.getRf(), color.getGf(), color.getBf(), color.getAf()  //7
+		(rec.x)       + (rec.w * PowerSquare::POWER_LINE_WIDTH), (rec.y)       + (rec.h * PowerSquare::POWER_LINE_WIDTH),   color.getRf(), color.getGf(), color.getBf(), color.getAf(), //4
+		(rec.x+rec.w) - (rec.w * PowerSquare::POWER_LINE_WIDTH), (rec.y)       + (rec.h * PowerSquare::POWER_LINE_WIDTH),   color.getRf(), color.getGf(), color.getBf(), color.getAf(), //5
+		(rec.x+rec.w) - (rec.w * PowerSquare::POWER_LINE_WIDTH), (rec.y+rec.h) - (rec.h * PowerSquare::POWER_LINE_WIDTH),   color.getRf(), color.getGf(), color.getBf(), color.getAf(), //6
+		(rec.x)       + (rec.w * PowerSquare::POWER_LINE_WIDTH), (rec.y+rec.h) - (rec.h * PowerSquare::POWER_LINE_WIDTH),   color.getRf(), color.getGf(), color.getBf(), color.getAf()  //7
 	};
 	unsigned int indices_main[] = { //trapezoids
 		//bottom
@@ -233,16 +233,16 @@ void PowerSquare::drawOutlineThing(float alpha) const {
 
 	float coordsAndColor_outline[] = {
 		//outer ring
-		(x)   - (w * extendingMultiplier), (y)   - (h * extendingMultiplier),   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //0
-		(x+w) + (w * extendingMultiplier), (y)   - (h * extendingMultiplier),   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //1
-		(x+w) + (w * extendingMultiplier), (y+h) + (h * extendingMultiplier),   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //2
-		(x)   - (w * extendingMultiplier), (y+h) + (h * extendingMultiplier),   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //3
+		(rec.x)       - (rec.w * extendingMultiplier), (rec.y)       - (rec.h * extendingMultiplier),   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //0
+		(rec.x+rec.w) + (rec.w * extendingMultiplier), (rec.y)       - (rec.h * extendingMultiplier),   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //1
+		(rec.x+rec.w) + (rec.w * extendingMultiplier), (rec.y+ rec.h) + (rec.h * extendingMultiplier),   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //2
+		(rec.x)       - (rec.w * extendingMultiplier), (rec.y+ rec.h) + (rec.h * extendingMultiplier),   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //3
 
 		//main ring
-		x,   y,     backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //4
-		x+w, y,     backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //5
-		x+w, y+h,   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //6
-		x,   y+h,   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf()  //7
+		rec.x,       rec.y,         backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //4
+		rec.x+rec.w, rec.y,         backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //5
+		rec.x+rec.w, rec.y+rec.h,   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf(), //6
+		rec.x,       rec.y+rec.h,   backgroundMix.getRf(), backgroundMix.getGf(), backgroundMix.getBf(), backgroundMix.getAf()  //7
 	};
 	unsigned int indices_outline[] = { //trapezoids
 		//bottom

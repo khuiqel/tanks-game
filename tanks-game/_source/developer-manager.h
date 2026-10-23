@@ -23,14 +23,14 @@ private:
 	static void devInsert(int x, int y);
 
 public:
-	static void setX(Circle*, double);
-	static void setY(Circle*, double);
-	static void setR(Circle*, double);
+	static void setX(Circle& c, double x) { c.x = x; }
+	static void setY(Circle& c, double y) { c.y = y; }
+	static void setR(Circle& c, double r) { c.r = r; }
 
-	static void setX(Rect*, double);
-	static void setY(Rect*, double);
-	static void setW(Rect*, double);
-	static void setH(Rect*, double);
+	static void setX(Rect& r, double x) { r.x = x; }
+	static void setY(Rect& r, double y) { r.y = y; }
+	static void setW(Rect& r, double w) { r.w = w; }
+	static void setH(Rect& r, double h) { r.h = h; }
 
 	static void mouseButtonCallbackFunc(GLFWwindow* window, int button, int action, int mods);
 	static void mouseScrollCallbackFunc(GLFWwindow* window, double xOffset, double yOffset);

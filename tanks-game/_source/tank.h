@@ -8,7 +8,6 @@ struct TankUpdateStruct;
 #include <vector>
 
 #include "game-thing.h"
-#include "circle.h"
 #include "tank-power.h"
 
 #include "color-value-holder.h"
@@ -36,7 +35,7 @@ struct TankExtraCannonPoint {
 	TankExtraCannonPoint() { angleFromCenter = angleFromEdge = 0; }
 };
 
-class Tank : public GameThing, public Circle {
+class Tank : public GameThing {
 	friend class ResetThings;
 	friend class PowerFunctionHelper;
 	friend class EndGameHandler; //calls this->kill()

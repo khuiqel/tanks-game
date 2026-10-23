@@ -28,10 +28,10 @@ std::unordered_map<std::string, float> RectangularLightningHazard::getWeights() 
 }
 
 RectangularLightningHazard::RectangularLightningHazard(double xpos, double ypos, double width, double height) : RectHazard(HAZARD_TEAM) {
-	x = xpos;
-	y = ypos;
-	w = width;
-	h = height;
+	rec.x = xpos;
+	rec.y = ypos;
+	rec.w = width;
+	rec.h = height;
 
 	tickCount = 0;
 	tickCycle = 100; //100 is JS default (because of power speed)
@@ -46,10 +46,6 @@ RectangularLightningHazard::RectangularLightningHazard(double xpos, double ypos,
 	boltsNeeded = false;
 
 	//canAcceptPowers = false;
-}
-
-inline Circle RectangularLightningHazard::getCenterPoint() const {
-	return Circle(x + w/2, y + h/2, 0);
 }
 
 RectangularLightningHazard::~RectangularLightningHazard() {
@@ -73,67 +69,67 @@ RectHazard* RectangularLightningHazard::factory(const GenericFactoryConstruction
 	return new RectangularLightningHazard(0, 0, 0, 0);
 }
 
-void RectangularLightningHazard::specialEffectCircleCollision(const Circle* c) {
+void RectangularLightningHazard::specialEffectCircleCollision(const Circle& other) {
 	const Circle centerPoint = getCenterPoint();
 	double intersectionX, intersectionY;
 	int boltPoints;
-	if (CollisionHandler::fullyCollided(&centerPoint, c)) {
-		intersectionX = c->x;
-		intersectionY = c->y;
+	if (CollisionHandler::fullyCollided(centerPoint, other)) {
+		intersectionX = other.x;
+		intersectionY = other.y;
 		boltPoints = 2;
 	} else {
 		//if the circle's center isn't fully in the rectangle area, then the endpoint may not be inside the rectangle
-		const Circle circleCenter = Circle(c->x, c->y, 0);
-		if (CollisionHandler::fullyCollided(&circleCenter, this)) {
+		const Circle circleCenter = Circle(other.x, other.y, 0);
+		if (CollisionHandler::fullyCollided(circleCenter, this->rec)) {
 			//circle center inside rectangle area
-			SimpleVector2D distToCircle = SimpleVector2D(c->x - centerPoint.x, c->y - centerPoint.y);
-			distToCircle.changeMagnitude(-1 * c->r);
+			SimpleVector2D distToCircle = SimpleVector2D(other.x - centerPoint.x, other.y - centerPoint.y);
+			distToCircle.changeMagnitude(-1 * other.r);
 			intersectionX = centerPoint.x + distToCircle.getXComp();
 			intersectionY = centerPoint.y + distToCircle.getYComp();
 			boltPoints = getDefaultNumBoltPoints(distToCircle.getMagnitude());
 		} else {
 			//circle center outside rectangle area
 			double xpos, ypos;
-			if (c->x < x) {
-				xpos = x; //circle too far to the left
-			} else if (c->x > x+w) {
-				xpos = x+w; //circle too far to the right
+			if (other.x < rec.x) {
+				xpos = rec.x; //circle too far to the left
+			} else if (other.x > rec.x+rec.w) {
+				xpos = rec.x+rec.w; //circle too far to the right
 			} else {
-				xpos = c->x; //circle's x-position is fine
+				xpos = other.x; //circle's x-position is fine
 			}
-			if (c->y < y) {
-				ypos = y; //circle too low
-			} else if (c->y > y+h) {
-				ypos = y+h; //circle too high
+			if (other.y < rec.y) {
+				ypos = rec.y; //circle too low
+			} else if (other.y > rec.y+rec.h) {
+				ypos = rec.y+rec.h; //circle too high
 			} else {
-				ypos = c->y; //circle's y-position is fine
+				ypos = other.y; //circle's y-position is fine
 			}
 
-			std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(c, xpos, ypos, centerPoint.x, centerPoint.y);
-			if (c->x < x + w/2) {
+			std::pair<PositionHolder, PositionHolder> intersections = CollisionHandler::circleLineIntersection(other, xpos, ypos, centerPoint.x, centerPoint.y);
+			if (other.x < rec.x + rec.w/2) {
 				intersectionX = std::max(intersections.first.first, intersections.second.first);
 			} else {
 				intersectionX = std::min(intersections.first.first, intersections.second.first);
 			}
-			if (c->y < y + h/2) {
+			if (other.y < rec.y + rec.h/2) {
 				intersectionY = std::max(intersections.first.second, intersections.second.second);
 			} else {
 				intersectionY = std::min(intersections.first.second, intersections.second.second);
 			}
 
-			if (intersectionX < x || intersectionX > x+w) [[unlikely]] {
+			if (intersectionX < rec.x || intersectionX > rec.x+rec.w) [[unlikely]] {
 				std::cerr << "WARNING: rectangular lightning endpoint X out of range!\n";
-				intersectionX = std::clamp<double>(intersectionX, x, x+w);
+				intersectionX = std::clamp<double>(intersectionX, rec.x, rec.x+rec.w);
 			}
-			if (intersectionY < y || intersectionY > y+h) [[unlikely]] {
+			if (intersectionY < rec.y || intersectionY > rec.y+rec.h) [[unlikely]] {
 				std::cerr << "WARNING: rectangular lightning endpoint Y out of range!\n";
-				intersectionY = std::clamp<double>(intersectionY, y, y+h);
+				intersectionY = std::clamp<double>(intersectionY, rec.y, rec.y+rec.h);
 			}
 			boltPoints = getDefaultNumBoltPoints(std::sqrt((intersectionX - centerPoint.x)*(intersectionX - centerPoint.x) + (intersectionY - centerPoint.y)*(intersectionY - centerPoint.y)));
 		}
 	}
 
-	pushBolt(new LightningBolt(w/2, h/2, intersectionX - x, intersectionY - y, boltPoints));
+	pushBolt(new LightningBolt(rec.w/2, rec.h/2, intersectionX - rec.x, intersectionY - rec.y, boltPoints));
 }
 
 void RectangularLightningHazard::specialEffectTankCollision(const Tank* t) {
@@ -149,7 +145,7 @@ void RectangularLightningHazard::specialEffectTankCollision(const Tank* t) {
 		return;
 	}
 
-	specialEffectCircleCollision(t);
+	specialEffectCircleCollision(t->cir);
 }
 
 void RectangularLightningHazard::specialEffectBulletCollision(const Bullet* b) {
@@ -164,7 +160,7 @@ void RectangularLightningHazard::specialEffectBulletCollision(const Bullet* b) {
 		return;
 	}
 
-	specialEffectCircleCollision(b);
+	specialEffectCircleCollision(b->cir);
 }
 
 void RectangularLightningHazard::pushBolt(LightningBolt* l) {
@@ -175,9 +171,9 @@ void RectangularLightningHazard::pushBolt(LightningBolt* l) {
 void RectangularLightningHazard::pushDefaultBolt(int num, bool randomize) {
 	//the default bolt is from center to a random point
 	for (int i = 0; i < num; i++) {
-		float xEnd = w*VisualRNG::randFunc(), yEnd = h*VisualRNG::randFunc();
-		float xDelta = xEnd - static_cast<float>(w)/2, yDelta = yEnd - static_cast<float>(h)/2;
-		LightningBolt* l = new LightningBolt(w/2, h/2, xEnd, yEnd, getDefaultNumBoltPoints(std::sqrt(xDelta*xDelta + yDelta*yDelta)));
+		float xEnd = rec.w*VisualRNG::randFunc(), yEnd = rec.h*VisualRNG::randFunc();
+		float xDelta = xEnd - static_cast<float>(rec.w)/2, yDelta = yEnd - static_cast<float>(rec.h)/2;
+		LightningBolt* l = new LightningBolt(rec.w/2, rec.h/2, xEnd, yEnd, getDefaultNumBoltPoints(std::sqrt(xDelta*xDelta + yDelta*yDelta)));
 		if (randomize) {
 			pushBolt(l);
 		} else {
@@ -189,7 +185,7 @@ void RectangularLightningHazard::pushDefaultBolt(int num, bool randomize) {
 bool RectangularLightningHazard::validLocation() const {
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
 		const Wall* wa = WallManager::getWall(i);
-		if (CollisionHandler::partiallyCollidedIgnoreEdge(wa, this)) {
+		if (CollisionHandler::partiallyCollidedIgnoreEdge(wa->rec, this->rec)) {
 			return false;
 		}
 	}
@@ -200,7 +196,7 @@ bool RectangularLightningHazard::reasonableLocation() const {
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
 		const CircleHazard* ch = HazardManager::getCircleHazard(i);
 		if (ch->getName() != this->getName()) {
-			if (CollisionHandler::partiallyCollided(this, ch)) {
+			if (CollisionHandler::partiallyCollided(this->rec, ch->cir)) {
 				return false;
 			}
 		}
@@ -208,7 +204,7 @@ bool RectangularLightningHazard::reasonableLocation() const {
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
 		const RectHazard* rh = HazardManager::getRectHazard(i);
 		if (rh->getName() != this->getName()) {
-			if (CollisionHandler::partiallyCollided(this, rh)) {
+			if (CollisionHandler::partiallyCollided(this->rec, rh->rec)) {
 				return false;
 			}
 		}
@@ -218,7 +214,7 @@ bool RectangularLightningHazard::reasonableLocation() const {
 }
 
 void RectangularLightningHazard::refreshBolt(LightningBolt* l) const {
-	refreshBolt(l, std::min(h, w), std::max(h, w));
+	refreshBolt(l, std::min(rec.w, rec.h), std::max(rec.w, rec.h));
 }
 
 void RectangularLightningHazard::refreshBolt(LightningBolt* l, double smaller, double larger) const {
@@ -258,7 +254,7 @@ void RectangularLightningHazard::refreshBolt(LightningBolt* l, double smaller, d
 			randTemp = maxVariance * (VisualRNG::randFuncf()*2-1);
 			testX = l->positions[j*2 - 2] + (boltDeltaX/(l->length-1)) - randTemp * sinAngle;
 			testY = l->positions[j*2 - 1] + (boltDeltaY/(l->length-1)) + randTemp * cosAngle;
-		} while ((testX < 0 || testX > static_cast<float>(w) || testY < 0 || testY > static_cast<float>(h)) || !pointInPolygon(6, polygonX, polygonY, testX, testY));
+		} while ((testX < 0 || testX > static_cast<float>(rec.w) || testY < 0 || testY > static_cast<float>(rec.h)) || !pointInPolygon(6, polygonX, polygonY, testX, testY));
 		l->positions[j*2]   = testX;
 		l->positions[j*2+1] = testY;
 	}
@@ -374,10 +370,10 @@ void RectangularLightningHazard::drawBackground(bool pose, float alpha) const {
 	scale = scale * scale;
 
 	float coordsAndColor[] = {
-		x+(w/2) - (w/2)*scale, y+(h/2) - (h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
-		x+(w/2) + (w/2)*scale, y+(h/2) - (h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
-		x+(w/2) + (w/2)*scale, y+(h/2) + (h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
-		x+(w/2) - (w/2)*scale, y+(h/2) + (h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf()
+		rec.x+(rec.w/2) - (rec.w/2)*scale, rec.y+(rec.h/2) - (rec.h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
+		rec.x+(rec.w/2) + (rec.w/2)*scale, rec.y+(rec.h/2) - (rec.h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
+		rec.x+(rec.w/2) + (rec.w/2)*scale, rec.y+(rec.h/2) + (rec.h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf(),
+		rec.x+(rec.w/2) - (rec.w/2)*scale, rec.y+(rec.h/2) + (rec.h/2)*scale,   color.getRf(), color.getGf(), color.getBf(), color.getAf()
 	};
 	unsigned int indices[] = {
 		0, 1, 2,
@@ -399,16 +395,16 @@ void RectangularLightningHazard::drawBackgroundOutline(float alpha) const {
 
 	float coordsAndColor_outline[] = {
 		//outer
-		(x)   - lineWidth, (y)   - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //0
-		(x+w) + lineWidth, (y)   - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //1
-		(x+w) + lineWidth, (y+h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //2
-		(x)   - lineWidth, (y+h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //3
+		(rec.x)       - lineWidth, (rec.y)       - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //0
+		(rec.x+rec.w) + lineWidth, (rec.y)       - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //1
+		(rec.x+rec.w) + lineWidth, (rec.y+rec.h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //2
+		(rec.x)       - lineWidth, (rec.y+rec.h) + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //3
 
 		//inner
-		(x)   + lineWidth, (y)   + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //4
-		(x+w) - lineWidth, (y)   + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //5
-		(x+w) - lineWidth, (y+h) - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //6
-		(x)   + lineWidth, (y+h) - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf()  //7
+		(rec.x)       + lineWidth, (rec.y)       + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //4
+		(rec.x+rec.w) - lineWidth, (rec.y)       + lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //5
+		(rec.x+rec.w) - lineWidth, (rec.y+rec.h) - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf(), //6
+		(rec.x)       + lineWidth, (rec.y+rec.h) - lineWidth,   color_outline.getRf(), color_outline.getGf(), color_outline.getBf(), color_outline.getAf()  //7
 	};
 	unsigned int indices_outline[] = { //trapezoids
 		//bottom
@@ -451,14 +447,14 @@ void RectangularLightningHazard::drawBolts(float alpha) const {
 			SimpleVector2D dist = SimpleVector2D(bolts[i]->positions[(j+1)*2] - bolts[i]->positions[j*2], bolts[i]->positions[(j+1)*2+1] - bolts[i]->positions[j*2+1]);
 			SimpleVector2D distCW = SimpleVector2D(dist.getAngle() - float(PI/2), lineWidth, true);
 
-			coordsAndColor[startVertex + 0*6]   = static_cast<float>(x) + bolts[i]->positions[j*2]                     + distCW.getXComp();
-			coordsAndColor[startVertex + 0*6+1] = static_cast<float>(y) + bolts[i]->positions[j*2+1]                   + distCW.getYComp();
-			coordsAndColor[startVertex + 1*6]   = static_cast<float>(x) + bolts[i]->positions[j*2]   + dist.getXComp() + distCW.getXComp();
-			coordsAndColor[startVertex + 1*6+1] = static_cast<float>(y) + bolts[i]->positions[j*2+1] + dist.getYComp() + distCW.getYComp();
-			coordsAndColor[startVertex + 2*6]   = static_cast<float>(x) + bolts[i]->positions[j*2]   + dist.getXComp() - distCW.getXComp();
-			coordsAndColor[startVertex + 2*6+1] = static_cast<float>(y) + bolts[i]->positions[j*2+1] + dist.getYComp() - distCW.getYComp();
-			coordsAndColor[startVertex + 3*6]   = static_cast<float>(x) + bolts[i]->positions[j*2]                     - distCW.getXComp();
-			coordsAndColor[startVertex + 3*6+1] = static_cast<float>(y) + bolts[i]->positions[j*2+1]                   - distCW.getYComp();
+			coordsAndColor[startVertex + 0*6]   = static_cast<float>(rec.x) + bolts[i]->positions[j*2]                     + distCW.getXComp();
+			coordsAndColor[startVertex + 0*6+1] = static_cast<float>(rec.y) + bolts[i]->positions[j*2+1]                   + distCW.getYComp();
+			coordsAndColor[startVertex + 1*6]   = static_cast<float>(rec.x) + bolts[i]->positions[j*2]   + dist.getXComp() + distCW.getXComp();
+			coordsAndColor[startVertex + 1*6+1] = static_cast<float>(rec.y) + bolts[i]->positions[j*2+1] + dist.getYComp() + distCW.getYComp();
+			coordsAndColor[startVertex + 2*6]   = static_cast<float>(rec.x) + bolts[i]->positions[j*2]   + dist.getXComp() - distCW.getXComp();
+			coordsAndColor[startVertex + 2*6+1] = static_cast<float>(rec.y) + bolts[i]->positions[j*2+1] + dist.getYComp() - distCW.getYComp();
+			coordsAndColor[startVertex + 3*6]   = static_cast<float>(rec.x) + bolts[i]->positions[j*2]                     - distCW.getXComp();
+			coordsAndColor[startVertex + 3*6+1] = static_cast<float>(rec.y) + bolts[i]->positions[j*2+1]                   - distCW.getYComp();
 
 			for (int k = 0; k < 4; k++) {
 				coordsAndColor[startVertex + k*6+2] = color.getRf();
@@ -485,9 +481,9 @@ void RectangularLightningHazard::drawBolts_Pose(float alpha) const {
 	std::vector<LightningBolt*> poseBolts;
 	for (int i = 0; i < 4; i++) {
 		//from pushDefaultBolt(), mostly
-		float xEnd = (i%2==0 ? -1 : 1) * (w*.375), yEnd = (i/2==0 ? -1 : 1) * (h*.375);
-		float xDelta = xEnd - static_cast<float>(w)/2, yDelta = yEnd - static_cast<float>(h)/2;
-		LightningBolt* l = new LightningBolt(w/2, h/2, xEnd, yEnd, getDefaultNumBoltPoints(std::sqrt(xDelta*xDelta + yDelta*yDelta)));
+		float xEnd = (i%2==0 ? -1 : 1) * (rec.w*.375), yEnd = (i/2==0 ? -1 : 1) * (rec.h*.375);
+		float xDelta = xEnd - static_cast<float>(rec.w)/2, yDelta = yEnd - static_cast<float>(rec.h)/2;
+		LightningBolt* l = new LightningBolt(rec.w/2, rec.h/2, xEnd, yEnd, getDefaultNumBoltPoints(std::sqrt(xDelta*xDelta + yDelta*yDelta)));
 
 		refreshBolt(l);
 		poseBolts.push_back(l);
@@ -510,14 +506,14 @@ void RectangularLightningHazard::drawBolts_Pose(float alpha) const {
 			SimpleVector2D dist = SimpleVector2D(poseBolts[i]->positions[(j+1)*2] - poseBolts[i]->positions[j*2], poseBolts[i]->positions[(j+1)*2+1] - poseBolts[i]->positions[j*2+1]);
 			SimpleVector2D distCW = SimpleVector2D(dist.getAngle() - float(PI/2), lineWidth, true);
 
-			coordsAndColor[startVertex + 0*6]   = static_cast<float>(x) + poseBolts[i]->positions[j*2]                     + distCW.getXComp();
-			coordsAndColor[startVertex + 0*6+1] = static_cast<float>(y) + poseBolts[i]->positions[j*2+1]                   + distCW.getYComp();
-			coordsAndColor[startVertex + 1*6]   = static_cast<float>(x) + poseBolts[i]->positions[j*2]   + dist.getXComp() + distCW.getXComp();
-			coordsAndColor[startVertex + 1*6+1] = static_cast<float>(y) + poseBolts[i]->positions[j*2+1] + dist.getYComp() + distCW.getYComp();
-			coordsAndColor[startVertex + 2*6]   = static_cast<float>(x) + poseBolts[i]->positions[j*2]   + dist.getXComp() - distCW.getXComp();
-			coordsAndColor[startVertex + 2*6+1] = static_cast<float>(y) + poseBolts[i]->positions[j*2+1] + dist.getYComp() - distCW.getYComp();
-			coordsAndColor[startVertex + 3*6]   = static_cast<float>(x) + poseBolts[i]->positions[j*2]                     - distCW.getXComp();
-			coordsAndColor[startVertex + 3*6+1] = static_cast<float>(y) + poseBolts[i]->positions[j*2+1]                   - distCW.getYComp();
+			coordsAndColor[startVertex + 0*6]   = static_cast<float>(rec.x) + poseBolts[i]->positions[j*2]                     + distCW.getXComp();
+			coordsAndColor[startVertex + 0*6+1] = static_cast<float>(rec.y) + poseBolts[i]->positions[j*2+1]                   + distCW.getYComp();
+			coordsAndColor[startVertex + 1*6]   = static_cast<float>(rec.x) + poseBolts[i]->positions[j*2]   + dist.getXComp() + distCW.getXComp();
+			coordsAndColor[startVertex + 1*6+1] = static_cast<float>(rec.y) + poseBolts[i]->positions[j*2+1] + dist.getYComp() + distCW.getYComp();
+			coordsAndColor[startVertex + 2*6]   = static_cast<float>(rec.x) + poseBolts[i]->positions[j*2]   + dist.getXComp() - distCW.getXComp();
+			coordsAndColor[startVertex + 2*6+1] = static_cast<float>(rec.y) + poseBolts[i]->positions[j*2+1] + dist.getYComp() - distCW.getYComp();
+			coordsAndColor[startVertex + 3*6]   = static_cast<float>(rec.x) + poseBolts[i]->positions[j*2]                     - distCW.getXComp();
+			coordsAndColor[startVertex + 3*6+1] = static_cast<float>(rec.y) + poseBolts[i]->positions[j*2+1]                   - distCW.getYComp();
 
 			for (int k = 0; k < 4; k++) {
 				coordsAndColor[startVertex + k*6+2] = color.getRf();

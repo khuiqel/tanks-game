@@ -8,10 +8,10 @@
 #include "background-rect.h"
 
 Wall::Wall(double x_, double y_, double w_, double h_, const ColorValueHolder& c) : GameThing(DEFAULT_TEAM, ObjectType::Wall) {
-	this->x = x_;
-	this->y = y_;
-	this->w = w_;
-	this->h = h_;
+	this->rec.x = x_;
+	this->rec.y = y_;
+	this->rec.w = w_;
+	this->rec.h = h_;
 	this->color = c;
 }
 
@@ -20,8 +20,8 @@ Wall::~Wall() {
 }
 
 void Wall::update(const WallUpdateStruct* up) {
-	this->x += up->x;
-	this->y += up->y;
+	this->rec.x += up->x;
+	this->rec.y += up->y;
 }
 
 void Wall::draw() const {
@@ -91,10 +91,10 @@ void Wall::ghostDraw(float alpha) const {
 	c = ColorMixer::mix(BackgroundRect::getBackColor(), c, alpha);
 
 	float coordsAndColor[] = {
-		x,   y,     c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x+w, y,     c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x+w, y+h,   c.getRf(), c.getGf(), c.getBf(), c.getAf(),
-		x,   y+h,   c.getRf(), c.getGf(), c.getBf(), c.getAf()
+		rec.x,       rec.y,         c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x+rec.w, rec.y,         c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x+rec.w, rec.y+rec.h,   c.getRf(), c.getGf(), c.getBf(), c.getAf(),
+		rec.x,       rec.y+rec.h,   c.getRf(), c.getGf(), c.getBf(), c.getAf()
 	};
 	unsigned int indices[] = {
 		0, 1, 2,

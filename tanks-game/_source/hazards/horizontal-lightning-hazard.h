@@ -12,15 +12,19 @@ protected:
 	virtual void pushBolt(LightningBolt*, bool simpleRefresh);
 	virtual void pushDefaultBolt(int num, bool randomize) override;
 
-	inline Circle getLeftPoint() const; //for checks when a bullet/tank collides
-	inline Circle getRightPoint() const;
+	inline Circle getLeftPoint() const {
+		return Circle(rec.x,         rec.y + rec.h/2, 0);
+	}
+	inline Circle getRightPoint() const {
+		return Circle(rec.x + rec.w, rec.y + rec.h/2, 0);
+	}
 
 public:
 	//virtual std::vector<std::string> getHazardTypes() const override; //matched with RectangularLightningHazard
 	virtual std::unordered_map<std::string, float> getWeights() const override;
 
 protected:
-	virtual void specialEffectCircleCollision(const Circle*) override;
+	virtual void specialEffectCircleCollision(const Circle&) override;
 
 public:
 	virtual bool validLocation() const override;

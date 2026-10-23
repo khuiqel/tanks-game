@@ -1,6 +1,5 @@
 #include "end-game-handler.h"
 
-#include "constants.h"
 #include <iostream>
 
 #include "collision-handler.h"
@@ -145,7 +144,7 @@ InteractionUpdateHolder<TankUpdateStruct, TankUpdateStruct> EndGameHandler::dete
 			secondTankDies = true;
 			break;
 		case PriorityResult::neitherDie: //normal result
-			vecs = CollisionHandler::pushMovableAwayFromMovable_vecOnly(t1, t2);
+			vecs = CollisionHandler::pushMovableAwayFromMovable_vecOnly(t1->cir, t2->cir);
 			break;
 		case PriorityResult::firstDies:
 			firstTankDies = true;
@@ -387,7 +386,7 @@ InteractionUpdateHolder<BulletUpdateStruct, RectHazardUpdateStruct> EndGameHandl
 }
 
 InteractionUpdateHolder<TankUpdateStruct, WallUpdateStruct> EndGameHandler::determineWinner(const Tank* t, const Wall* w, bool attemptTankDeath, bool attemptWallDeath) {
-	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(t, w);
+	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(t->cir, w->rec);
 	bool tankDies = attemptTankDeath;
 	if (tankDies) {
 		tankDies = killTank(const_cast<Tank*>(t), w);

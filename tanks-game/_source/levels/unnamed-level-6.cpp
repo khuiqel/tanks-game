@@ -24,7 +24,7 @@ std::unordered_map<std::string, float> UnnamedLevel6::getWeights() const {
 
 void UnnamedLevel6::initialize() {
 	ResetThings::tankPositionReset(ResetThings::default_tankToEdgeDist, GAME_HEIGHT - 2*20, 2);
-	if (TankManager::getTank(0)->getY() > GAME_HEIGHT/2) {
+	if (TankManager::getTank(0)->cir.getY() > GAME_HEIGHT/2) {
 		TankManager::getTank(0)->velocity.changeAngle(-PI/2);
 		TankManager::getTank(1)->velocity.changeAngle(-PI/2);
 	} else {

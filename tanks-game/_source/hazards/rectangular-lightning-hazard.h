@@ -14,7 +14,10 @@ protected:
 	virtual void pushBolt(LightningBolt*) override;
 	virtual void pushDefaultBolt(int num, bool randomize) override; //randomize should be true all of the time
 
-	inline Circle getCenterPoint() const; //for checks when a bullet/tank collides (needs to be a function in case the lightning changes size or position)
+	inline Circle getCenterPoint() const {
+		//for checks when a bullet/tank collides (needs to be a function in case the lightning changes size or position)
+		return Circle(rec.x + rec.w/2, rec.y + rec.h/2, 0);
+	}
 
 public:
 	virtual std::vector<std::string> getHazardTypes() const override {
@@ -37,7 +40,7 @@ public:
 	virtual float getDefenseTier() const override { return HIGH_TIER; }
 
 protected:
-	virtual void specialEffectCircleCollision(const Circle*); //tanks and bullets are both circles, so calculating the bolt positions would be the same
+	virtual void specialEffectCircleCollision(const Circle&); //tanks and bullets are both circles, so calculating the bolt positions would be the same
 
 public:
 	virtual bool validLocation() const override;

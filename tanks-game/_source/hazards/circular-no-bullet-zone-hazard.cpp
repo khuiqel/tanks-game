@@ -33,9 +33,9 @@ std::unordered_map<std::string, float> CircularNoBulletZoneHazard::getWeights() 
 }
 
 CircularNoBulletZoneHazard::CircularNoBulletZoneHazard(double xpos, double ypos, double radius) : CircleHazard(HAZARD_TEAM) {
-	x = xpos;
-	y = ypos;
-	r = radius;
+	cir.x = xpos;
+	cir.y = ypos;
+	cir.r = radius;
 
 	//canAcceptPowers = false;
 
@@ -130,7 +130,7 @@ CircleHazard* CircularNoBulletZoneHazard::factory(const GenericFactoryConstructi
 
 bool CircularNoBulletZoneHazard::reasonableLocation() const {
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
-		if (CollisionHandler::fullyCollided(this, WallManager::getWall(i))) {
+		if (CollisionHandler::fullyCollided(this->cir, WallManager::getWall(i)->rec)) {
 			return false;
 		}
 	}
@@ -138,14 +138,14 @@ bool CircularNoBulletZoneHazard::reasonableLocation() const {
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
 		const CircleHazard* ch = HazardManager::getCircleHazard(i);
 		if (ch->getName() != this->getName()) {
-			if (CollisionHandler::partiallyCollided(this, ch)) {
+			if (CollisionHandler::partiallyCollided(this->cir, ch->cir)) {
 				return false;
 			}
 		}
 	}
 	//don't allow the other version, it looks weird
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
-		if (CollisionHandler::partiallyCollided(this, HazardManager::getRectHazard(i))) {
+		if (CollisionHandler::partiallyCollided(this->cir, HazardManager::getRectHazard(i)->rec)) {
 			return false;
 		}
 	}
@@ -221,15 +221,15 @@ void CircularNoBulletZoneHazard::ghostDraw(float alpha) const {
 	color_background = ColorMixer::mix(BackgroundRect::getBackColor(), color_background, alpha);
 
 	float coordsAndColor_background[(Circle::NumOfSides+1)*(2+4)];
-	coordsAndColor_background[0] = x;
-	coordsAndColor_background[1] = y;
+	coordsAndColor_background[0] = cir.x;
+	coordsAndColor_background[1] = cir.y;
 	coordsAndColor_background[2] = color_background.getRf();
 	coordsAndColor_background[3] = color_background.getGf();
 	coordsAndColor_background[4] = color_background.getBf();
 	coordsAndColor_background[5] = color_background.getAf();
 	for (int i = 1; i < Circle::NumOfSides+1; i++) {
-		coordsAndColor_background[i*6]   = static_cast<float>(x) + static_cast<float>(r) * body_vertices[i].getXComp();
-		coordsAndColor_background[i*6+1] = static_cast<float>(y) + static_cast<float>(r) * body_vertices[i].getYComp();
+		coordsAndColor_background[i*6]   = static_cast<float>(cir.x) + static_cast<float>(cir.r) * body_vertices[i].getXComp();
+		coordsAndColor_background[i*6+1] = static_cast<float>(cir.y) + static_cast<float>(cir.r) * body_vertices[i].getYComp();
 		coordsAndColor_background[i*6+2] = color_background.getRf();
 		coordsAndColor_background[i*6+3] = color_background.getGf();
 		coordsAndColor_background[i*6+4] = color_background.getBf();
@@ -243,15 +243,15 @@ void CircularNoBulletZoneHazard::ghostDraw(float alpha) const {
 	color_extra = ColorMixer::mix(BackgroundRect::getBackColor(), color_extra, alpha);
 
 	float* coordsAndColor_extra = new float[redX_vertices_count * (2+4)];
-	coordsAndColor_extra[0] = x;
-	coordsAndColor_extra[1] = y;
+	coordsAndColor_extra[0] = cir.x;
+	coordsAndColor_extra[1] = cir.y;
 	coordsAndColor_extra[2] = color_extra.getRf();
 	coordsAndColor_extra[3] = color_extra.getGf();
 	coordsAndColor_extra[4] = color_extra.getBf();
 	coordsAndColor_extra[5] = color_extra.getAf();
 	for (int i = 1; i < redX_vertices_count; i++) {
-		coordsAndColor_extra[i*6]   = static_cast<float>(x) + static_cast<float>(r) * redX_vertices[i].getXComp();
-		coordsAndColor_extra[i*6+1] = static_cast<float>(y) + static_cast<float>(r) * redX_vertices[i].getYComp();
+		coordsAndColor_extra[i*6]   = static_cast<float>(cir.x) + static_cast<float>(cir.r) * redX_vertices[i].getXComp();
+		coordsAndColor_extra[i*6+1] = static_cast<float>(cir.y) + static_cast<float>(cir.r) * redX_vertices[i].getYComp();
 		coordsAndColor_extra[i*6+2] = color_extra.getRf();
 		coordsAndColor_extra[i*6+3] = color_extra.getGf();
 		coordsAndColor_extra[i*6+4] = color_extra.getBf();

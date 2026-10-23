@@ -67,9 +67,9 @@ SwarmTankPower::SwarmTankPower() {
 
 InteractionBoolHolder SwarmBulletPower::modifiedMovement(Bullet* b) {
 	const Tank* parentTank = TankManager::getTankByID(b->getParentID());
-	const float interiorRadius = parentTank->r * 2;
-	//const SimpleVector2D distToTank = SimpleVector2D(parentTank->x - b->x, parentTank->y - b->y);
-	const float distToTankSquared = (parentTank->x - b->x)*(parentTank->x - b->x) + (parentTank->y - b->y)*(parentTank->y - b->y);
+	const float interiorRadius = parentTank->cir.r * 2;
+	//const SimpleVector2D distToTank = SimpleVector2D(parentTank->cir.x - b->cir.x, parentTank->cir.y - b->cir.y);
+	const float distToTankSquared = (parentTank->cir.x - b->cir.x)*(parentTank->cir.x - b->cir.x) + (parentTank->cir.y - b->cir.y)*(parentTank->cir.y - b->cir.y);
 	if (distToTankSquared <= interiorRadius*interiorRadius) {
 		//don't do anything
 		return { false };
@@ -82,16 +82,16 @@ InteractionBoolHolder SwarmBulletPower::modifiedMovement(Bullet* b) {
 
 	const float r = interiorRadius;
 	const float d0Squared = distToTankSquared;
-	const float x0 = b->x - parentTank->x;
-	const float y0 = b->y - parentTank->y;
+	const float x0 = b->cir.x - parentTank->cir.x;
+	const float y0 = b->cir.y - parentTank->cir.y;
 
 	const float point1XFromTank = ((r*r) / d0Squared) * x0   +   (r / d0Squared * std::sqrt(d0Squared - (r*r))) * -y0;
 	const float point1YFromTank = ((r*r) / d0Squared) * y0   +   (r / d0Squared * std::sqrt(d0Squared - (r*r))) * x0;
 	const float point2XFromTank = ((r*r) / d0Squared) * x0   -   (r / d0Squared * std::sqrt(d0Squared - (r*r))) * -y0;
 	const float point2YFromTank = ((r*r) / d0Squared) * y0   -   (r / d0Squared * std::sqrt(d0Squared - (r*r))) * x0;
 
-	const SimpleVector2D distToPoint1 = SimpleVector2D(point1XFromTank - x0, point1YFromTank - y0); //SimpleVector2D((parentTank->x + point1XFromTank) - b->x, (parentTank->y + point1YFromTank) - b->y);
-	const SimpleVector2D distToPoint2 = SimpleVector2D(point2XFromTank - x0, point2YFromTank - y0); //SimpleVector2D((parentTank->x + point2XFromTank) - b->x, (parentTank->y + point2YFromTank) - b->y);
+	const SimpleVector2D distToPoint1 = SimpleVector2D(point1XFromTank - x0, point1YFromTank - y0); //SimpleVector2D((parentTank->cir.x + point1XFromTank) - b->cir.x, (parentTank->cir.y + point1YFromTank) - b->cir.y);
+	const SimpleVector2D distToPoint2 = SimpleVector2D(point2XFromTank - x0, point2YFromTank - y0); //SimpleVector2D((parentTank->cir.x + point2XFromTank) - b->cir.x, (parentTank->cir.y + point2YFromTank) - b->cir.y);
 	const float angleToPoint1 = SimpleVector2D::angleBetween(distToPoint1, b->velocity);
 	const float angleToPoint2 = SimpleVector2D::angleBetween(distToPoint2, b->velocity);
 
@@ -129,11 +129,11 @@ InteractionBoolHolder SwarmBulletPower::modifiedEdgeCollision(Bullet* b) {
 	//in the event the tank's size changes while the bullet is out of bounds, the "safe area" would change
 	//therefore, allow double the circling radius, because that should be plenty
 	const Tank* parentTank = TankManager::getTankByID(b->getParentID());
-	const double interiorRadius = parentTank->r * 4; //changed here
+	const double interiorRadius = parentTank->cir.r * 4; //changed here
 
-	return { ((b->velocity.getMagnitude() == 0) && ((b->x + b->r <= 0) || (b->x - b->r >= GAME_WIDTH) || (b->y + b->r <= 0) || (b->y - b->r >= GAME_HEIGHT))) ||
-	         ((b->x - b->r >= GAME_WIDTH+interiorRadius)  || (b->x + b->r <= -interiorRadius) ||
-	         ((b->y - b->r >= GAME_HEIGHT+interiorRadius) || (b->y + b->r <= -interiorRadius))) };
+	return { ((b->velocity.getMagnitude() == 0) && ((b->cir.x + b->cir.r <= 0) || (b->cir.x - b->cir.r >= GAME_WIDTH) || (b->cir.y + b->cir.r <= 0) || (b->cir.y - b->cir.r >= GAME_HEIGHT))) ||
+	         ((b->cir.x - b->cir.r >= GAME_WIDTH+interiorRadius)  || (b->cir.x + b->cir.r <= -interiorRadius) ||
+	         ((b->cir.y - b->cir.r >= GAME_HEIGHT+interiorRadius) || (b->cir.y + b->cir.r <= -interiorRadius))) };
 }
 
 TankPower* SwarmBulletPower::makeTankPower() const {

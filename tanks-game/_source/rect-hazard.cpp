@@ -18,17 +18,17 @@ std::unordered_map<std::string, float> RectHazard::getWeights() const {
 */
 
 void RectHazard::update(const RectHazardUpdateStruct* up) {
-	this->x += up->x;
-	this->y += up->y;
+	this->rec.x += up->x;
+	this->rec.y += up->y;
 }
 
 InteractionUpdateHolder<TankUpdateStruct, RectHazardUpdateStruct> RectHazard::modifiedTankCollision(const Tank* t) const {
-	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(t, this);
+	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(t->cir, this->rec);
 	return { false, false, new TankUpdateStruct(vec.first, vec.second, 0,0), nullptr };
 }
 
 InteractionUpdateHolder<BulletUpdateStruct, RectHazardUpdateStruct> RectHazard::modifiedBulletCollision(const Bullet* b) const {
-	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(b, this);
+	std::pair<double, double> vec = CollisionHandler::pushMovableAwayFromImmovable_vecOnly(b->cir, this->rec);
 	return { false, false, new BulletUpdateStruct(vec.first, vec.second, 0,0,0), nullptr };
 }
 

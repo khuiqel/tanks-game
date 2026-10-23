@@ -62,7 +62,7 @@ void BananaSplitBulletPower::bananaExplode(const Bullet* b) {
 		}
 		newVelocity = newVelocity * ((GameRNG::randFuncf()+GameRNG::randFuncf())/2 * (BananaPower::maxNewBulletVelocityMultiplier - BananaPower::minNewBulletVelocityMultiplier) + BananaPower::minNewBulletVelocityMultiplier);
 		const float newAngle = b->velocity.getAngle() + ((float(i)/(BananaSplitPower::bananaSplitCount-1)) * (2*BananaSplitPower::bananaSplitAngleDeviation) - BananaSplitPower::bananaSplitAngleDeviation); //[-1,1) * deviation
-		BulletManager::pushBullet(new Bullet(b->x, b->y, b->r/2, newAngle, newVelocity, b->getTeamID(), b->getParentIDType(), b->getParentID(), bp, true));
+		BulletManager::pushBullet(new Bullet(b->cir.x, b->cir.y, b->cir.r/2, newAngle, newVelocity, b->getTeamID(), b->getParentIDType(), b->getParentID(), bp, true));
 		delete bp;
 	}
 }

@@ -44,7 +44,7 @@ BulletPower* AnnoyingTankPower::makeBulletPower() const {
 InteractionBoolHolder AnnoyingTankPower::modifiedEdgeCollision(Tank* parent) {
 	//this isn't annoying, I just wanted to do it
 	//keep the tank in-bounds, but move "in-bounds" one tank diameter away
-	CollisionHandler::edgeConstrain(parent, parent->getR() * -2);
+	CollisionHandler::edgeConstrain(parent->cir, parent->cir.getR() * -2);
 
 	return { false };
 }
@@ -71,7 +71,7 @@ TankPower* AnnoyingBulletPower::makeTankPower() const {
 }
 
 InteractionUpdateHolder<BulletUpdateStruct, TankUpdateStruct> AnnoyingBulletPower::modifiedCollisionWithTank(const Bullet* parent, const Tank* t) {
-	std::pair<std::pair<double, double>, std::pair<double, double>> vecs = CollisionHandler::pushMovableAwayFromMovable_vecOnly(parent, t);
+	std::pair<std::pair<double, double>, std::pair<double, double>> vecs = CollisionHandler::pushMovableAwayFromMovable_vecOnly(parent->cir, t->cir);
 	return { false, false, new BulletUpdateStruct(vecs.first.first, vecs.first.second, 0,0,0), new TankUpdateStruct(vecs.second.first, vecs.second.second, 0,0) };
 }
 

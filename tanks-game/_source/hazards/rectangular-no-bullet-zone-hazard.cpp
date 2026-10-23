@@ -23,10 +23,10 @@ std::unordered_map<std::string, float> RectangularNoBulletZoneHazard::getWeights
 }
 
 RectangularNoBulletZoneHazard::RectangularNoBulletZoneHazard(double xpos, double ypos, double width, double height) : RectHazard(HAZARD_TEAM) {
-	x = xpos;
-	y = ypos;
-	w = width;
-	h = height;
+	rec.x = xpos;
+	rec.y = ypos;
+	rec.w = width;
+	rec.h = height;
 
 	//canAcceptPowers = false;
 }
@@ -54,21 +54,21 @@ RectHazard* RectangularNoBulletZoneHazard::factory(const GenericFactoryConstruct
 
 bool RectangularNoBulletZoneHazard::reasonableLocation() const {
 	for (int i = 0; i < WallManager::getNumWalls(); i++) {
-		if (CollisionHandler::fullyCollided(this, WallManager::getWall(i))) {
+		if (CollisionHandler::fullyCollided(this->rec, WallManager::getWall(i)->rec)) {
 			return false;
 		}
 	}
 
 	//don't allow the other version, it looks weird
 	for (int i = 0; i < HazardManager::getNumCircleHazards(); i++) {
-		if (CollisionHandler::partiallyCollided(this, HazardManager::getCircleHazard(i))) {
+		if (CollisionHandler::partiallyCollided(this->rec, HazardManager::getCircleHazard(i)->cir)) {
 			return false;
 		}
 	}
 	for (int i = 0; i < HazardManager::getNumRectHazards(); i++) {
 		const RectHazard* rh = HazardManager::getRectHazard(i);
 		if (rh->getName() != this->getName()) {
-			if (CollisionHandler::partiallyCollided(this, rh)) {
+			if (CollisionHandler::partiallyCollided(this->rec, rh->rec)) {
 				return false;
 			}
 		}
@@ -145,10 +145,10 @@ void RectangularNoBulletZoneHazard::ghostDraw(float alpha) const {
 	color_background = ColorMixer::mix(BackgroundRect::getBackColor(), color_background, alpha);
 
 	float coordsAndColor_background[] = {
-		x,   y,     color_background.getRf(), color_background.getGf(), color_background.getBf(), color_background.getAf(),
-		x+w, y,     color_background.getRf(), color_background.getGf(), color_background.getBf(), color_background.getAf(),
-		x+w, y+h,   color_background.getRf(), color_background.getGf(), color_background.getBf(), color_background.getAf(),
-		x,   y+h,   color_background.getRf(), color_background.getGf(), color_background.getBf(), color_background.getAf()
+		rec.x,       rec.y,         color_background.getRf(), color_background.getGf(), color_background.getBf(), color_background.getAf(),
+		rec.x+rec.w, rec.y,         color_background.getRf(), color_background.getGf(), color_background.getBf(), color_background.getAf(),
+		rec.x+rec.w, rec.y+rec.h,   color_background.getRf(), color_background.getGf(), color_background.getBf(), color_background.getAf(),
+		rec.x,       rec.y+rec.h,   color_background.getRf(), color_background.getGf(), color_background.getBf(), color_background.getAf()
 	};
 	unsigned int indices_background[] = {
 		0, 1, 2,
@@ -162,24 +162,24 @@ void RectangularNoBulletZoneHazard::ghostDraw(float alpha) const {
 	color_extra = ColorMixer::mix(BackgroundRect::getBackColor(), color_extra, alpha);
 	float coordsAndColor_extra[] = {
 		//bottom left:
-		x,               y,                 color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(), //0
-		x + w*X_WIDTH,   y,                 color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
-		x,               y + h*X_WIDTH,     color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
+		rec.x,                       rec.y,                         color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(), //0
+		rec.x + rec.w*X_WIDTH,       rec.y,                         color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
+		rec.x,                       rec.y + rec.h*X_WIDTH,         color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
 
 		//top right:
-		x+w,             y+h,               color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(), //3
-		x+w - w*X_WIDTH, y+h,               color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
-		x+w,             y+h - h*X_WIDTH,   color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
+		rec.x+rec.w,                 rec.y+rec.h,                   color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(), //3
+		rec.x+rec.w - rec.w*X_WIDTH, rec.y+rec.h,                   color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
+		rec.x+rec.w,                 rec.y+rec.h - rec.h*X_WIDTH,   color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
 
 		//top left:
-		x,               y+h,               color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(), //6
-		x,               y+h - h*X_WIDTH,   color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
-		x + w*X_WIDTH,   y+h,               color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
+		rec.x,                       rec.y+rec.h,                   color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(), //6
+		rec.x,                       rec.y+rec.h - rec.h*X_WIDTH,   color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
+		rec.x + rec.w*X_WIDTH,       rec.y+rec.h,                   color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
 
 		//bottom right:
-		x+w,             y,                 color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(), //9
-		x+w,             y + h*X_WIDTH,     color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
-		x+w - w*X_WIDTH, y,                 color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf()
+		rec.x+rec.w,                 rec.y,                         color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(), //9
+		rec.x+rec.w,                 rec.y + rec.h*X_WIDTH,         color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf(),
+		rec.x+rec.w - rec.w*X_WIDTH, rec.y,                         color_extra.getRf(), color_extra.getGf(), color_extra.getBf(), color_extra.getAf()
 	};
 	unsigned int indices_extra[] = {
 		0,  1,  2,  //bottom left tip

@@ -35,9 +35,9 @@ void TimedRewardLevel::tick() {
 	for (int i = 0; i < 4; i++) {
 		Wall* tempWall = WallManager::getWallByID(movingWalls[i]);
 		if (tempWall != nullptr) {
-			//tempWall->y += (10 * std::sin((2*PI) * GameManager::getTickCount() / 200)) * ((i/2 == 0)*2-1);
-			tempWall->y += ((2*PI)/200 * 10 * std::cos(2*PI * GameManager::getTickCount() / 200)) * ((i/2 == 0)*2-1); //derivative
-			//std::cout << tempWall->y << std::endl;
+			//tempWall->rec.y += (10 * std::sin((2*PI) * GameManager::getTickCount() / 200)) * ((i/2 == 0)*2-1);
+			tempWall->rec.y += ((2*PI)/200 * 10 * std::cos(2*PI * GameManager::getTickCount() / 200)) * ((i/2 == 0)*2-1); //derivative
+			//std::cout << tempWall->rec.y << std::endl;
 		}
 	}
 }

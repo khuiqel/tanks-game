@@ -69,13 +69,13 @@ void WindLevelEffect::doEffects(Level* parent) const {
 	if (getWindStrengthMultiplier() > 0) {
 		for (int i = 0; i < TankManager::getNumTanks(); i++) {
 			Tank* t = TankManager::getTank(i);
-			t->x += pushDirection.getXComp() * getWindStrengthMultiplier();
-			t->y += pushDirection.getYComp() * getWindStrengthMultiplier();
+			t->cir.x += pushDirection.getXComp() * getWindStrengthMultiplier();
+			t->cir.y += pushDirection.getYComp() * getWindStrengthMultiplier();
 		}
 		for (int i = 0; i < BulletManager::getNumBullets(); i++) {
 			Bullet* b = BulletManager::getBullet(i);
-			b->x += pushDirection.getXComp() * getWindStrengthMultiplier();
-			b->y += pushDirection.getYComp() * getWindStrengthMultiplier();
+			b->cir.x += pushDirection.getXComp() * getWindStrengthMultiplier();
+			b->cir.y += pushDirection.getYComp() * getWindStrengthMultiplier();
 		}
 	}
 }

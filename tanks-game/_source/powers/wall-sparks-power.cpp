@@ -71,7 +71,7 @@ void WallSparksBulletPower::sparkExplode(const Bullet* b, const BulletUpdateStru
 		}
 		newVelocity = newVelocity * ((GameRNG::randFuncf()+GameRNG::randFuncf())/2 * (WallSparksPower::maxNewBulletVelocity - WallSparksPower::minNewBulletVelocity) + WallSparksPower::minNewBulletVelocity);
 		float newAngle = (b->velocity.getAngle() + b_update->angle) + (GameRNG::randFuncf()+GameRNG::randFuncf() - 1) * WallSparksPower::bulletAngleDeviation;
-		BulletManager::pushBullet(new Bullet(b->x + b_update->x, b->y + b_update->y, b->r, newAngle, newVelocity, b->getTeamID(), b->getParentIDType(), b->getParentID(), bp, true));
+		BulletManager::pushBullet(new Bullet(b->cir.x + b_update->x, b->cir.y + b_update->y, b->cir.r, newAngle, newVelocity, b->getTeamID(), b->getParentIDType(), b->getParentID(), bp, true));
 		delete bp;
 	}
 }
@@ -83,7 +83,7 @@ InteractionBoolHolder WallSparksBulletPower::modifiedEdgeCollision(Bullet* b) {
 	//bool bouncedX = false;
 	BulletUpdateStruct b_update;
 
-	if (CollisionHandler::partiallyOutOfBounds(b)) {
+	if (CollisionHandler::partiallyOutOfBounds(b->cir)) {
 		auto result = PowerFunctionHelper::bounceEdgeGenericY(b);
 		if (result.first) {
 			bouncesLeft--;
@@ -95,11 +95,11 @@ InteractionBoolHolder WallSparksBulletPower::modifiedEdgeCollision(Bullet* b) {
 		if (bouncesLeft <= 0) {
 			modifiesCollisionWithWall = false; //for wall sparks
 			modifiesEdgeCollision = false;
-			return { CollisionHandler::fullyOutOfBounds(b) };
+			return { CollisionHandler::fullyOutOfBounds(b->cir) };
 		}
 	}
 
-	if (CollisionHandler::partiallyOutOfBounds(b)) {
+	if (CollisionHandler::partiallyOutOfBounds(b->cir)) {
 		auto result = PowerFunctionHelper::bounceEdgeGenericX(b);
 		if (result.first) {
 			bouncesLeft--;
@@ -111,11 +111,11 @@ InteractionBoolHolder WallSparksBulletPower::modifiedEdgeCollision(Bullet* b) {
 		if (bouncesLeft <= 0) {
 			modifiesCollisionWithWall = false; //for wall sparks
 			modifiesEdgeCollision = false;
-			return { CollisionHandler::fullyOutOfBounds(b) };
+			return { CollisionHandler::fullyOutOfBounds(b->cir) };
 		}
 	}
 
-	if (!bouncedY && CollisionHandler::partiallyOutOfBounds(b)) {
+	if (!bouncedY && CollisionHandler::partiallyOutOfBounds(b->cir)) {
 		auto result = PowerFunctionHelper::bounceEdgeGenericY(b);
 		if (result.first) {
 			bouncesLeft--;
@@ -127,11 +127,11 @@ InteractionBoolHolder WallSparksBulletPower::modifiedEdgeCollision(Bullet* b) {
 		if (bouncesLeft <= 0) {
 			modifiesCollisionWithWall = false; //for wall sparks
 			modifiesEdgeCollision = false;
-			//return { CollisionHandler::fullyOutOfBounds(b) };
+			//return { CollisionHandler::fullyOutOfBounds(b->cir) };
 		}
 	}
 
-	return { CollisionHandler::fullyOutOfBounds(b) };
+	return { CollisionHandler::fullyOutOfBounds(b->cir) };
 }
 
 InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct> WallSparksBulletPower::modifiedCollisionWithWall(const Bullet* b, const Wall* w) {

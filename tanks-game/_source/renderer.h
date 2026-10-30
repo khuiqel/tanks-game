@@ -41,14 +41,21 @@ private:
 	static void Cleanup();
 
 private:
+	enum class ShaderType {
+		None,
+		MainBatched,
+		Bullet,
+	};
+
 	struct VertexDrawingData {
-		std::string m_shaderName;
+		ShaderType m_shaderType;
 		//NOTE: normally a virtual destructor would be required (to avoid an enormous memory leak)
 		//however, the pointer is cast to the derived class before deleting, thus avoiding this requirement
 		//virtual ~VertexDrawingData() {}
 	};
 
 	struct MainBatched_VertexData final : public VertexDrawingData {
+		//TODO: pad to 64B?
 		std::vector<float> m_vertices;
 		std::vector<unsigned int> m_indices;
 		static const unsigned int maxVerticesDataLength;

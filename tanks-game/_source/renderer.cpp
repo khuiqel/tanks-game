@@ -115,7 +115,7 @@ bool Renderer::Bullet_VertexData::enoughRoomForMoreBulletValues(unsigned int pus
 }
 
 Renderer::MainBatched_VertexData::MainBatched_VertexData() {
-	m_shaderName = "main";
+	m_shaderType = ShaderType::MainBatched;
 	#ifdef NDEBUG
 	m_vertices.reserve(MainBatched_VertexData::maxVerticesDataLength);
 	m_indices.reserve(MainBatched_VertexData::maxIndicesDataLength);
@@ -125,7 +125,7 @@ Renderer::MainBatched_VertexData::MainBatched_VertexData() {
 }
 
 Renderer::Bullet_VertexData::Bullet_VertexData() {
-	m_shaderName = "bullet";
+	m_shaderType = ShaderType::Bullet;
 	#ifdef NDEBUG
 	m_bulletValues.reserve(Bullet_VertexData::maxDataLength);
 	#else
@@ -201,16 +201,16 @@ void Renderer::Clear() {
 #include "window-initializer.h"
 void Renderer::ActuallyFlush() {
 	auto start = FrameTimeGraph::getTime();
-	std::string currentShaderName = "";
+	ShaderType currentShaderType = ShaderType::None;
 	for (int i = 0; i < sceneList.size(); i++) {
 		const std::string& sceneName = sceneList[i];
 		std::vector<VertexDrawingData*>& sceneDrawCalls = sceneData[sceneName];
 		for (int j = 0; j < sceneDrawCalls.size(); j++) {
-			if (sceneDrawCalls[j]->m_shaderName != currentShaderName) {
-				if (sceneDrawCalls[j]->m_shaderName == "main") {
+			if (sceneDrawCalls[j]->m_shaderType != currentShaderType) {
+				if (sceneDrawCalls[j]->m_shaderType == ShaderType::MainBatched) {
 					bindShader(Renderer::getShader("main"));
 					bindVertexArrayObject(batched_vao);
-				} else if (sceneDrawCalls[j]->m_shaderName == "bullet") {
+				} else if (sceneDrawCalls[j]->m_shaderType == ShaderType::Bullet) {
 					bindShader(Renderer::getShader("bullet"));
 					boundShader->setUniform1i("u_DrawTransparency", (int)GameManager::get_settings().Bullet_DrawAlpha);
 					bindVertexArrayObject(instanced_vao);
@@ -221,13 +221,13 @@ void Renderer::ActuallyFlush() {
 				} else {
 					//oh no
 				}
-				currentShaderName = sceneDrawCalls[j]->m_shaderName;
+				currentShaderType = sceneDrawCalls[j]->m_shaderType;
 			}
 
-			if (currentShaderName == "main") {
+			if (currentShaderType == ShaderType::MainBatched) {
 				BatchedFlush(static_cast<MainBatched_VertexData*>(sceneDrawCalls[j]));
 				delete static_cast<MainBatched_VertexData*>(sceneDrawCalls[j]);
-			} else if (currentShaderName == "bullet") {
+			} else if (currentShaderType == ShaderType::Bullet) {
 				BulletFlush(static_cast<Bullet_VertexData*>(sceneDrawCalls[j]));
 				delete static_cast<Bullet_VertexData*>(sceneDrawCalls[j]);
 			} else {
@@ -357,7 +357,7 @@ void Renderer::SubmitBatchedDraw(const float* posAndColor, unsigned int posAndCo
 	} else {
 		MainBatched_VertexData* currentVertexDataGroup;
 		std::vector<VertexDrawingData*>& sceneDrawGroup = sceneData[currentSceneName];
-		if (sceneDrawGroup.empty() || sceneDrawGroup[sceneDrawGroup.size()-1]->m_shaderName != "main") {
+		if (sceneDrawGroup.empty() || sceneDrawGroup[sceneDrawGroup.size()-1]->m_shaderType != ShaderType::MainBatched) {
 			currentVertexDataGroup = new MainBatched_VertexData();
 			sceneDrawGroup.push_back(static_cast<VertexDrawingData*>(currentVertexDataGroup));
 		} else {
@@ -393,7 +393,7 @@ void Renderer::SubmitBulletDrawCall(float x, float y, float radius, float red, f
 	} else {
 		Bullet_VertexData* currentVertexDataGroup;
 		std::vector<VertexDrawingData*>& sceneDrawGroup = sceneData[currentSceneName];
-		if (sceneDrawGroup.empty() || sceneDrawGroup[sceneDrawGroup.size()-1]->m_shaderName != "bullet") {
+		if (sceneDrawGroup.empty() || sceneDrawGroup[sceneDrawGroup.size()-1]->m_shaderType != ShaderType::Bullet) {
 			currentVertexDataGroup = new Bullet_VertexData();
 			sceneDrawGroup.push_back(static_cast<VertexDrawingData*>(currentVertexDataGroup));
 		} else {

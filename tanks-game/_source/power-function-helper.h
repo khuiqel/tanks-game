@@ -14,7 +14,8 @@ protected:
 	static std::pair<bool, InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct>> superbounceGenericCornerHandler(const Bullet*, const Wall*, double x, double y, double strength = 0);
 
 public:
-	static Game_ID homingGenericTarget(const Bullet*, bool targetUsingAngleDiff); //find target for homing
+	template <bool targetUsingAngleDiff>
+	static Game_ID homingGenericTarget(const Bullet*); //find target for homing
 	static void homingGenericMove(Bullet*, Game_ID targetID, float maxAngleChange); //do homing on target
 
 	static inline std::pair<bool, InteractionUpdateHolder<BulletUpdateStruct, WallUpdateStruct>> bounceGeneric(const Bullet* b, const Wall* w) { return superbounceGeneric(b, w, 0); }

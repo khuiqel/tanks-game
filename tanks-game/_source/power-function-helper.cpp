@@ -139,12 +139,13 @@ std::vector<float>* PowerFunctionHelper::equallySpacedCannonPoints(int count) {
 	return newCannonPoints;
 }
 
-Game_ID PowerFunctionHelper::homingGenericTarget(const Bullet* b, bool targetUsingAngleDiff) {
+template <bool targetUsingAngleDiff>
+Game_ID PowerFunctionHelper::homingGenericTarget(const Bullet* b) {
 	int targetTankIndex = -1; //only targets tanks for now
 	//idea for targeting multiple tanks: generate a single RNG value per frame, use that for tie-breaking stuff
 	//games typically use port priority for tie-breaking, so I guess it will depend on how lazy I want to be
 
-	if (targetUsingAngleDiff) {
+	if constexpr (targetUsingAngleDiff) {
 		float minAngleDiff = (2*PI) * 2; //is way more than enough
 		for (int i = 0; i < TankManager::getNumTanks(); i++) {
 			const Tank* t = TankManager::getTank(i);
@@ -157,24 +158,26 @@ Game_ID PowerFunctionHelper::homingGenericTarget(const Bullet* b, bool targetUsi
 			}
 		}
 	} else { //targetUsingDistance
-		double minDistDiff = GAME_WIDTH*2 + GAME_HEIGHT*2; //should be enough
+		double minDistSquaredDiff = (GAME_WIDTH*2 + GAME_HEIGHT*2) * (GAME_WIDTH*2 + GAME_HEIGHT*2); //should be enough
 		for (int i = 0; i < TankManager::getNumTanks(); i++) {
 			const Tank* t = TankManager::getTank(i);
 			if (t->getTeamID() != b->getTeamID()) [[likely]] {
-				double d = std::sqrt((b->cir.x - t->cir.x)*(b->cir.x - t->cir.x) + (b->cir.y - t->cir.y)*(b->cir.y - t->cir.y));
-				if (d < minDistDiff) {
-					minDistDiff = d;
+				double dSquared = (b->cir.x - t->cir.x)*(b->cir.x - t->cir.x) + (b->cir.y - t->cir.y)*(b->cir.y - t->cir.y);
+				if (dSquared < minDistSquaredDiff) {
+					minDistSquaredDiff = dSquared;
 					targetTankIndex = i;
 				}
 			}
 		}
 	}
 
-	if (targetTankIndex == -1) {
+	if (targetTankIndex == -1) [[unlikely]] {
 		return -1; //means there was nothing to target; realistically, shouldn't be happening, unless 1-tank mode is a thing
 	}
 	return TankManager::getTank(targetTankIndex)->getGameID();
 }
+template Game_ID PowerFunctionHelper::homingGenericTarget<true>(const Bullet* b);
+template Game_ID PowerFunctionHelper::homingGenericTarget<false>(const Bullet* b);
 
 void PowerFunctionHelper::homingGenericMove(Bullet* b, Game_ID targetID, float maxAngleChange) {
 	const Tank* t = TankManager::getTankByID(targetID);

@@ -57,8 +57,8 @@ InteractionBoolHolder HomingBulletPower::modifiedMovement(Bullet* b) {
 		return { false };
 	}
 
-	Game_ID targetID = PowerFunctionHelper::homingGenericTarget(b, true);
-	if (targetID != -1) {
+	Game_ID targetID = PowerFunctionHelper::homingGenericTarget<true>(b);
+	if (targetID != -1) [[likely]] {
 		float angleChange = HomingPower::homingStrength * (b->velocity.getMagnitude() / b->getInitialVelocity());
 		//TODO: should this be capped? (and handle a probably impossible initial velocity = 0)
 		PowerFunctionHelper::homingGenericMove(b, targetID, angleChange);

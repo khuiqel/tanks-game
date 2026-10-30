@@ -44,8 +44,8 @@ AncientMegaDeathTankPower::AncientMegaDeathTankPower() {
 
 InteractionBoolHolder AncientMegaDeathBulletPower::modifiedMovement(Bullet* b) {
 	//from TrackingBulletPower::modifiedMovement
-	Game_ID targetID = PowerFunctionHelper::homingGenericTarget(b, true);
-	if (targetID != -1) {
+	Game_ID targetID = PowerFunctionHelper::homingGenericTarget<true>(b);
+	if (targetID != -1) [[likely]] {
 		PowerFunctionHelper::homingGenericMove(b, targetID, 2*PI);
 	} else {
 		//update with HomingBulletPower::modifiedMovement
